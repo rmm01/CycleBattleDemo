@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GameView">
+        <attr name="grid_long_length" format="integer"/>
+        <attr name="grid_short_length" format="integer"/>
+    </declare-styleable>
+</resources>
