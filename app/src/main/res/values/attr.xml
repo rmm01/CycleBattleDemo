@@ -3,5 +3,6 @@
     <declare-styleable name="GameView">
         <attr name="grid_long_length" format="integer"/>
         <attr name="grid_short_length" format="integer"/>
+        <attr name="number_of_cycles" format="integer"/>
     </declare-styleable>
 </resources>

@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">CycleBattleDemo v0.02</string>
+    <string name="app_name">CycleBattleDemo</string>
+    <string name="version">v0.04</string>
     <string name="title_activity_practice_game">PracticeGameActivity</string>
 
     <string name="hello_world">Hello world!</string>
