@@ -2,15 +2,23 @@ package com.yckir.cyclebattledemo;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ToggleButton;
 
 public class PracticeGameActivity extends AppCompatActivity {
-
+    public static final String TAG="PRACTICE_GAME";
+    private GameView mGameView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_game);
+
+        Log.v(TAG, "1.00");
+        mGameView = (GameView)findViewById(R.id.practice_game_view);
+
     }
 
     @Override
@@ -33,5 +41,21 @@ public class PracticeGameActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void exitButton(View view) {
+    }
+
+    public void restartButton(View view) {
+    }
+
+    public void startToggle(View view) {
+        ToggleButton t =(ToggleButton)view;
+        Log.v(TAG,"isActivated = "+ t.isChecked());
+        if(t.isChecked()){
+            mGameView.start(1000);
+        }else{
+            mGameView.stop();
+        }
     }
 }

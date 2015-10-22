@@ -42,6 +42,7 @@ public class GameFrame {
 
     //the bitmap where the grid, cycle, and paths will be drawn to
     private Bitmap mFrameBitmap;
+    private Bitmap mFrameBitmap2;
 
     private Paint mGridLinePaint;
     private Paint mGridLinePaint2;
@@ -50,7 +51,9 @@ public class GameFrame {
     private static final int DEFAULT_FRAME_HEIGHT =300;
     private static final int GAME_GRID_TILE_LENGTH =1;
 
-
+    private long mStartTime;
+    private boolean mBufferToggle;
+    private Canvas mCanvas;
 
     /**
      * Initializes the Grid, animation frame size, and Cycles.
@@ -66,12 +69,14 @@ public class GameFrame {
         mHeight=height;
 
         mNumCycles=numCycles;
+        mBufferToggle=true;
 
         mGameGrid = new Grid(numTilesX,numTilesY,1);
 
         //create bitmap
         mGridBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
         mFrameBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
+        mFrameBitmap2 =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
 
         //set the line colors
         mGridLinePaint =new Paint();
@@ -105,10 +110,12 @@ public class GameFrame {
         mWidth= DEFAULT_FRAME_WIDTH;
         mHeight= DEFAULT_FRAME_HEIGHT;
 
+        mBufferToggle=true;
 
         //create bitmap
         mGridBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
         mFrameBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
+        mFrameBitmap2 =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
 
         //set the line colors
         mGridLinePaint =new Paint();
@@ -143,7 +150,7 @@ public class GameFrame {
      * animation frame. Also adjust padding for the grid so that it is centered inside the Frame.
      */
     private void createFrame(){
-        Log.v(TAG,"fitting screen");
+
         int numTilesX= mGameGrid.getNumTilesX();
         int numTilesY= mGameGrid.getNumTilesY();
 
@@ -169,7 +176,6 @@ public class GameFrame {
      * of this, the grid will have its own bitmap so that the same image isn't redrawn.
      */
     private void createFrameGrid(){
-        Log.v(TAG,"creating grid");
         Canvas mCanvas = new Canvas(mGridBitmap);
 
         int numTilesX= mGameGrid.getNumTilesX();
@@ -182,12 +188,11 @@ public class GameFrame {
         int offset=paddingX;
         int top=paddingY;
         int bottom = paddingY+ mFrameGridHeight - 1;
-        Log.v(TAG,"top: "+top+", bottom: "+bottom+", offset:"+offset);
 
         for (int tile = 0; tile < numTilesX; tile++) {
             mCanvas.drawLine(offset, top, offset,bottom, mGridLinePaint);
             offset += mFrameTile.getLength();
-            mCanvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint2);
+            mCanvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint);
         }
 
 
@@ -199,9 +204,9 @@ public class GameFrame {
         for (int tile = 0; tile < numTilesY; tile++) {
             mCanvas.drawLine(left, offset, right, offset, mGridLinePaint);
             offset += mFrameTile.getLength();
-            mCanvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint2);
+            mCanvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint);
         }
-
+        mGridBitmap=mGridBitmap.copy(Bitmap.Config.ARGB_8888,false);
     }
 
 
@@ -218,28 +223,6 @@ public class GameFrame {
 
 
     /**
-     * Draws the grid, cycles, and path together into one animation frame.
-     */
-    private void drawFrame(){
-        Log.v(TAG,"drawing frame");
-        Canvas c = new Canvas(mFrameBitmap);
-        c.drawColor(Color.BLACK);
-        //draw grid
-        c.drawBitmap(mGridBitmap,0,0,null);
-
-        //draw Cycles
-        int x;
-        int y;
-        for(int i=0;i<mNumCycles;i++) {
-            x = mGridPaddingX/2 + gridToFrame(mCycles[i].getLeft());
-            y = mGridPaddingY/2 + gridToFrame(mCycles[i].getBottom());
-            c.drawBitmap(mCycles[i].getCycleBitmap(), x, y, null);
-        }
-        //draw paths
-    }
-
-
-    /**
      * Given a value on the GameGrid, the method will transform it to a value on the grid
      * located inside an animation frame.
      *
@@ -248,6 +231,105 @@ public class GameFrame {
      */
     private int gridToFrame(double value){
         return (int)(value * mFrameTile.getLength()/ mGameGrid.getTileLength());
+    }
+
+
+    private Bitmap getNewDrawBitmap(){
+        mBufferToggle=!mBufferToggle;
+        if(mBufferToggle)
+            return mFrameBitmap;
+        else
+            return mFrameBitmap2;
+    }
+
+    public void drawFrame(Canvas canvas,int padX,int padY){
+
+        //canvas.drawColor(Color.BLACK);
+
+        int numTilesX= mGameGrid.getNumTilesX();
+        int numTilesY= mGameGrid.getNumTilesY();
+
+        int paddingX=mGridPaddingX/2+padX;
+        int paddingY=mGridPaddingY/2+padY;
+
+        //draw vertical lines
+        int offset=paddingX;
+        int top=paddingY;
+        int bottom = paddingY+ mFrameGridHeight - 1;
+
+        for (int tile = 0; tile < numTilesX; tile++) {
+            canvas.drawLine(offset, top, offset,bottom, mGridLinePaint);
+            offset += mFrameTile.getLength();
+            canvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint);
+        }
+
+
+        //draw horizontal lines
+        offset=paddingY;
+        int left=paddingX;
+        int right = paddingX+ mFrameGridWidth - 1;
+
+        for (int tile = 0; tile < numTilesY; tile++) {
+            canvas.drawLine(left, offset, right, offset, mGridLinePaint);
+            offset += mFrameTile.getLength();
+            canvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint);
+        }
+
+
+        //draw Cycles
+        int x;
+        int y;
+        int width;
+        int height;
+        for(int i=0;i<mNumCycles;i++) {
+            x = paddingX + gridToFrame(mCycles[i].getLeft());
+            y = paddingY + gridToFrame(mCycles[i].getBottom());
+            width=gridToFrame(mCycles[i].getWidth());
+            height=gridToFrame(mCycles[i].getHeight());
+            mCycles[i].drawCycle(x,y,width,height,canvas);
+            //canvas.drawBitmap(mCycles[i].getCycleBitmap(), x, y, null);
+        }
+        //draw pa
+
+    }
+
+    /**
+     * Draws the grid, cycles, and path together into one animation frame.
+     */
+    public void drawFrame(){
+        mCanvas=new Canvas(getNewDrawBitmap());
+        //Log.v(TAG,"drawing frame");
+        //Canvas c = new Canvas(drawingBitmap);
+        mCanvas.drawColor(Color.BLACK);//TODO make a method to wipe a bitmap
+        //draw grid
+        mCanvas.drawBitmap(mGridBitmap, 0, 0, null);
+
+        //draw Cycles
+        int x;
+        int y;
+        //Log.v(TAG,"x is "+mCycles[0].getX()+", y is "+mCycles[0].getY()+
+        //        ", left is "+mCycles[0].getLeft()+", top is "+mCycles[0].getTop()+
+        //        ", right is "+mCycles[0].getRight()+", bottom is "+mCycles[0].getBottom());
+
+
+        for(int i=0;i<mNumCycles;i++) {
+            x = mGridPaddingX/2 + gridToFrame(mCycles[i].getLeft());
+            y = mGridPaddingY/2 + gridToFrame(mCycles[i].getBottom());
+            mCanvas.drawBitmap(mCycles[i].getCycleBitmap(), x, y, null);
+        }
+        //draw paths
+    }
+
+
+    /**
+     * move a cycle
+     * @param time the current time
+     * @param id the id of the cycle
+     */
+    public void move(long time,int id){
+        long deltaTime = time-mStartTime;
+        //Log.v(TAG,"time since animation started: "+ deltaTime);
+        mCycles[id].move(deltaTime);
     }
 
 
@@ -261,6 +343,7 @@ public class GameFrame {
         mHeight=height;
         mGridBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
         mFrameBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
+        mFrameBitmap2 =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
         createFrame();
         createFrameGrid();
         createCycles();
@@ -270,10 +353,24 @@ public class GameFrame {
 
 
     /**
+     * set the start time of the game
+     * @param startTime the time that the game will begin, in milliseconds.
+     */
+    public void setStartTime(long startTime) {
+        mStartTime = startTime;
+    }
+
+
+    /**
      * @return bitmap containing the current animation frame
      */
     public Bitmap getFrameBitmap( ){
-        return mFrameBitmap;
+        //return mFrameBitmap;
+        //return mFrameBitmap.copy(Bitmap.Config.ARGB_8888,false);
+        if(mBufferToggle)
+            return mFrameBitmap;
+        else
+            return mFrameBitmap2;
     }
 
 
@@ -330,6 +427,15 @@ public class GameFrame {
      */
     public int getWidth() {
         return mWidth;
+    }
+
+
+    /**
+     *
+     * @return the start time of the animation
+     */
+    public long getStartTime() {
+        return mStartTime;
     }
 
 
