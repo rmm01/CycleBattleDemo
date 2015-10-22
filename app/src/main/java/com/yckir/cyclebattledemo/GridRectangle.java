@@ -10,11 +10,6 @@ public class GridRectangle {
     private Point mCenter;
     private double mWidth;
     private double mHeight;
-    private double mTop;
-    private double mBottom;
-    private double mLeft;
-    private double mRight;
-
 
     /**
      *  Initializes the rectangle size and position on the xy plane.
@@ -28,10 +23,6 @@ public class GridRectangle {
         mWidth =w;
         mHeight=h;
         mCenter= centerPoint.makeCopy();
-        mTop=mCenter.getPositionY()+h/2;
-        mBottom=mCenter.getPositionY()-h/2;
-        mLeft=mCenter.getPositionX()-w/2;
-        mRight=mCenter.getPositionX()+w/2;
     }
 
 
@@ -48,10 +39,6 @@ public class GridRectangle {
         mWidth =w;
         mHeight=h;
         mCenter= new Point(centerX, centerY);
-        mTop=mCenter.getPositionY()+mHeight/2;
-        mBottom=mCenter.getPositionY()-mHeight/2;
-        mLeft=mCenter.getPositionX()-mWidth/2;
-        mRight=mCenter.getPositionX()+mWidth/2;
     }
 
 
@@ -117,7 +104,7 @@ public class GridRectangle {
      * @return The x coordinate of the left side of the rectangle.
      */
     public double getLeft() {
-        return mLeft;
+        return mCenter.getPositionX()-mWidth/2;
     }
 
 
@@ -126,7 +113,7 @@ public class GridRectangle {
      * @return The x coordinate of the right side of the rectangle.
      */
     public double getRight() {
-        return mRight;
+        return mCenter.getPositionX()+mWidth/2;
     }
 
 
@@ -135,7 +122,7 @@ public class GridRectangle {
      * @return The Y coordinate of the Top side of the rectangle.
      */
     public double getTop() {
-        return mTop;
+        return mCenter.getPositionY()+mHeight/2;
     }
 
 
@@ -144,7 +131,7 @@ public class GridRectangle {
      * @return The Y coordinate of the bottom side of the rectangle.
      */
     public double getBottom() {
-        return mBottom;
+        return mCenter.getPositionY()-mHeight/2;
     }
 
 
@@ -169,6 +156,22 @@ public class GridRectangle {
     }
 
 
+    /**
+     * @return  The  center y coordinate.
+     */
+    public double getX() {
+        return mCenter.getPositionX();
+    }
+
+
+    /**
+     * @return The  center x coordinate.
+     */
+    public double getY(){
+        return mCenter.getPositionY();
+    }
+
+
 
     /**
      * @param width The new width of the rectangle.
@@ -185,5 +188,18 @@ public class GridRectangle {
         mHeight = height;
     }
 
+    /**
+     * @param x The new center y coordinate.
+     */
+    public void setX(double x) {
+        mCenter.setPositionX(x);
+    }
 
+
+    /**
+     * @param y The new center x coordinate.
+     */
+    public void setY(double y){
+        mCenter.setPositionY(y);
+    }
 }
