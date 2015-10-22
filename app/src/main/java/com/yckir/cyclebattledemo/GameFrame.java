@@ -300,7 +300,7 @@ public class GameFrame {
         mCanvas=new Canvas(getNewDrawBitmap());
         //Log.v(TAG,"drawing frame");
         //Canvas c = new Canvas(drawingBitmap);
-        mCanvas.drawColor(Color.BLACK);//TODO make a method to wipe a bitmap
+        mCanvas.drawColor(Color.BLACK);//TO DO make a method to wipe a bitmap
         //draw grid
         mCanvas.drawBitmap(mGridBitmap, 0, 0, null);
 
