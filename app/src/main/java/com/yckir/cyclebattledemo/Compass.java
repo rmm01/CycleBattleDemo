@@ -1,7 +1,10 @@
 package com.yckir.cyclebattledemo;
 
 /**
- * Used to identify the four compass directions.
+ * Used to identify the four compass directions. Java has the origin at the top left corner
+ * and y increases as you go downward. Because of this, South and east are traveling on the
+ * positive x axis, North and west are traveling on the negative x and y axis.
+ *
  */
 public enum Compass {
     NORTH,
@@ -57,5 +60,29 @@ public enum Compass {
                 break;
         }
         return new Point(x,y);
+    }
+
+
+    /**
+     * Given two point p1 and p2, determines the direction that point p2 is relative to p1
+     *
+     * @param x1 x coordinate of point 1
+     * @param y1 y coordinate of point 1
+     * @param x2 x coordinate of point 2
+     * @param y2 y coordinate of point 2
+     * @return the direction that p2 is relative to p1
+     */
+    public static Compass getDirection(float x1, float y1, float x2, float y2){
+        float dx= x1-x2;
+        float dy= y1-y2;
+
+        if( dx > 0 && dx >= Math.abs(dy) )
+            return Compass.WEST;
+        else if( dx < 0 && Math.abs(dx) >= Math.abs(dy) )
+            return Compass.EAST;
+        else if( dy > 0 && dy >= Math.abs( dx ) )
+            return Compass.NORTH;
+        else
+            return Compass.SOUTH;
     }
 }

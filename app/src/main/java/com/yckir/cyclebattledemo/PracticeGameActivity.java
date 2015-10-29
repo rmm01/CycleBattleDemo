@@ -3,8 +3,10 @@ package com.yckir.cyclebattledemo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ToggleButton;
 
@@ -14,13 +16,18 @@ import android.widget.ToggleButton;
 public class PracticeGameActivity extends AppCompatActivity {
     public static final String TAG="PRACTICE_GAME";
     private GameSurfaceView mGameSurfaceView;
+    private GestureDetector mGestureDetector;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_game);
 
-        Log.v(TAG, "1.00");
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.practice_game_view);
+
+        SwipeGestureListener swipeGestureListener= new SwipeGestureListener();
+
+        mGestureDetector=new GestureDetector(this,swipeGestureListener);
     }
 
     @Override
@@ -73,6 +80,37 @@ public class PracticeGameActivity extends AppCompatActivity {
             mGameSurfaceView.start(1000);
         }else{
             mGameSurfaceView.stop();
+        }
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+
+    /**
+     * Detects fling Gesture and determines the direction of the fling
+     */
+    public class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener{
+        public static final String TAG="SWIPE_GESTURE_LISTENER";
+
+        @Override
+        /**
+         * determines the direction of the fling.
+         */
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+            float x1 = e1.getX();
+            float x2 = e2.getX();
+            float y1 = e1.getY();
+            float y2 = e2.getY();
+            Compass flingDirection = Compass.getDirection(x1,y1,x2,y2);
+            Log.v(TAG, "FlingDirection = " + flingDirection);
+
+            return true;
         }
     }
 }
