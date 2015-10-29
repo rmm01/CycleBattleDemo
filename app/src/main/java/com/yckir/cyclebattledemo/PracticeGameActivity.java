@@ -8,6 +8,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ToggleButton;
 
+/**
+ * a practice mode for the game.
+ */
 public class PracticeGameActivity extends AppCompatActivity {
     public static final String TAG="PRACTICE_GAME";
     private GameSurfaceView mGameSurfaceView;
@@ -42,12 +45,27 @@ public class PracticeGameActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    /**
+     * close the application.
+     * @param view The GameSurfaceView
+     */
     public void exitButton(View view) {
     }
 
+
+    /**
+     * restart the application.
+     * @param view The GameSurfaceView
+     */
     public void restartButton(View view) {
     }
 
+
+    /**
+     * start/stop the application.
+     * @param view The GameSurfaceView
+     */
     public void startToggle(View view) {
         ToggleButton t =(ToggleButton)view;
         Log.v(TAG,"isActivated = "+ t.isChecked());
