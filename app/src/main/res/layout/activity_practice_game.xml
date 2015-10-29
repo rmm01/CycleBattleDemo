@@ -42,12 +42,15 @@
         android:onClick="exitButton"
         android:clickable="false"
         />
-    <com.yckir.cyclebattledemo.GameView
+    <com.yckir.cyclebattledemo.GameSurfaceView
         android:id="@+id/practice_game_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_above="@id/restart_button"
-        app:grid_long_length="11"
-        app:grid_short_length="11"
-        app:number_of_cycles="1"/>
+        app:boarder_color="@color/colorAccent"
+        app:background_color="@color/colorPrimary"
+        app:border_length="5dp"
+        app:tiles_x="11"
+        app:tiles_y="11"
+        app:cycles="1"/>
 </RelativeLayout>

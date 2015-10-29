@@ -10,15 +10,14 @@ import android.widget.ToggleButton;
 
 public class PracticeGameActivity extends AppCompatActivity {
     public static final String TAG="PRACTICE_GAME";
-    private GameView mGameView;
+    private GameSurfaceView mGameSurfaceView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_game);
 
         Log.v(TAG, "1.00");
-        mGameView = (GameView)findViewById(R.id.practice_game_view);
-
+        mGameSurfaceView = (GameSurfaceView)findViewById(R.id.practice_game_view);
     }
 
     @Override
@@ -53,9 +52,9 @@ public class PracticeGameActivity extends AppCompatActivity {
         ToggleButton t =(ToggleButton)view;
         Log.v(TAG,"isActivated = "+ t.isChecked());
         if(t.isChecked()){
-            mGameView.start(1000);
+            mGameSurfaceView.start(1000);
         }else{
-            mGameView.stop();
+            mGameSurfaceView.stop();
         }
     }
 }

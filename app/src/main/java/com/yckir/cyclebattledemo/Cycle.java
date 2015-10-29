@@ -157,16 +157,13 @@ public class Cycle extends GridRectangle{
 
 
     /**
-     * draw the cycle on a canvas
-     * @param left the x position of the top left corner of the cycle
-     * @param top the y position of the top left corner of the cycle
-     * @param width the width o the cycle
-     * @param height the height of the cycle
+     * Draw the cycle that fills the given canvas. THe cycle is a solid rectangle.
+     *
      * @param canvas the canvas where the cycle will be drawn on
      */
-    public void drawCycle(int left,int top,int width,int height,Canvas canvas){
+    public void drawCycle(Canvas canvas){
         // Log.v(TAG,"left is "+getLeft()+", top is "+getTop());
-        canvas.drawRect(left, top, left + width, top + height, mPaint);
+        canvas.drawColor(mPaint.getColor());
     }
 
 

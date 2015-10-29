@@ -54,7 +54,7 @@ public class DrawingAsyncTask extends AsyncTask<Long,Void,Void>{
                 Log.v("QWERTY", "|" + (mFrameStartTime % 1000) + "| start task Frame " + frame + " at animation time " + totalTaskTime);
 
                 //move the cycles and draw the frame
-                mGameFrame.move(mFrameStartTime, 0);
+                mGameFrame.move(totalTaskTime);
                 mGameFrame.drawFrame();
 
                 mFrameEndTime=System.currentTimeMillis();

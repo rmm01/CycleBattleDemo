@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
+import android.graphics.Rect;
 
 /**
  * Maintains the Cycles, Grid, and Path for a cycle Game and translates this data into
@@ -242,15 +242,21 @@ public class GameFrame {
             return mFrameBitmap2;
     }
 
-    public void drawFrame(Canvas canvas,int padX,int padY){
-
-        //canvas.drawColor(Color.BLACK);
+    /**
+     * Draws the grid, cycles, and path together into one animation frame on a canvas.
+     *
+     * @param canvas the canvas where a frame of the game animation will be drawn.
+     */
+    public void drawFrame(Canvas canvas){
+        canvas.drawColor(Color.BLACK);
 
         int numTilesX= mGameGrid.getNumTilesX();
         int numTilesY= mGameGrid.getNumTilesY();
 
-        int paddingX=mGridPaddingX/2+padX;
-        int paddingY=mGridPaddingY/2+padY;
+        Rect r =canvas.getClipBounds();
+
+        int paddingX=mGridPaddingX/2+r.left;
+        int paddingY=mGridPaddingY/2+r.top;
 
         //draw vertical lines
         int offset=paddingX;
@@ -276,60 +282,46 @@ public class GameFrame {
         }
 
 
-        //draw Cycles
-        int x;
-        int y;
-        int width;
-        int height;
+                //Draw Cycles
+
         for(int i=0;i<mNumCycles;i++) {
-            x = paddingX + gridToFrame(mCycles[i].getLeft());
-            y = paddingY + gridToFrame(mCycles[i].getBottom());
-            width=gridToFrame(mCycles[i].getWidth());
-            height=gridToFrame(mCycles[i].getHeight());
-            mCycles[i].drawCycle(x,y,width,height,canvas);
-            //canvas.drawBitmap(mCycles[i].getCycleBitmap(), x, y, null);
+            left = paddingX + gridToFrame(mCycles[i].getLeft());
+            right = paddingX + gridToFrame(mCycles[i].getRight());
+            top = paddingY + gridToFrame(mCycles[i].getTop());
+            bottom = paddingY + gridToFrame(mCycles[i].getBottom());
+
+            canvas.save();
+            canvas.clipRect(left,top,right,bottom);
+            mCycles[i].drawCycle(canvas);
+            canvas.restore();
         }
-        //draw pa
 
     }
 
+
     /**
-     * Draws the grid, cycles, and path together into one animation frame.
+     * Draws the grid, cycles, and path together into one animation frame. The resulting bitmap is
+     * obtained through getFrameBitmap
+     * TODO delete me
      */
     public void drawFrame(){
         mCanvas=new Canvas(getNewDrawBitmap());
-        //Log.v(TAG,"drawing frame");
-        //Canvas c = new Canvas(drawingBitmap);
-        mCanvas.drawColor(Color.BLACK);//TO DO make a method to wipe a bitmap
-        //draw grid
-        mCanvas.drawBitmap(mGridBitmap, 0, 0, null);
-
-        //draw Cycles
-        int x;
-        int y;
-        //Log.v(TAG,"x is "+mCycles[0].getX()+", y is "+mCycles[0].getY()+
-        //        ", left is "+mCycles[0].getLeft()+", top is "+mCycles[0].getTop()+
-        //        ", right is "+mCycles[0].getRight()+", bottom is "+mCycles[0].getBottom());
-
-
-        for(int i=0;i<mNumCycles;i++) {
-            x = mGridPaddingX/2 + gridToFrame(mCycles[i].getLeft());
-            y = mGridPaddingY/2 + gridToFrame(mCycles[i].getBottom());
-            mCanvas.drawBitmap(mCycles[i].getCycleBitmap(), x, y, null);
-        }
-        //draw paths
+        //create a fake rect in order to avoid android studio rendering problems
+        mCanvas.save();
+        mCanvas.clipRect(0, 0, mWidth, mHeight);
+        drawFrame(mCanvas);
+        mCanvas.restore();
     }
 
 
     /**
-     * move a cycle
-     * @param time the current time
-     * @param id the id of the cycle
+     * move all the cycles
+     * @param time the time in milliseconds since the game started
      */
-    public void move(long time,int id){
-        long deltaTime = time-mStartTime;
-        //Log.v(TAG,"time since animation started: "+ deltaTime);
-        mCycles[id].move(deltaTime);
+    public void move(long time){
+        for(int i=0;i<mNumCycles;i++){
+            mCycles[i].move(time);
+        }
     }
 
 
@@ -450,9 +442,6 @@ public class GameFrame {
         description+="\n|\t"+Grid.TAG;
         description+="\n|\t\tnumTilesX: "+ mGameGrid.getNumTilesX()+", numTilesY: "+ mGameGrid.getNumTilesY();
         description+="\n|\t\ttileLength: "+ mGameGrid.getTileLength();
-//        for(int i=0;i<mNumCycles;i++){
-//            description+=mCycles[i].toString();
-//        }
         return description;
     }
 }

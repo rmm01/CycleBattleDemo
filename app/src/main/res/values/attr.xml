@@ -5,4 +5,12 @@
         <attr name="grid_short_length" format="integer"/>
         <attr name="number_of_cycles" format="integer"/>
     </declare-styleable>
+    <declare-styleable name="GameSurfaceView">
+        <attr name="tiles_x" format="integer"/>
+        <attr name="tiles_y" format="integer"/>
+        <attr name="cycles" format="integer"/>
+        <attr name="boarder_color" format="color"/>
+        <attr name="background_color" format="color"/>
+        <attr name="border_length" format="dimension"/>
+    </declare-styleable>
 </resources>
