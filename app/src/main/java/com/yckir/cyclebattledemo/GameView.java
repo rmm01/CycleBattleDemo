@@ -26,8 +26,6 @@ public class GameView extends View  {
 
     private AlarmHandler mAlarm;
 
-    //private DrawingThread mDrawingThread;
-    //private DrawingTask mDrawingTask;
     private DrawingAsyncTask mDrawingTask2;
 
     private int mFrame;
@@ -64,9 +62,6 @@ public class GameView extends View  {
         //and height are unknown at this point so we use the default values
         mGameFrame = new GameFrame(numTilesX, numTilesY, numCycles);
 
-        //UIHandler handler = new UIHandler(this);
-        //mDrawingThread = new DrawingThread(handler,mGameFrame);
-        //mDrawingTask = new DrawingTask(this,mGameFrame);
         mDrawingTask2 = new DrawingAsyncTask(this,mGameFrame);
 
         mAlarm = new AlarmHandler(new AlarmHandler.AlarmListener() {
