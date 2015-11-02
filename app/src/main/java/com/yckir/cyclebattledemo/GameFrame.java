@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
 /**
  * Maintains the Cycles, Grid, and Path for a cycle Game and translates this data into
  * the animation frames.
@@ -55,6 +57,9 @@ public class GameFrame {
     private boolean mBufferToggle;
     private Canvas mCanvas;
 
+    //queue that holds requests to change the direction
+    private ArrayBlockingQueue<DirectionChangeRequest> mDirectionChanges;
+
     /**
      * Initializes the Grid, animation frame size, and Cycles.
      *
@@ -89,6 +94,7 @@ public class GameFrame {
         createCycles();
 
         drawFrame();
+        mDirectionChanges = new ArrayBlockingQueue<>(15);
     }
 
 
@@ -129,6 +135,7 @@ public class GameFrame {
         createCycles();
 
         drawFrame();
+        mDirectionChanges = new ArrayBlockingQueue<>(15);
     }
 
 
@@ -326,6 +333,32 @@ public class GameFrame {
 
 
     /**
+     * Creates a request to change the direction. The request is valid, it be applied on the next
+     * animation frame.
+     *
+     * @param cycleNum the id for the cycle
+     * @param newDirection the new direction for the cycle
+     * @param time the time in milliseconds when the cycle will change directions
+     */
+    public void requestDirectionChange(int cycleNum, Compass newDirection, long time){
+        DirectionChangeRequest node = new DirectionChangeRequest(newDirection,time,cycleNum);
+        mDirectionChanges.add(node);
+    }
+
+
+    /**
+     * Checks to see if their are any requests to change directions and apply them they are valid.
+     */
+    public void checkDirectionChangeRequests(){
+        DirectionChangeRequest node = mDirectionChanges.poll();
+        while(node!=null){
+            mCycles[node.getCycleNum()].changeDirection(node.getDirection(), node.getTime());
+            node = mDirectionChanges.poll();
+        }
+    }
+
+
+    /**
      * Set the animation frame dimensions.
      * @param width The new width of the animation frame.
      * @param height The new height of the animation frame.
@@ -443,5 +476,54 @@ public class GameFrame {
         description+="\n|\t\tnumTilesX: "+ mGameGrid.getNumTilesX()+", numTilesY: "+ mGameGrid.getNumTilesY();
         description+="\n|\t\ttileLength: "+ mGameGrid.getTileLength();
         return description;
+    }
+
+
+    /**
+     * An information node that keeps track of the details for when a cycle wants to changes its direction.
+     */
+    private final class DirectionChangeRequest {
+        private final Compass mDirection;
+        private final long mTime;
+        private final int mCycleNum;
+
+
+        /**
+         * Constructs a node keeps track of the details for when a cycle changes direction.
+         * @param direction the direction that the cycle should change directions to
+         * @param time When the request was made. The time the milliseconds since thee start
+         *             of the animation.
+         * @param cycleNum the cycle that should change its direction.
+         */
+        public DirectionChangeRequest(Compass direction, long time, int cycleNum){
+            mDirection=direction;
+            mTime=time;
+            mCycleNum=cycleNum;
+        }
+
+
+        /**
+         * @return the cycle for this direction change request
+         */
+        public int getCycleNum() {
+            return mCycleNum;
+        }
+
+
+        /**
+         * @return the direction for this direction change request
+         */
+        public Compass getDirection() {
+            return mDirection;
+        }
+
+
+        /**
+         * @return the time for this direction change request.
+         */
+        public long getTime() {
+            return mTime;
+        }
+
     }
 }

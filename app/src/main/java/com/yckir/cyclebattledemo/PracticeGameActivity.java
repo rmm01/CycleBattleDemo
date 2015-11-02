@@ -17,18 +17,21 @@ public class PracticeGameActivity extends AppCompatActivity {
     public static final String TAG="PRACTICE_GAME";
     private GameSurfaceView mGameSurfaceView;
     private GestureDetector mGestureDetector;
+    private int mPlayerNum;
+    private long mStartTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_game);
-
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.practice_game_view);
 
-        SwipeGestureListener swipeGestureListener= new SwipeGestureListener();
-
-        mGestureDetector=new GestureDetector(this,swipeGestureListener);
+        mPlayerNum=0;
+        mStartTime=0;
+        mGestureDetector=new GestureDetector(this,new SwipeGestureListener());
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -36,6 +39,7 @@ public class PracticeGameActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_practice_game, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -77,7 +81,8 @@ public class PracticeGameActivity extends AppCompatActivity {
         ToggleButton t =(ToggleButton)view;
         Log.v(TAG,"isActivated = "+ t.isChecked());
         if(t.isChecked()){
-            mGameSurfaceView.start(1000);
+            mStartTime=System.currentTimeMillis();
+            mGameSurfaceView.start(mStartTime);
         }else{
             mGameSurfaceView.stop();
         }
@@ -99,16 +104,22 @@ public class PracticeGameActivity extends AppCompatActivity {
 
         @Override
         /**
-         * determines the direction of the fling.
+         * Determines the direction of the fling and makes a request to change direction of the
+         * currently selected cycle. The Request will be applied if the direction is perpendicular
+         * to the cycles direction.
+         *
+         * @see Compass
          */
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
+            long currentTime=System.currentTimeMillis();
             float x1 = e1.getX();
             float x2 = e2.getX();
             float y1 = e1.getY();
             float y2 = e2.getY();
-            Compass flingDirection = Compass.getDirection(x1,y1,x2,y2);
-            Log.v(TAG, "FlingDirection = " + flingDirection);
+            Compass flingDirection = Compass.getDirection(x1, y1, x2, y2);
+            Log.v(TAG, "FlingDirection = " + flingDirection + " at time " + (currentTime-mStartTime)  );
+            mGameSurfaceView.requestDirectionChange(mPlayerNum, flingDirection, currentTime - mStartTime);
+            Log.v(TAG, "done fling");
 
             return true;
         }

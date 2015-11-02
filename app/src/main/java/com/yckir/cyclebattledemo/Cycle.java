@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 
 /**
@@ -39,7 +40,7 @@ public class Cycle extends GridRectangle{
      * The speed that the cycle moves at. This is measured in terms of tiles per second
      */
     private int mSpeed;
-    public static final int DEFAULT_SPEED=3;
+    public static final int DEFAULT_SPEED=10;
 
     /**
      * the direction that the cycle is traveling in
@@ -133,7 +134,7 @@ public class Cycle extends GridRectangle{
         double distance = elapsedTime/1000.0*mSpeed;
 
         //update the current position of the cycle on the path
-         mPath.moveEndVertex(distance, elapsedTime);
+         mPath.moveEndVertex(distance, time);
 
         setCenter(mPath.getLastPoint());
     }
@@ -203,16 +204,39 @@ public class Cycle extends GridRectangle{
 
 
     /**
-     * set the new direction the cycle will be traveling in
+     * change the new direction the cycle will be traveling in
      * @param direction the new direction the cycle will be traveling in. If the is opposite of
      *                  the current direction, the direction will not change
      @see Compass
      */
-    public void setDirection(Compass direction) {
-        if(!Compass.oppositeDirection(direction,mDirection))
-            mDirection = direction;
+    public void changeDirection(Compass direction) {
+        if(Compass.isPerpendicular(direction,mDirection))
+            return;
+        mDirection = direction;
+        mPath.changeEndVertexDirection(direction);
     }
 
+
+
+    /**
+     * change the new direction the cycle will be traveling in and set the time when this happens
+     *
+     * @param newDirection the new direction the cycle will be traveling in. If the direction is
+     *                     perpendicular to the current direction, it wont be changed.
+     * @param time the time in milliseconds when the direction changes. the time must also be after
+     *             the previous direction change.
+     * @see Compass
+     */
+    public void changeDirection(Compass newDirection,long time) {
+        boolean success = mPath.delayedChangeEndVertexDirection(newDirection, time, mSpeed);
+        if(!success)
+        {
+            Log.d(TAG, "direction change failed");
+            return;
+        }
+        setCenter(mPath.getLastPoint());
+        mDirection=newDirection;
+    }
 
     @Override
     public String toString() {

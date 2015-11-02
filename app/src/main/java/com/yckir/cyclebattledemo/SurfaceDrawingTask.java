@@ -47,6 +47,25 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         Log.v(TAG, "doInBackGround");
         long start =mGameFrame.getStartTime();
         int count=0;
+        long frameStartTime;
+
+        while (count<600){
+            count++;
+            frameStartTime=System.currentTimeMillis() - start;
+            mGameFrame.checkDirectionChangeRequests();
+            mGameFrame.move( frameStartTime );
+            drawFrame();
+
+        }
+        return null;
+    }
+
+
+    //Alternate but identical version of doInBackGround. Used for logging
+    protected Void doInBackgroundDebug(Long... params) {
+        Log.v(TAG, "doInBackGround");
+        long start =mGameFrame.getStartTime();
+        int count=0;
         Canvas surfaceCanvas;
         long frameStartTime;
         long frameEndTime;
@@ -58,20 +77,21 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         while (count<60){
             count++;
             frameStartTime=System.currentTimeMillis() - start;
+            mGameFrame.checkDirectionChangeRequests();
             mGameFrame.move( frameStartTime );
             actionEnd = System.currentTimeMillis() - start;
 
             surfaceCanvas = null;
             surfaceCanvas = mSurfaceHolder.lockCanvas();
             drawStart = System.currentTimeMillis();
-            doDraw( surfaceCanvas );
+            doDraw(surfaceCanvas);
             drawEnd = System.currentTimeMillis();
 
             if( surfaceCanvas != null )
                 mSurfaceHolder.unlockCanvasAndPost( surfaceCanvas );
             frameEndTime = System.currentTimeMillis() - start;
 
-            logFrameInfo( count,frameStartTime, frameEndTime - frameStartTime, actionEnd - frameStartTime,
+            logFrameInfo(count, frameStartTime, frameEndTime - frameStartTime, actionEnd - frameStartTime,
                     drawEnd - drawStart);
         }
         return null;
@@ -85,7 +105,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
      *               set the size of the RectangleContainer and GameFrame to match the canvas.
      */
     public void doDraw(Canvas canvas){
-        mRectangleContainer.drawBorder( canvas );
+        mRectangleContainer.drawBorder(canvas);
         canvas.save();
         canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
@@ -93,6 +113,27 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         mGameFrame.drawFrame( canvas );
         //draw path
         canvas.restore();
+    }
+
+
+    /**
+     * draws the boarder and GameFrame on the canvas provided by the SurfaceHolder
+     */
+    public void drawFrame(){
+
+        Canvas canvas = mSurfaceHolder.lockCanvas();
+
+        mRectangleContainer.drawBorder( canvas );
+
+        canvas.save();
+        canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
+                mRectangleContainer.getRight(), mRectangleContainer.getBottom());
+
+        mGameFrame.drawFrame( canvas );
+        //draw path
+        canvas.restore();
+
+        mSurfaceHolder.unlockCanvasAndPost( canvas );
     }
 
 
@@ -126,7 +167,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         mTotalDrawDelay+=drawDelay;
 
 
-        if(frameNum==60){
+        if(frameNum==300){
             Log.v("SUMMARY","total task delay "+mTotalTaskDelay);
             Log.v("SUMMARY","total updatePosition delay "+ mTotalUpdatePositionDelay);
             Log.v("SUMMARY","total draw delay "+mTotalDrawDelay);

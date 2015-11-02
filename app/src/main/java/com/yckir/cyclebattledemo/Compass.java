@@ -85,4 +85,18 @@ public enum Compass {
         else
             return Compass.SOUTH;
     }
+
+
+    /**
+     * Determines if two direction are perpendicular, meaning one points east/west and the other is
+     * north/south.
+     *
+     * @param direction1 direction to be tested
+     * @param direction2 direction to be tested
+     * @return true if two directions point in perpendicular directions
+     */
+    public static boolean isPerpendicular(Compass direction1, Compass direction2){
+        return (direction1 != direction2) &&
+                ( ! oppositeDirection(direction1,direction2));
+    }
 }

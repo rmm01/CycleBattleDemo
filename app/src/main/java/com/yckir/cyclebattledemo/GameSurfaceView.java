@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -13,10 +14,9 @@ import android.view.SurfaceView;
  */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "GAME_SURFACE_VIEW";
-    private GameFrame mGameFrame;
+    private final GameFrame mGameFrame;
     private RectangleContainer mRectangleContainer;
     private SurfaceDrawingTask mSurfaceDrawingTask;
-
 
 
     /**
@@ -51,14 +51,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mSurfaceDrawingTask=new SurfaceDrawingTask(holder,mGameFrame, mRectangleContainer);
     }
 
+
     /**
-     * start the animation after a delay. The delay is not used at the moment. All calls to start
-     * have effectivly 0 delay
+     * start the animation.
      *
-     * @param delay time in milliseconds until the game starts
+     * @param startTime current time in milliseconds.
      */
-    public void start(long delay){
-        long startTime=System.currentTimeMillis();
+    public void start(long startTime){
         mGameFrame.setStartTime(startTime);
         mSurfaceDrawingTask.execute(startTime);
     }
@@ -70,6 +69,18 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void stop(){
     }
 
+
+    /**
+     * Change the direction of the cycle if the input is valid.
+     *
+     * @param cycleNum the id for the cycle
+     * @param newDirection the new direction for the cycle
+     * @param time time in milliseconds after start was called.
+     */
+    public void requestDirectionChange(int cycleNum, Compass newDirection, long time){
+        Log.v("QWERTY", "change direction at time " + (time - mGameFrame.getStartTime()));
+        mGameFrame.requestDirectionChange(cycleNum, newDirection, time);
+    }
 
     //callback methods
     @Override

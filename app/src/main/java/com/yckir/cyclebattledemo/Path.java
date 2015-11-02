@@ -61,11 +61,12 @@ public class Path {
         directionChanged=false;
 
         PathVertex endVertex = PathHistory.get(mEndIndex);
-        PathVertex previousVertex = PathHistory.get(mEndIndex -1);
+        PathVertex lastPivotVertex = PathHistory.get(mEndIndex - 1);
 
         //check if time increased
-        if(previousVertex.getTime()>currentTime) {
-            Log.e(TAG, "error updating the current position, the time did not increase ");
+        if(currentTime < lastPivotVertex.getTime()) {
+            Log.e(TAG, "error updating the current position,  the time is before the last direction change. "
+                    + currentTime + ", is less than " + lastPivotVertex.getTime());
             return ;
         }
 
@@ -78,8 +79,8 @@ public class Path {
         endVertex.setTime(currentTime);
 
         //move in specified direction
-        Point newPosition = Compass.moveIndirection(previousVertex.getX(),previousVertex.getY(),
-                distanceTraveled,endVertex.getDirection());
+        Point newPosition = Compass.moveIndirection(lastPivotVertex.getX(), lastPivotVertex.getY(),
+                distanceTraveled, endVertex.getDirection());
 
         endVertex.setX(newPosition.getPositionX());
         endVertex.setY(newPosition.getPositionY());
@@ -89,7 +90,7 @@ public class Path {
 
     /**
      * Change the direction of the end Vertex. This causes the current end vertex to become a pivot
-     * vertex and a new end vertex is created at the same position, but with a different direction.
+     * vertex and a new end vertex is created at the same position, but both with the new direction.
      * This results in the path increasing its size by one. If changing the direction would result
      * ib the direction being changed twice in a row without any movement, an error would be logged
      * and the direction will not change.
@@ -103,7 +104,7 @@ public class Path {
         //if the direction has changed previously without moving, an error will be logged because
         //this will cause the path two travel in an invalid direction
         if(directionChanged){
-            Log.e(TAG,"error changing direction: cannot change the direction twice in a row");
+            Log.e(TAG,"error changing direction: cannot change the direction twice in a row without moving");
             return;
         }
         directionChanged=true;
@@ -111,20 +112,85 @@ public class Path {
         PathVertex newCurrentPosition = PathHistory.get(mEndIndex).makeCopy();
 
         //check if direction changes
-        if(newCurrentPosition.getDirection()==newDirection){
-            Log.e(TAG,"error changing direction: new direction = current direction");
-            return;
-        }
-
-        //check if direction is opposite of current direction
-        if(Compass.oppositeDirection(newCurrentPosition.getDirection(),newDirection)){
-            Log.e(TAG,"error changing direction:" +newDirection+ "is opposite of current direction");
+        if(!Compass.isPerpendicular(newDirection,newCurrentPosition.getDirection())){
+            Log.e(TAG,"error changing direction: directions are not perpendicular");
             return;
         }
 
         newCurrentPosition.setDirection(newDirection);
         PathHistory.add(newCurrentPosition);
         mEndIndex++;
+        PathHistory.get(mEndIndex-1).setDirection(newDirection);
+    }
+
+
+    /**
+     * This method is called if their was a delay between when the direction was suppose to change
+     * and when the path was notified. In this scenario, you rewind back to the point in time when
+     * the direction was suppose to change, you change the direction, and you move forward according
+     * to the current time. It is important to note that this method assumes that the delay happened
+     * between the last PivotVertex and the EndVertex.
+     *
+     * @param newDirection the direction that you want to change to
+     * @param time the time in milliseconds when the direction change happens
+     * @param speed how fast you were traveling
+     * @return
+     */
+    public boolean delayedChangeEndVertexDirection(Compass newDirection, long time,double speed) {
+
+
+
+        PathVertex lastPivot = getLastPivotVertex();
+        PathVertex currentPosition = PathHistory.get(mEndIndex);
+
+        double dx = currentPosition.getX() - lastPivot.getX();
+        double dy = currentPosition.getY() - lastPivot.getY();
+
+
+        if(!Compass.isPerpendicular(newDirection,currentPosition.getDirection())){
+            Log.d(TAG,"error in delayed changing direction: direction are not perpendicular");
+            return false;
+        }
+        if(time<lastPivot.getTime()){
+            Log.d(TAG,"error in delayed changing direction: you are attempting to change the " +
+                    "direction prior to the last Pivot Vertex");
+            return false;
+        }
+        if (dx != 0 && dy != 0) {
+            Log.d(TAG, "error in delayed changing direction: internal logic error");
+            return false;
+        }
+
+        double oldDisplacement = Math.abs( (dy == 0) ? dx : dy );
+        double newDisplacement = ( ( time - lastPivot.getTime() ) ) / 1000.0 * speed;
+
+        double excessDistance = oldDisplacement-newDisplacement;
+        long currentTime = currentPosition.getTime();
+
+        //move the current position back to the last pivot
+        double oldX=currentPosition.getX();
+        double oldY=currentPosition.getY();
+        currentPosition.setTime(lastPivot.getTime());
+        currentPosition.setX(lastPivot.getX());
+        currentPosition.setY(lastPivot.getY());
+        Log.v(TAG, "backtrack position " + oldX + "," + oldY + " to " + currentPosition.getX() + "," + currentPosition.getY());
+
+        //move the current position to when the direction change happened
+        Log.v(TAG, "moving with d = " + newDisplacement + " and t = " + time);
+        moveEndVertex(newDisplacement, time);
+
+        //change the direction
+        Log.v(TAG,"Changing direction = " + newDirection );
+        changeEndVertexDirection(newDirection);
+
+        //move the current position to account for the delay
+
+        if(excessDistance>0) {
+            Log.v(TAG, "moving with excess d = "  + excessDistance + " and t = " + currentTime);
+            moveEndVertex(excessDistance, currentTime);
+        }
+
+        return true;
     }
 
 
@@ -143,8 +209,8 @@ public class Path {
      * @return the desired path point, null if index is out of range
      */
     public PathVertex getVertex(int i) {
-        if (i > 0 && i <= mEndIndex)
-            return PathHistory.get(i).makeCopy();
+        if (i >= 0 && i <= mEndIndex)
+            return PathHistory.get( i ).makeCopy();
         return null;
     }
 
