@@ -24,7 +24,7 @@ public class GameFrame {
 
     // a data for a tile that appears on the animation frame, this will depend upon the
     // users device screen
-    private Tile<Integer> mFrameTile;
+    public static Tile<Integer> SCREEN_GRID_TILE = new Tile<>(100);
 
     //the width and height that the Game must fit into
     private int mWidth;
@@ -168,10 +168,10 @@ public class GameFrame {
         double height1 =  (mWidth * numTilesY) / (double) numTilesX;
         double height=Math.min( height1, mHeight);
 
-        mFrameTile = new Tile<>((int)(height / numTilesY));
+        SCREEN_GRID_TILE = new Tile<>((int)(height / numTilesY));
 
-        mFrameGridWidth = mFrameTile.getLength() * numTilesX;
-        mFrameGridHeight = mFrameTile.getLength() * numTilesY;
+        mFrameGridWidth = SCREEN_GRID_TILE.getLength() * numTilesX;
+        mFrameGridHeight = SCREEN_GRID_TILE.getLength() * numTilesY;
 
         mGridPaddingX=mWidth- mFrameGridWidth;
         mGridPaddingY=mHeight- mFrameGridHeight;
@@ -198,7 +198,7 @@ public class GameFrame {
 
         for (int tile = 0; tile < numTilesX; tile++) {
             mCanvas.drawLine(offset, top, offset,bottom, mGridLinePaint);
-            offset += mFrameTile.getLength();
+            offset += SCREEN_GRID_TILE.getLength();
             mCanvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint);
         }
 
@@ -210,7 +210,7 @@ public class GameFrame {
 
         for (int tile = 0; tile < numTilesY; tile++) {
             mCanvas.drawLine(left, offset, right, offset, mGridLinePaint);
-            offset += mFrameTile.getLength();
+            offset += SCREEN_GRID_TILE.getLength();
             mCanvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint);
         }
         mGridBitmap=mGridBitmap.copy(Bitmap.Config.ARGB_8888,false);
@@ -224,7 +224,7 @@ public class GameFrame {
         mCycles= new Cycle[mNumCycles];
         for(int i=0;i<mNumCycles;i++){
             mCycles[i]=new Cycle(0.5+i,0.5,1,1,i);
-            mCycles[i].drawCycle(mFrameTile.getLength(), mFrameTile.getLength());
+            mCycles[i].drawCycle(SCREEN_GRID_TILE.getLength(), SCREEN_GRID_TILE.getLength());
         }
     }
 
@@ -237,7 +237,7 @@ public class GameFrame {
      * @return the location of the parameter on the animation frame
      */
     private int gridToFrame(double value){
-        return (int)(value * mFrameTile.getLength()/ mGameGrid.getTileLength());
+        return (int)(value * SCREEN_GRID_TILE.getLength()/ mGameGrid.getTileLength());
     }
 
 
@@ -272,7 +272,7 @@ public class GameFrame {
 
         for (int tile = 0; tile < numTilesX; tile++) {
             canvas.drawLine(offset, top, offset,bottom, mGridLinePaint);
-            offset += mFrameTile.getLength();
+            offset += SCREEN_GRID_TILE.getLength();
             canvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint);
         }
 
@@ -284,10 +284,17 @@ public class GameFrame {
 
         for (int tile = 0; tile < numTilesY; tile++) {
             canvas.drawLine(left, offset, right, offset, mGridLinePaint);
-            offset += mFrameTile.getLength();
+            offset += SCREEN_GRID_TILE.getLength();
             canvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint);
         }
 
+        //draw paths
+        canvas.save();
+        canvas.clipRect(paddingX,paddingY,paddingX+mFrameGridWidth,paddingY+mFrameGridHeight);
+        for(int i=0;i<mNumCycles;i++){
+            mCycles[i].drawPath(canvas);
+        }
+        canvas.restore();
 
                 //Draw Cycles
 
@@ -402,7 +409,7 @@ public class GameFrame {
     /**
      * @return the length of a tile on the animation frame
      */
-    public int getFrameTileLength(){return mFrameTile.getLength();}
+    public int getFrameTileLength(){return SCREEN_GRID_TILE.getLength();}
 
 
     /**
@@ -470,7 +477,7 @@ public class GameFrame {
         description+="\n|\twidth: "+mWidth+", height: "+mHeight;
         description+="\n|\tscreenWidth: "+ mFrameGridWidth +", screenHeight: "+ mFrameGridHeight;
         description+="\n|\tpaddingX: "+mGridPaddingX+", paddingY: "+mGridPaddingY;
-        description+="\n|\ttileLength: "+ mFrameTile.getLength();
+        description+="\n|\ttileLength: "+ SCREEN_GRID_TILE.getLength();
         description+="\n|\tnumCycles: "+mNumCycles;
         description+="\n|\t"+Grid.TAG;
         description+="\n|\t\tnumTilesX: "+ mGameGrid.getNumTilesX()+", numTilesY: "+ mGameGrid.getNumTilesY();

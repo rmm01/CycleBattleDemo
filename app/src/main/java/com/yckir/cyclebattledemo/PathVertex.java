@@ -2,14 +2,22 @@ package com.yckir.cyclebattledemo;
 
 
 /**
- *  A coordinate in x y plane that points in a direction at a specific time.
- *  @see Compass
+ *  A coordinate in x y plane that points in a direction at a specific time. The Vertex acts as the
+ *  center of a square with length 2 * DEFAULT_WIDTH. Also contains drawing edges that are measured
+ *  with the GameFrame static SCREEN_TILE.
  */
 public class PathVertex {
     private double X;
     private double Y;
+
     private long Time;
     private Compass Direction;
+    private final double DEFAULT_WIDTH=0.1;
+    private double mWidth;
+    private int mDrawingLeft;
+    private int mDrawingRight;
+    private int mDrawingTop;
+    private int mDrawingBottom;
 
     /**
      * Constructs a vertex at the specified time, location, and orientation.
@@ -26,6 +34,11 @@ public class PathVertex {
         Y=y;
         Time=time;
         Direction=direction;
+        mWidth=DEFAULT_WIDTH;
+        mDrawingLeft=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X - mWidth);
+        mDrawingTop=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y - mWidth);
+        mDrawingRight=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X + mWidth);
+        mDrawingBottom=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y + mWidth);
     }
 
 
@@ -78,6 +91,8 @@ public class PathVertex {
      */
     public void setX(double x) {
         X = x;
+        mDrawingLeft=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X - mWidth);
+        mDrawingRight=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X + mWidth);
     }
 
 
@@ -86,6 +101,8 @@ public class PathVertex {
      */
     public void setY(double y) {
         Y = y;
+        mDrawingTop=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y - mWidth);
+        mDrawingBottom=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y + mWidth);
     }
 
 
@@ -120,9 +137,37 @@ public class PathVertex {
      * @param pathVertex the vertex whose attributes that will be copied
      */
     public void copyVertex(PathVertex pathVertex){
-        X=pathVertex.X;
-        Y=pathVertex.Y;
-        Time=pathVertex.Time;
-        Direction=pathVertex.Direction;
+        X=pathVertex.getX();
+        Y=pathVertex.getY();
+        Time=pathVertex.getTime();
+        Direction=pathVertex.getDirection();
+        mDrawingLeft=pathVertex.getDrawingLeft();
+        mDrawingTop=pathVertex.getDrawingTop();
+        mDrawingRight=pathVertex.getDrawingRight();
+        mDrawingBottom=pathVertex.getDrawingBottom();
     }
+
+
+    /**
+     * @return the value of the left edge of the path measured with the GameFrame tile
+     */
+    public int getDrawingLeft(){return mDrawingLeft;}
+
+
+    /**
+     * @return the value of the right edge of the path measured with the GameFrame tile
+     */
+    public int getDrawingRight(){return mDrawingRight;}
+
+
+    /**
+     * @return the value of the top edge of the path measured with the GameFrame tile
+     */
+    public int getDrawingTop(){return mDrawingTop;}
+
+
+    /**
+     * @return the value of the bottom edge of the path measured with the GameFrame tile
+     */
+    public int getDrawingBottom(){return mDrawingBottom;}
 }

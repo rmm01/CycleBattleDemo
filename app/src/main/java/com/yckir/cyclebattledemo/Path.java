@@ -1,6 +1,8 @@
 package com.yckir.cyclebattledemo;
 
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 public class Path {
 
     public static final String TAG = "PATH";
-    private ArrayList<PathVertex> PathHistory;
+    private ArrayList<PathVertex> mPathHistory;
     private int mEndIndex;
     private boolean directionChanged;
 
@@ -36,10 +38,11 @@ public class Path {
      * @param direction the direction the start and end vertex
      */
     public Path(double x, double y,int startTime, Compass direction) {
-        PathHistory = new ArrayList<>();
+        mPathHistory = new ArrayList<>();
         PathVertex pathVertex = new PathVertex(x, y, startTime, direction);
-        PathHistory.add(pathVertex);
-        PathHistory.add(pathVertex.makeCopy());
+
+        mPathHistory.add(pathVertex);
+        mPathHistory.add(pathVertex.makeCopy());
         mEndIndex = 1;
         directionChanged=true;
     }
@@ -60,8 +63,8 @@ public class Path {
     public void moveEndVertex(double distanceTraveled, long currentTime) {
         directionChanged=false;
 
-        PathVertex endVertex = PathHistory.get(mEndIndex);
-        PathVertex lastPivotVertex = PathHistory.get(mEndIndex - 1);
+        PathVertex endVertex = mPathHistory.get(mEndIndex);
+        PathVertex lastPivotVertex = mPathHistory.get(mEndIndex - 1);
 
         //check if time increased
         if(currentTime < lastPivotVertex.getTime()) {
@@ -109,7 +112,7 @@ public class Path {
         }
         directionChanged=true;
 
-        PathVertex newCurrentPosition = PathHistory.get(mEndIndex).makeCopy();
+        PathVertex newCurrentPosition = mPathHistory.get(mEndIndex).makeCopy();
 
         //check if direction changes
         if(!Compass.isPerpendicular(newDirection,newCurrentPosition.getDirection())){
@@ -118,9 +121,9 @@ public class Path {
         }
 
         newCurrentPosition.setDirection(newDirection);
-        PathHistory.add(newCurrentPosition);
+        mPathHistory.add(newCurrentPosition);
         mEndIndex++;
-        PathHistory.get(mEndIndex-1).setDirection(newDirection);
+        mPathHistory.get(mEndIndex - 1).setDirection(newDirection);
     }
 
 
@@ -141,7 +144,7 @@ public class Path {
 
 
         PathVertex lastPivot = getLastPivotVertex();
-        PathVertex currentPosition = PathHistory.get(mEndIndex);
+        PathVertex currentPosition = mPathHistory.get(mEndIndex);
 
         double dx = currentPosition.getX() - lastPivot.getX();
         double dy = currentPosition.getY() - lastPivot.getY();
@@ -210,7 +213,7 @@ public class Path {
      */
     public PathVertex getVertex(int i) {
         if (i >= 0 && i <= mEndIndex)
-            return PathHistory.get( i ).makeCopy();
+            return mPathHistory.get( i ).makeCopy();
         return null;
     }
 
@@ -221,7 +224,7 @@ public class Path {
      * @return the last point in the path(currentPosition - 1)
      */
     public PathVertex getLastPivotVertex() {
-        return PathHistory.get(mEndIndex - 1).makeCopy();
+        return mPathHistory.get(mEndIndex - 1).makeCopy();
     }
 
 
@@ -231,7 +234,7 @@ public class Path {
      * @return the last vertex in the path
      */
     public PathVertex getEndVertex() {
-        return PathHistory.get(mEndIndex).makeCopy();
+        return mPathHistory.get(mEndIndex).makeCopy();
     }
 
 
@@ -239,6 +242,41 @@ public class Path {
      * @return a copy of the point of the end vertex in the path
      */
     public Point getLastPoint() {
-        return PathHistory.get(mEndIndex).getPoint();
+        return mPathHistory.get(mEndIndex).getPoint();
+    }
+
+
+    /**
+     * Draws the path onto a canvas with the given paint.
+     *
+     * @param canvas the canvas to be drawn on
+     * @param paint the paint for the path
+     */
+    public void drawPath(Canvas canvas,Paint paint){
+        PathVertex previousVertex = mPathHistory.get(0);
+        PathVertex  iterator;
+        int paddingX = canvas.getClipBounds().left;
+        int paddingY = canvas.getClipBounds().top;
+        for(int i=1;i<getLength();i++){
+            iterator = mPathHistory.get(i);
+            if(previousVertex.getDirection() == Compass.SOUTH || previousVertex.getDirection() == Compass.EAST  ) {
+                canvas.drawRect(
+                        paddingX + previousVertex.getDrawingLeft(),
+                        paddingY + previousVertex.getDrawingTop(),
+                        paddingX + iterator.getDrawingRight(),
+                        paddingY + iterator.getDrawingBottom(),
+                        paint);
+            } else{
+                canvas.drawRect(
+                        paddingX + iterator.getDrawingLeft(),
+                        paddingY + iterator.getDrawingTop(),
+                        paddingX + previousVertex.getDrawingRight(),
+                        paddingY + previousVertex.getDrawingBottom(),
+                        paint);
+            }
+
+            previousVertex=iterator;
+
+        }
     }
 }

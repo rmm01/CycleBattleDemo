@@ -14,7 +14,7 @@ public class Grid {
 
     public static final String TAG="GRID";
 
-    private Tile<Integer> mGridTile;
+    public static Tile<Integer> GAME_GRID_TILE =new Tile<>(1);
 
 
     /**
@@ -29,7 +29,7 @@ public class Grid {
         mNumTilesY = numTilesY;
         mWidth=tileLength*numTilesX;
         mHeight=tileLength*numTilesY;
-        mGridTile=new Tile<>(tileLength);
+        GAME_GRID_TILE =new Tile<>(tileLength);
     }
 
 
@@ -65,14 +65,15 @@ public class Grid {
      * returns a reference to the Tile that a grid is composed of
      * @return an immutable reference the Grids Tile
      */
-    public Tile getTile(){
-        return mGridTile;
+    public Tile<Integer> getTile(){
+        return GAME_GRID_TILE;
     }
+
 
     /**
      * @return the length a Grid Tile
      */
-    public int getTileLength(){return mGridTile.getLength();}
+    public int getTileLength(){return GAME_GRID_TILE.getLength();}
 
 
     /**

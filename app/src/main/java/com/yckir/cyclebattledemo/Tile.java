@@ -24,4 +24,16 @@ public class Tile<N> {
         return mLength;
     }
 
+
+    /**
+     * Converts a value that is measured in tile1 units, into tile2 units.
+     *
+     * @param tileA a unit of measure, the value is measured currently with this
+     * @param tileB the unit of measure you want the value to be represented in.
+     * @param valueA a number measured in tileA units
+     * @return valueA measured in tileB units
+     */
+    public static int convert(Tile<Integer> tileA, Tile<Integer> tileB, double valueA){
+        return (int)(valueA * tileB.getLength() / tileA.getLength());
+    }
 }

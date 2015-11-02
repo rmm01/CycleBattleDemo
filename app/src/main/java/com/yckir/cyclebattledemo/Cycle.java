@@ -40,7 +40,7 @@ public class Cycle extends GridRectangle{
      * The speed that the cycle moves at. This is measured in terms of tiles per second
      */
     private int mSpeed;
-    public static final int DEFAULT_SPEED=10;
+    public static final int DEFAULT_SPEED=5;
 
     /**
      * the direction that the cycle is traveling in
@@ -217,7 +217,6 @@ public class Cycle extends GridRectangle{
     }
 
 
-
     /**
      * change the new direction the cycle will be traveling in and set the time when this happens
      *
@@ -237,6 +236,17 @@ public class Cycle extends GridRectangle{
         setCenter(mPath.getLastPoint());
         mDirection=newDirection;
     }
+
+
+    /**
+     * Draws the path onto the canvas with the cycles color.
+     *
+     * @param canvas the canvas that the path should be drawn on
+     */
+    public void drawPath(Canvas canvas){
+        mPath.drawPath(canvas,mPaint);
+    }
+
 
     @Override
     public String toString() {
