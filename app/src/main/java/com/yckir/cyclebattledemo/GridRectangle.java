@@ -5,7 +5,7 @@ package com.yckir.cyclebattledemo;
  *   A rectangle that exists on the xy plane.
  *
  */
-public class GridRectangle {
+public class GridRectangle implements Grid.GridObject{
     public static final String TAG = "RECTANGLE";
     private Point mCenter;
     private double mWidth;
@@ -42,12 +42,45 @@ public class GridRectangle {
     }
 
 
-    /**
-     * gets the center point of the rectangle
-     * @return A newly created copy of the center of the rectangle.
-     */
+    @Override
     public Point getCenter(){
         return mCenter.makeCopy();
+    }
+
+
+    @Override
+    public double getWidth() {
+        return mWidth;
+    }
+
+
+    @Override
+    public double getHeight() {
+        return mHeight;
+    }
+
+
+    @Override
+    public double getLeft() {
+        return mCenter.getPositionX()-mWidth/2;
+    }
+
+
+    @Override
+    public double getRight() {
+        return mCenter.getPositionX()+mWidth/2;
+    }
+
+
+    @Override
+    public double getTop() {
+        return mCenter.getPositionY()+mHeight/2;
+    }
+
+
+    @Override
+    public double getBottom() {
+        return mCenter.getPositionY()-mHeight/2;
     }
 
 
@@ -80,58 +113,6 @@ public class GridRectangle {
      */
     public Point getBottomRightCoordinate(){
         return new Point(mCenter.getPositionX()+Math.ceil(mWidth / 2),mCenter.getPositionY()-Math.ceil(mHeight / 2));
-    }
-
-
-    /**
-     * @return The width of the rectangle.
-     */
-    public double getWidth() {
-        return mWidth;
-    }
-
-
-    /**
-     * @return The height of the rectangle.
-     */
-    public double getHeight() {
-        return mHeight;
-    }
-
-
-    /**
-     *
-     * @return The x coordinate of the left side of the rectangle.
-     */
-    public double getLeft() {
-        return mCenter.getPositionX()-mWidth/2;
-    }
-
-
-    /**
-     *
-     * @return The x coordinate of the right side of the rectangle.
-     */
-    public double getRight() {
-        return mCenter.getPositionX()+mWidth/2;
-    }
-
-
-    /**
-     *
-     * @return The Y coordinate of the Top side of the rectangle.
-     */
-    public double getTop() {
-        return mCenter.getPositionY()+mHeight/2;
-    }
-
-
-    /**
-     *
-     * @return The Y coordinate of the bottom side of the rectangle.
-     */
-    public double getBottom() {
-        return mCenter.getPositionY()-mHeight/2;
     }
 
 
@@ -170,7 +151,6 @@ public class GridRectangle {
     public double getY(){
         return mCenter.getPositionY();
     }
-
 
 
     /**

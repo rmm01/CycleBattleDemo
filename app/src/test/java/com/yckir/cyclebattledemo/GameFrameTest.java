@@ -29,6 +29,7 @@ public class GameFrameTest {
 
     @Test
     public void testHeightGreaterThanWidth() throws Exception{
+        mGameFrame1 = new GameFrame(new Grid(5,5,10),500,500,mMockPaint,mMockPaint);
         assertTrue(mGameFrame1.getWidth() <= mGameFrame1.getHeight());
     }
 
@@ -36,7 +37,7 @@ public class GameFrameTest {
     public void testInitialization() throws Exception {
 
         //test object 1
-
+        mGameFrame1 = new GameFrame(new Grid(5,5,10),500,500,mMockPaint,mMockPaint);
         assertEquals(500, mGameFrame1.getWidth());
         assertEquals(500, mGameFrame1.getHeight());
 
@@ -52,7 +53,7 @@ public class GameFrameTest {
         assertEquals(0, mGameFrame1.getGridPaddingY());
 
         //test object 2
-
+        mGameFrame2 = new GameFrame(new Grid(7,11,1),333,900,mMockPaint,mMockPaint);
         assertEquals(333, mGameFrame2.getWidth());
         assertEquals(900, mGameFrame2.getHeight());
 
@@ -69,7 +70,7 @@ public class GameFrameTest {
         assertEquals(333, mGameFrame2.getFrameGridWidth()+ mGameFrame2.getGridPaddingX());
 
         //test object 3
-
+        mGameFrame3 = new GameFrame(new Grid(2,11,1),300,999,mMockPaint,mMockPaint);
         assertEquals(300, mGameFrame3.getWidth());
         assertEquals(999, mGameFrame3.getHeight());
 

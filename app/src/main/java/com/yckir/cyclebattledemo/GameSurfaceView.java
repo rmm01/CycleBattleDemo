@@ -78,7 +78,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param time time in milliseconds after start was called.
      */
     public void requestDirectionChange(int cycleNum, Compass newDirection, long time){
-        Log.v("QWERTY", "change direction at time " + (time - mGameFrame.getStartTime()));
         mGameFrame.requestDirectionChange(cycleNum, newDirection, time);
     }
 

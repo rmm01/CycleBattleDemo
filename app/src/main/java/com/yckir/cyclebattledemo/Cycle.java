@@ -50,7 +50,7 @@ public class Cycle extends GridRectangle{
     /**
      * the path that the cycle has traveled in
      */
-    private Path mPath;
+    private LinePath mPath;
 
 
     /**
@@ -70,7 +70,7 @@ public class Cycle extends GridRectangle{
         mPaint=new Paint();
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
-        mPath=new Path(centerX,centerY,0,mDirection);
+        mPath=new LinePath(centerX,centerY,0,mDirection);
         setDefaultCycleColor();
         drawCycle(50, 50);
     }
@@ -91,7 +91,7 @@ public class Cycle extends GridRectangle{
         mPaint=paint;
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
-        mPath=new Path(centerX,centerY,0,mDirection);
+        mPath=new LinePath(centerX,centerY,0,mDirection);
         drawCycle(50, 50);
     }
 
@@ -122,19 +122,19 @@ public class Cycle extends GridRectangle{
 
     /**
      * move the cycles position in the current direction with its current speed
-     * @param time the amount of time in milliseconds since the cycle started moving
+     *
+     * @param currentTime the amount of time in milliseconds since the cycle started moving
      */
-    public void move(long time){
-        PathVertex lastPivot = mPath.getLastPivotVertex();
-
+    public void move(long currentTime){
+        long previousLineTime = mPath.getLineStartTime(mPath.getNumLines());
         //the elapsed time since the previous vertex on the path
-        long elapsedTime = time-lastPivot.getTime();
+        long elapsedTime = currentTime-previousLineTime;
 
         //the distance that the cycle travels in delta time
         double distance = elapsedTime/1000.0*mSpeed;
 
         //update the current position of the cycle on the path
-         mPath.moveEndVertex(distance, time);
+         mPath.movePath(distance, currentTime);
 
         setCenter(mPath.getLastPoint());
     }
@@ -213,7 +213,7 @@ public class Cycle extends GridRectangle{
         if(Compass.isPerpendicular(direction,mDirection))
             return;
         mDirection = direction;
-        mPath.changeEndVertexDirection(direction);
+        mPath.changePathDirection(direction);
     }
 
 
@@ -227,7 +227,14 @@ public class Cycle extends GridRectangle{
      * @see Compass
      */
     public void changeDirection(Compass newDirection,long time) {
-        boolean success = mPath.delayedChangeEndVertexDirection(newDirection, time, mSpeed);
+        long lastTimeStartTime = mPath.getLineStartTime(mPath.getNumLines());
+        double lineLength = (time - lastTimeStartTime )/1000.0*mSpeed;
+        boolean success;
+        if( ( mPath.getLine( mPath.getNumLines( ) ) ).getEndTime() < time )
+            success = mPath.moveAndChangeDirection(newDirection, time, lineLength);
+        else
+            success = mPath.bendLastLine(newDirection, time, lineLength);
+
         if(!success)
         {
             Log.d(TAG, "direction change failed");

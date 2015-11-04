@@ -1,5 +1,7 @@
 package com.yckir.cyclebattledemo;
 
+import android.graphics.Canvas;
+
 /**
  * A 2D Grid composed of square Tiles. The origin is located
  * at the bottom left corner of the bottom left Tile. It capable
@@ -82,13 +84,14 @@ public class Grid {
      * @param rect The rectangle that is being checked.
      * @return true if the rectangle is completely inside the grid, false otherwise.
      */
-    public boolean OutOfBounds(GridRectangle rect){
+    public boolean OutOfBounds(GridObject rect){
+        boolean result = true;
         if(rect.getTop()<0||rect.getRight()<0||rect.getLeft()<0||rect.getBottom()<0)
-            return false;
+            result = false;
         if(rect.getTop()>mHeight||rect.getRight()>mWidth||
                 rect.getLeft()>mWidth||rect.getBottom()>mHeight)
-            return false;
-        return true;
+            result = false;
+        return result;
     }
 
 
@@ -99,10 +102,61 @@ public class Grid {
      * @return true if the point is inside the grid, false otherwise.
      */
     public boolean outOfBounds(Point p){
+        boolean result = true;
         if( p.getPositionX()<0||p.getPositionX()>mWidth||
                 p.getPositionY()<0||p.getPositionY()>mHeight)
-            return false;
-        return true;
+            result =  false;
+        return result;
 
+    }
+
+
+    public interface GridObject{
+
+        /**
+         *
+         * @return The x coordinate of the left side of the rectangle.
+         */
+        double getLeft();
+
+
+        /**
+         *
+         * @return The x coordinate of the right side of the rectangle.
+         */
+        double getRight();
+        
+
+        /**
+         *
+         * @return The Y coordinate of the Top side of the rectangle.
+         */
+        double getTop();
+
+
+        /**
+         *
+         * @return The Y coordinate of the bottom side of the rectangle.
+         */
+        double getBottom();
+
+
+        /**
+         * @return The width of the rectangle.
+         */
+        double getWidth();
+
+
+        /**
+         * @return The height of the rectangle.
+         */
+        double getHeight();
+
+
+        /**
+         * gets the center point of the rectangle
+         * @return A newly created copy of the center of the rectangle.
+         */
+        Point getCenter();
     }
 }
