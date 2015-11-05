@@ -72,9 +72,9 @@ public enum Compass {
      * @param y2 y coordinate of point 2
      * @return the direction that p2 is relative to p1
      */
-    public static Compass getDirection(float x1, float y1, float x2, float y2){
-        float dx= x1-x2;
-        float dy= y1-y2;
+    public static Compass getDirection(double x1, double y1, double x2, double y2){
+        double dx= x1-x2;
+        double dy= y1-y2;
 
         if( dx > 0 && dx >= Math.abs(dy) )
             return Compass.WEST;
@@ -84,6 +84,18 @@ public enum Compass {
             return Compass.NORTH;
         else
             return Compass.SOUTH;
+    }
+
+
+    /**
+     * Given two point p1 and p2, determines the direction that point p2 is relative to p1
+     *
+     * @param p1 point 1
+     * @param p2 point 2
+     * @return the direction that p2 is relative to p1
+     */
+    public static Compass getDirection(Point p1, Point p2){
+        return getDirection( p1.getPositionX(), p1.getPositionY(), p2.getPositionX(), p2.getPositionY());
     }
 
 

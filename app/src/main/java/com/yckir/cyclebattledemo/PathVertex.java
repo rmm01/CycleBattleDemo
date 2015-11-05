@@ -35,10 +35,10 @@ public class PathVertex {
         Time=time;
         Direction=direction;
         mWidth=DEFAULT_WIDTH;
-        mDrawingLeft=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X - mWidth);
-        mDrawingTop=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y - mWidth);
-        mDrawingRight=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X + mWidth);
-        mDrawingBottom=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y + mWidth);
+        mDrawingLeft=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X - mWidth);
+        mDrawingTop=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y - mWidth);
+        mDrawingRight=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X + mWidth);
+        mDrawingBottom=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y + mWidth);
     }
 
 
@@ -91,8 +91,8 @@ public class PathVertex {
      */
     public void setX(double x) {
         X = x;
-        mDrawingLeft=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X - mWidth);
-        mDrawingRight=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X + mWidth);
+        mDrawingLeft=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X - mWidth);
+        mDrawingRight=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, X + mWidth);
     }
 
 
@@ -101,8 +101,8 @@ public class PathVertex {
      */
     public void setY(double y) {
         Y = y;
-        mDrawingTop=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y - mWidth);
-        mDrawingBottom=Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y + mWidth);
+        mDrawingTop=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y - mWidth);
+        mDrawingBottom=(int)Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE, Y + mWidth);
     }
 
 

@@ -33,7 +33,21 @@ public class Tile<N> {
      * @param valueA a number measured in tileA units
      * @return valueA measured in tileB units
      */
-    public static int convert(Tile<Integer> tileA, Tile<Integer> tileB, double valueA){
-        return (int)(valueA * tileB.getLength() / tileA.getLength());
+    public static double convert(Tile<Integer> tileA, Tile<Integer> tileB, double valueA){
+        return valueA * tileB.getLength() / tileA.getLength();
+    }
+
+    /**
+     * Converts a point that is measured in tile1 units, into tile2 units.
+     *
+     * @param tileA a unit of measure, the value is measured currently with this
+     * @param tileB the unit of measure you want the value to be represented in.
+     * @param point a point measured in tileA units
+     * @return given point measured in tileB units
+     */
+    public static Point convert(Tile<Integer> tileA, Tile<Integer> tileB, Point point){
+        double x = (point.getPositionX() * tileB.getLength() / tileA.getLength());
+        double y = (point.getPositionY() * tileB.getLength() / tileA.getLength());
+        return new Point(x,y);
     }
 }

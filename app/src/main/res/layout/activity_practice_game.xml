@@ -52,5 +52,5 @@
         app:border_length="5dp"
         app:tiles_x="11"
         app:tiles_y="11"
-        app:cycles="1"/>
+        app:cycles="2"/>
 </RelativeLayout>

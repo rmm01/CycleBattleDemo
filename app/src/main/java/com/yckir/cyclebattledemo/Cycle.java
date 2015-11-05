@@ -40,7 +40,7 @@ public class Cycle extends GridRectangle{
      * The speed that the cycle moves at. This is measured in terms of tiles per second
      */
     private int mSpeed;
-    public static final int DEFAULT_SPEED=5;
+    public static final int DEFAULT_SPEED=2;
 
     /**
      * the direction that the cycle is traveling in

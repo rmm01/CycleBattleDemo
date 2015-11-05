@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Keeps track of an object moving in 2d space. The moving object can only move parallel to the x
  * or y axis. The path is recorded by keeping track of the lines along the path. No two connected
- * lines can be parallel to each other. Time moves forward as the path moves.
+ * lines can be parallel to each other. Time must increase as the path adds more lines.
  * Each line has a start time and an end time. The end time is the time in milliseconds when the
  * path was at the last point on the line. The start time is the time in milliseconds when the
  * path was at the first point on the line.
@@ -18,6 +18,7 @@ public class LinePath {
     public static final String TAG = "LINE_PATH";
     private final double DEFAULT_THICKNESS = 0.1;
     private ArrayList<GridLine> mPathHistory;
+    private ArrayList<GridLine> mDrawingPathHistory;
     private int mLastLineIndex;
     private boolean mDirectionChanged;
     private long mStartTime;
@@ -33,11 +34,56 @@ public class LinePath {
      */
     public LinePath(double x, double y,int startTime, Compass direction){
         mPathHistory = new ArrayList<>();
+        mDrawingPathHistory = new ArrayList<>();
         mStartTime=0;
         GridLine line = new GridLine(x,y,0,DEFAULT_THICKNESS,startTime,direction);
         mPathHistory.add(line);
         mLastLineIndex=0;
         mDirectionChanged =true;
+        makeDrawingLine(0);
+    }
+
+
+    /**
+     * Makes a copy of the path line specified and transforms it into a version that can be drawn on
+     * a canvas. this is done because when drawing the path, every line will be recalculated to fit
+     * the screen for every frame. By having a dedicated path with drawing coordinates, the path can
+     * be drawn faster at the cost of extra memory.
+     *
+     * @param index the index of the line number that is to be coped and transformed.
+     */
+    private void makeDrawingLine(int index){
+        GridLine gridLine = mPathHistory.get(index);
+
+        Point startPoint = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+                gridLine.getStartPoint());
+
+        double lineLength = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+                gridLine.getLineLength());
+
+        double thickness = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+                DEFAULT_THICKNESS);
+
+        Compass direction = gridLine.getDirection();
+        //time doesn't matter for drawing, we will use the index for time
+        GridLine drawingGridLine = new GridLine(startPoint,lineLength,thickness,index,direction);
+        mDrawingPathHistory.add(index, drawingGridLine);
+    }
+
+
+    /**
+     * Called if a line in the path has been updated. Updates the lineLength of the specified
+     * line in the drawing path.
+     *
+     * @param index the index for the drawing line number
+     */
+    private void editDrawingLineLength(int index){
+        GridLine gridLine = mPathHistory.get(index);
+        GridLine drawingGridLine = mDrawingPathHistory.get(index);
+
+        double lineLength = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+                gridLine.getLineLength());
+        drawingGridLine.changeLength(lineLength);
     }
 
 
@@ -66,6 +112,7 @@ public class LinePath {
 
         mDirectionChanged =false;
         lastLine.changeLength(newLineLength, endTime);
+        editDrawingLineLength(mLastLineIndex);
     }
 
 
@@ -95,6 +142,7 @@ public class LinePath {
 
         mPathHistory.add(newLastLine);
         mLastLineIndex++;
+        makeDrawingLine(mLastLineIndex);
 
     }
 
@@ -144,10 +192,10 @@ public class LinePath {
         }
 
         oldLastLine.changeLength(bendLength,bendTime);
+        editDrawingLineLength(mLastLineIndex);
         changePathDirection(newDirection);
         if(excessDistance>0)
             movePath(excessDistance, endTime);
-        mDirectionChanged =false;
         return true;
     }
 
@@ -182,6 +230,7 @@ public class LinePath {
         }
 
         oldLastLine.changeLength(length,endTime);
+        editDrawingLineLength(mLastLineIndex);
         changePathDirection(newDirection);
         mDirectionChanged =true;
         return true;
@@ -224,11 +273,34 @@ public class LinePath {
 
 
     /**
-     * empty
-     * @param canvas null
-     * @param paint null
+     * Draws the path onto the a canvas.
+     *
+     * @param canvas The canvas to draw the path onto
+     * @param paint the paint used to color the path
      */
-    public void drawPath(Canvas canvas,Paint paint){}
+    public void drawPath(Canvas canvas,Paint paint){
+        int paddingX = canvas.getClipBounds().left;
+        int paddingY = canvas.getClipBounds().top;
+        //int left;
+        //int right;
+        //int top;
+        //int bottom;
+
+        GridLine l;
+        for(int i=0;i<=mLastLineIndex;i++){
+            l=mDrawingPathHistory.get(i);
+            //left = paddingX + (int)( l.getLeft() );
+            //top=  paddingY + (int)( l.getTop() );
+            //right = paddingX + (int)( l.getRight() );
+            //bottom =  paddingY + (int)( l.getBottom() );
+            canvas.drawRect(
+                    paddingX + (int)( l.getLeft() ),
+                    paddingY + (int)( l.getTop() ),
+                    paddingX + (int)( l.getRight() ),
+                    paddingY + (int)( l.getBottom() ),
+                    paint );
+        }
+    }
 
 
     /**

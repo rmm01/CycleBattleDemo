@@ -72,7 +72,7 @@ public class GameFrame {
     public GameFrame(int width, int height, int numTilesX, int numTilesY, int numCycles){
         mWidth=width;
         mHeight=height;
-
+        mStartTime=-1;
         mNumCycles=numCycles;
         mBufferToggle=true;
 
@@ -115,7 +115,7 @@ public class GameFrame {
         //set width and height of the animation frame
         mWidth= DEFAULT_FRAME_WIDTH;
         mHeight= DEFAULT_FRAME_HEIGHT;
-
+        mStartTime=-1;
         mBufferToggle=true;
 
         //create bitmap
@@ -223,7 +223,7 @@ public class GameFrame {
     private void createCycles() {
         mCycles= new Cycle[mNumCycles];
         for(int i=0;i<mNumCycles;i++){
-            mCycles[i]=new Cycle(0.5+i,0.5,1,1,i);
+            mCycles[i]=new Cycle(0.5+i,0.5,.25,.25,i);
             mCycles[i].drawCycle(SCREEN_GRID_TILE.getLength(), SCREEN_GRID_TILE.getLength());
         }
     }
@@ -348,6 +348,10 @@ public class GameFrame {
      * @param time the time in milliseconds when the cycle will change directions
      */
     public void requestDirectionChange(int cycleNum, Compass newDirection, long time){
+        //so that buffer isn't full of messages before the game starts
+        if(mStartTime<0){
+            return;
+        }
         DirectionChangeRequest node = new DirectionChangeRequest(newDirection,time,cycleNum);
         mDirectionChanges.add(node);
     }
