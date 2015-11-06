@@ -150,7 +150,7 @@ public class PracticeGameActivity extends AppCompatActivity {
          * @param event a motion event
          */
         public void receiveTouchEvent(MotionEvent event){
-            int action = event.getAction();
+            int action = event.getActionMasked();
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_POINTER_DOWN:
@@ -188,10 +188,12 @@ public class PracticeGameActivity extends AppCompatActivity {
             //don't accept any gestures until the game starts.
             if( mStartTime == 0 )
                 return;
-            int id = event.getPointerId(event.getActionIndex());
+            int index = event.getActionIndex();
+            int id = event.getPointerId(index);
+            //Log.v( TAG, "finger released: index " + index + " and id " + id );
 
             Point p1 = mEvents.get(id);
-            Point p2 = new Point( event.getX(), event.getY() );
+            Point p2 = new Point( event.getX(index), event.getY(index) );
             //Point.logPoints(p1, p2);
 
             if(Point.delta(p1,p2) < MIN_FLING_DISTANCE)

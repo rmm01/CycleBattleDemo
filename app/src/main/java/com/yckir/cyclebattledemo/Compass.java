@@ -35,6 +35,7 @@ public enum Compass {
         return false;
     }
 
+
     /**
      * Moves a coordinate in the specified direction.
      * @param x the x coordinate

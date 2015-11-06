@@ -83,14 +83,14 @@ public class GridLine implements Grid.GridObject {
 
         if(mDirection == Compass.SOUTH || mDirection == Compass.EAST  ) {
             mLeft = mStartPoint.getPositionX() - mLineThickness;
-            mTop = mStartPoint.getPositionY() - mLineThickness;
+            mBottom = mStartPoint.getPositionY() - mLineThickness;
             mRight = mEndPoint.getPositionX() + mLineThickness;
-            mBottom = mEndPoint.getPositionY() + mLineThickness;
+            mTop = mEndPoint.getPositionY() + mLineThickness;
         } else{
             mLeft = mEndPoint.getPositionX() - mLineThickness;
-            mTop = mEndPoint.getPositionY() - mLineThickness;
+            mBottom = mEndPoint.getPositionY() - mLineThickness;
             mRight = mStartPoint.getPositionX() + mLineThickness;
-            mBottom = mStartPoint.getPositionY() + mLineThickness;
+            mTop = mStartPoint.getPositionY() + mLineThickness;
         }
     }
 

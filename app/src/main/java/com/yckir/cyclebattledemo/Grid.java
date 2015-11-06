@@ -1,7 +1,5 @@
 package com.yckir.cyclebattledemo;
 
-import android.graphics.Canvas;
-
 /**
  * A 2D Grid composed of square Tiles. The origin is located
  * at the bottom left corner of the bottom left Tile. It capable
@@ -85,12 +83,12 @@ public class Grid {
      * @return true if the rectangle is completely inside the grid, false otherwise.
      */
     public boolean OutOfBounds(GridObject rect){
-        boolean result = true;
+        boolean result = false;
         if(rect.getTop()<0||rect.getRight()<0||rect.getLeft()<0||rect.getBottom()<0)
-            result = false;
+            result = true;
         if(rect.getTop()>mHeight||rect.getRight()>mWidth||
                 rect.getLeft()>mWidth||rect.getBottom()>mHeight)
-            result = false;
+            result = true;
         return result;
     }
 
@@ -111,6 +109,30 @@ public class Grid {
     }
 
 
+    /**
+     * Determines if two rectangular objects overlap
+     *
+     * @param rect1 object 1
+     * @param rect2 object 2
+     * @return true if the objects overlap, false otherwise.
+     */
+    public static boolean overlap(GridObject rect1, GridObject rect2){
+        // code based on http://www.geeksforgeeks.org/find-two-rectangles-overlap/
+        // If one rectangle is on left side of other
+        if (rect1.getLeft() > rect2.getRight() || rect2.getLeft() > rect1.getRight())
+            return false;
+
+        // If one rectangle is above other
+        if (rect1.getTop() < rect2.getBottom() || rect2.getTop() < rect1.getBottom())
+            return false;
+
+        return true;
+    }
+
+
+    /**
+     * a object with a rectangular area.
+     */
     public interface GridObject{
 
         /**

@@ -40,6 +40,7 @@ public class Cycle extends GridRectangle{
      * The speed that the cycle moves at. This is measured in terms of tiles per second
      */
     private int mSpeed;
+    private boolean mCrashed;
     public static final int DEFAULT_SPEED=2;
 
     /**
@@ -71,6 +72,7 @@ public class Cycle extends GridRectangle{
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
         mPath=new LinePath(centerX,centerY,0,mDirection);
+        mCrashed=false;
         setDefaultCycleColor();
         drawCycle(50, 50);
     }
@@ -91,6 +93,7 @@ public class Cycle extends GridRectangle{
         mPaint=paint;
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
+        mCrashed=false;
         mPath=new LinePath(centerX,centerY,0,mDirection);
         drawCycle(50, 50);
     }
@@ -121,11 +124,14 @@ public class Cycle extends GridRectangle{
 
 
     /**
-     * move the cycles position in the current direction with its current speed
+     * move the cycles position in the current direction with its current speed. Will not move
+     * if crashed.
      *
      * @param currentTime the amount of time in milliseconds since the cycle started moving
      */
     public void move(long currentTime){
+        if(mCrashed)
+            return;
         long previousLineTime = mPath.getLineStartTime(mPath.getNumLines());
         //the elapsed time since the previous vertex on the path
         long elapsedTime = currentTime-previousLineTime;
@@ -218,7 +224,8 @@ public class Cycle extends GridRectangle{
 
 
     /**
-     * change the new direction the cycle will be traveling in and set the time when this happens
+     * Change the new direction the cycle will be traveling in and set the time when this happens.
+     * Will not move if crashed.
      *
      * @param newDirection the new direction the cycle will be traveling in. If the direction is
      *                     perpendicular to the current direction, it wont be changed.
@@ -227,6 +234,8 @@ public class Cycle extends GridRectangle{
      * @see Compass
      */
     public void changeDirection(Compass newDirection,long time) {
+        if(mCrashed)
+            return;
         long lastTimeStartTime = mPath.getLineStartTime(mPath.getNumLines());
         double lineLength = (time - lastTimeStartTime )/1000.0*mSpeed;
         boolean success;
@@ -252,6 +261,51 @@ public class Cycle extends GridRectangle{
      */
     public void drawPath(Canvas canvas){
         mPath.drawPath(canvas,mPaint);
+    }
+
+
+    /**
+     * set if the cycle has crashed or not
+     * @param crashed true if the cycle has crashed and cant move, false otherwise
+     */
+    public void setCrashed(boolean crashed){
+        mCrashed=crashed;
+    }
+
+
+    /**
+     * @return true true if the cycle has crashed and cant move, false otherwise
+     */
+    public boolean hasCrashed(){return mCrashed;}
+
+
+    /**
+     * Determine if the cycle crashed with its own path.
+     *
+     * @return true if the cycle crashed with its own path, false otherwise
+     */
+    public boolean selfCrashed(){
+        for(int lineNumber  = 1; lineNumber <= mPath.getNumLines()-3; lineNumber++){
+            if(Grid.overlap(this, mPath.getLine(lineNumber))){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Determine if a rectangle intersects with the cycles path of the cycle itself
+     * @param rectangle the rectangle to be tested
+     * @return true if the given rectangle intersects with the cycle or its path, false otherwise
+     */
+    public boolean intersectsWithPath(Grid.GridObject rectangle){
+        for(int lineNumber  = 1; lineNumber <= mPath.getNumLines(); lineNumber++){
+            if(Grid.overlap(rectangle, mPath.getLine(lineNumber))){
+                return true;
+            }
+        }
+        return Grid.overlap(rectangle, this);
     }
 
 

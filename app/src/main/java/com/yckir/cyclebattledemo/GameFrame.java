@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -488,6 +489,44 @@ public class GameFrame {
         description+="\n|\t\ttileLength: "+ mGameGrid.getTileLength();
         return description;
     }
+
+
+    /**
+     * Detects if any of cycles have collided and sets them to crashed status preventing them from
+     * moving.
+     */
+    public void collisionDetection(){
+        for( int currentCycle = 0; currentCycle < mNumCycles; currentCycle++ ){
+            //don't check if already crashed
+            if( mCycles[currentCycle].hasCrashed() )
+                continue;
+            //check if cycle out of bounds,
+            if( mGameGrid.OutOfBounds(mCycles[currentCycle])) {
+                Log.v(TAG, "Player " + currentCycle + " is out of bounds");
+                mCycles[currentCycle].setCrashed(true);
+                continue;
+            }
+            //check to see if cycle crashed with its own path
+            if(mCycles[currentCycle].selfCrashed()) {
+                Log.v(TAG, "Player " + currentCycle + " crashed with itself");
+                mCycles[currentCycle].setCrashed(true);
+                continue;
+            }
+
+            //check to see if cycle crashed with its another cycle or their path
+            for(int otherCycles = 0; otherCycles < mNumCycles; otherCycles++){
+                if(otherCycles == currentCycle )
+                    continue;
+                if(mCycles[otherCycles].intersectsWithPath(mCycles[currentCycle])){
+                    Log.v(TAG,"Player " + currentCycle + " crashed with cycle " + otherCycles);
+                    mCycles[currentCycle].setCrashed(true);
+                    break;
+                }
+
+            }
+        }
+    }
+
 
 
     /**

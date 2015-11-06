@@ -54,6 +54,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
             frameStartTime=System.currentTimeMillis() - start;
             mGameFrame.checkDirectionChangeRequests();
             mGameFrame.move( frameStartTime );
+            mGameFrame.collisionDetection();
             drawFrame();
 
         }
@@ -81,7 +82,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
             mGameFrame.move( frameStartTime );
             actionEnd = System.currentTimeMillis() - start;
 
-            surfaceCanvas = null;
+            //surfaceCanvas = null;
             surfaceCanvas = mSurfaceHolder.lockCanvas();
             drawStart = System.currentTimeMillis();
             doDraw(surfaceCanvas);
