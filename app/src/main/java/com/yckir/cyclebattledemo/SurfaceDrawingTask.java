@@ -37,27 +37,26 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
 
     /**
-     * Runs until 60 frames are produced.
+     * Runs until all but one cycle crash.
      *
      * @param params the start time of the animation
      * @return null
      */
     @Override
     protected Void doInBackground(Long... params) {
-        Log.v(TAG, "doInBackGround");
-        long start =mGameFrame.getStartTime();
-        int count=0;
+        long start =params[0];
         long frameStartTime;
-
-        while (count<600){
-            count++;
+        Log.v(TAG, "starting at time " + start);
+        while (mGameFrame.isRunning()){
             frameStartTime=System.currentTimeMillis() - start;
+            Log.v(TAG, "creating frame at time " + frameStartTime);
             mGameFrame.checkDirectionChangeRequests();
             mGameFrame.move( frameStartTime );
             mGameFrame.collisionDetection();
             drawFrame();
 
         }
+        Log.v(TAG,"Done ");
         return null;
     }
 
@@ -65,7 +64,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     //Alternate but identical version of doInBackGround. Used for logging
     protected Void doInBackgroundDebug(Long... params) {
         Log.v(TAG, "doInBackGround");
-        long start =mGameFrame.getStartTime();
+        long start =params[0];
         int count=0;
         Canvas surfaceCanvas;
         long frameStartTime;

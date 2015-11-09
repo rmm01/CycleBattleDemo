@@ -15,20 +15,19 @@
         android:layout_margin="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:textOn="Stop"
-        android:textOff="Start"
+        android:textOn="Resume"
+        android:textOff="Pause"
         android:onClick="startToggle"/>
     <Button
-        android:id="@+id/restart_button"
+        android:id="@+id/new_game_button"
         android:background="@color/colorAccent"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
-        android:text="@string/restart_button_text"
-
-        android:onClick="restartButton"
+        android:text="@string/new_game_button_text"
+        android:onClick="newGameButton"
         />
     <Button
         android:id="@+id/exit_button"
@@ -38,15 +37,14 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
-        android:text="Exit"
-        android:onClick="exitButton"
-        android:clickable="false"
+        android:text="Start"
+        android:onClick="startButton"
         />
     <com.yckir.cyclebattledemo.GameSurfaceView
         android:id="@+id/practice_game_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/restart_button"
+        android:layout_above="@id/new_game_button"
         app:boarder_color="@color/colorAccent"
         app:background_color="@color/colorPrimary"
         app:border_length="5dp"

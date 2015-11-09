@@ -1,6 +1,5 @@
 package com.yckir.cyclebattledemo;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,45 +20,36 @@ public class GameFrame {
     private Grid mGameGrid;
 
     private int mNumCycles;
+    private int mRemainingCycles;
     private Cycle[] mCycles;
 
-    // a data for a tile that appears on the animation frame, this will depend upon the
+    // data for a tile that appears on the animation frame, this will depend upon the
     // users device screen
     public static Tile<Integer> SCREEN_GRID_TILE = new Tile<>(100);
 
     //the width and height that the Game must fit into
-    private int mWidth;
-    private int mHeight;
+    private int mFrameWidth;
+    private int mFrameHeight;
 
     //the height and width of the Grid when displayed on the animation frame
     private int mFrameGridWidth;
     private int mFrameGridHeight;
 
-    //the spacing between the edges of the animation frame and the grid
+    //the spacing between the left and top edges of the animation frame and the grid
     private int mGridPaddingX;
     private int mGridPaddingY;
 
-    //since the Grid that appears on the Frame will remain the same unless the device screen size
-    //changes, we draw it in its own bitmap so that we don't have to keep redrawing it
-    private Bitmap mGridBitmap;
-
-    //the bitmap where the grid, cycle, and paths will be drawn to
-    private Bitmap mFrameBitmap;
-    private Bitmap mFrameBitmap2;
-
     private Paint mGridLinePaint;
-    private Paint mGridLinePaint2;
 
     private static final int DEFAULT_FRAME_WIDTH =300;
     private static final int DEFAULT_FRAME_HEIGHT =300;
     private static final int GAME_GRID_TILE_LENGTH =1;
 
-    private long mStartTime;
-    private boolean mBufferToggle;
-    private Canvas mCanvas;
+    private boolean mRunning;
 
     //queue that holds requests to change the direction
     private ArrayBlockingQueue<DirectionChangeRequest> mDirectionChanges;
+
 
     /**
      * Initializes the Grid, animation frame size, and Cycles.
@@ -71,31 +61,20 @@ public class GameFrame {
      * @param numCycles the number of cycles that will be drawn
      */
     public GameFrame(int width, int height, int numTilesX, int numTilesY, int numCycles){
-        mWidth=width;
-        mHeight=height;
-        mStartTime=-1;
+        mFrameWidth =width;
+        mFrameHeight =height;
         mNumCycles=numCycles;
-        mBufferToggle=true;
-
         mGameGrid = new Grid(numTilesX,numTilesY,1);
 
-        //create bitmap
-        mGridBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        mFrameBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        mFrameBitmap2 =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
+        mDirectionChanges = new ArrayBlockingQueue<>(15);
+        mRemainingCycles =numCycles;
+        mRunning = false;
 
-        //set the line colors
         mGridLinePaint =new Paint();
         mGridLinePaint.setColor(Color.BLUE);
-        mGridLinePaint2 =new Paint();
-        mGridLinePaint2.setColor(Color.GRAY);
 
-        createFrame();
-        createFrameGrid();
+        initFrameSize();
         createCycles();
-
-        drawFrame();
-        mDirectionChanges = new ArrayBlockingQueue<>(15);
     }
 
 
@@ -110,46 +89,33 @@ public class GameFrame {
     public GameFrame(int numTilesX, int numTilesY, int numCycles){
         //construct grid
         mGameGrid = new Grid(numTilesX,numTilesY, GAME_GRID_TILE_LENGTH);
-
         mNumCycles=numCycles;
 
-        //set width and height of the animation frame
-        mWidth= DEFAULT_FRAME_WIDTH;
-        mHeight= DEFAULT_FRAME_HEIGHT;
-        mStartTime=-1;
-        mBufferToggle=true;
+        mFrameWidth = DEFAULT_FRAME_WIDTH;
+        mFrameHeight = DEFAULT_FRAME_HEIGHT;
 
-        //create bitmap
-        mGridBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        mFrameBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        mFrameBitmap2 =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
+        mDirectionChanges = new ArrayBlockingQueue<>(15);
+        mRemainingCycles =numCycles;
+        mRunning = false;
 
-        //set the line colors
         mGridLinePaint =new Paint();
         mGridLinePaint.setColor(Color.BLUE);
-        mGridLinePaint2 =new Paint();
-        mGridLinePaint2.setColor(Color.GRAY);
 
-        createFrame();
-        createFrameGrid();
-
+        initFrameSize();
         createCycles();
-
-        drawFrame();
-        mDirectionChanges = new ArrayBlockingQueue<>(15);
     }
 
 
     /**
      * For JUnit testing with mock objects,
      */
-    public GameFrame(Grid grid, int width, int height, Paint p1, Paint p2) {
+    public GameFrame(Grid grid, int width, int height, Paint p1) {
         mGridLinePaint =p1;
-        mGridLinePaint2 =p2;
         mGameGrid =grid;
-        mWidth=width;
-        mHeight=height;
-        createFrame();
+        mFrameWidth =width;
+        mFrameHeight =height;
+        mRunning = false;
+        initFrameSize();
     }
 
 
@@ -157,7 +123,7 @@ public class GameFrame {
      * Determines the max length a Tile can be such that the Grid can fit inside the
      * animation frame. Also adjust padding for the grid so that it is centered inside the Frame.
      */
-    private void createFrame(){
+    private void initFrameSize(){
 
         int numTilesX= mGameGrid.getNumTilesX();
         int numTilesY= mGameGrid.getNumTilesY();
@@ -166,55 +132,16 @@ public class GameFrame {
         //fit on the animation frame can be achieved by making the height of the grid as large as possible
 
         //it is possible that height1 is too big, so we check it with the actual frame height
-        double height1 =  (mWidth * numTilesY) / (double) numTilesX;
-        double height=Math.min( height1, mHeight);
+        double height1 =  (mFrameWidth * numTilesY) / (double) numTilesX;
+        double height=Math.min( height1, mFrameHeight);
 
         SCREEN_GRID_TILE = new Tile<>((int)(height / numTilesY));
 
         mFrameGridWidth = SCREEN_GRID_TILE.getLength() * numTilesX;
         mFrameGridHeight = SCREEN_GRID_TILE.getLength() * numTilesY;
 
-        mGridPaddingX=mWidth- mFrameGridWidth;
-        mGridPaddingY=mHeight- mFrameGridHeight;
-    }
-
-
-    /**
-     * The grid is guaranteed to remain the same unless the device screen size changes, because
-     * of this, the grid will have its own bitmap so that the same image isn't redrawn.
-     */
-    private void createFrameGrid(){
-        Canvas mCanvas = new Canvas(mGridBitmap);
-
-        int numTilesX= mGameGrid.getNumTilesX();
-        int numTilesY= mGameGrid.getNumTilesY();
-
-        int paddingX=mGridPaddingX/2;
-        int paddingY=mGridPaddingY/2;
-
-        //draw vertical lines
-        int offset=paddingX;
-        int top=paddingY;
-        int bottom = paddingY+ mFrameGridHeight - 1;
-
-        for (int tile = 0; tile < numTilesX; tile++) {
-            mCanvas.drawLine(offset, top, offset,bottom, mGridLinePaint);
-            offset += SCREEN_GRID_TILE.getLength();
-            mCanvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint);
-        }
-
-
-        //draw horizontal lines
-        offset=paddingY;
-        int left=paddingX;
-        int right = paddingX+ mFrameGridWidth - 1;
-
-        for (int tile = 0; tile < numTilesY; tile++) {
-            mCanvas.drawLine(left, offset, right, offset, mGridLinePaint);
-            offset += SCREEN_GRID_TILE.getLength();
-            mCanvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint);
-        }
-        mGridBitmap=mGridBitmap.copy(Bitmap.Config.ARGB_8888,false);
+        mGridPaddingX = ( mFrameWidth - mFrameGridWidth ) / 2;
+        mGridPaddingY = ( mFrameHeight - mFrameGridHeight ) / 2;
     }
 
 
@@ -231,109 +158,123 @@ public class GameFrame {
 
 
     /**
-     * Given a value on the GameGrid, the method will transform it to a value on the grid
-     * located inside an animation frame.
+     * Draws the Grid onto the supplied canvas centered at the GamesFrames width and height.
      *
-     * @param value  a value on the x or y axis that lies on the Grid
-     * @return the location of the parameter on the animation frame
+     * @param canvas the canvas that will be drawn on
      */
-    private int gridToFrame(double value){
-        return (int)(value * SCREEN_GRID_TILE.getLength()/ mGameGrid.getTileLength());
-    }
-
-
-    private Bitmap getNewDrawBitmap(){
-        mBufferToggle=!mBufferToggle;
-        if(mBufferToggle)
-            return mFrameBitmap;
-        else
-            return mFrameBitmap2;
-    }
-
-    /**
-     * Draws the grid, cycles, and path together into one animation frame on a canvas.
-     *
-     * @param canvas the canvas where a frame of the game animation will be drawn.
-     */
-    public void drawFrame(Canvas canvas){
-        canvas.drawColor(Color.BLACK);
-
-        int numTilesX= mGameGrid.getNumTilesX();
-        int numTilesY= mGameGrid.getNumTilesY();
-
-        Rect r =canvas.getClipBounds();
-
-        int paddingX=mGridPaddingX/2+r.left;
-        int paddingY=mGridPaddingY/2+r.top;
+    private void drawGrid(Canvas canvas){
+        Rect rect = canvas.getClipBounds();
+        int numTilesX = mGameGrid.getNumTilesX();
+        int numTilesY = mGameGrid.getNumTilesY();
+        int left = mGridPaddingX + rect.left;
+        int top = mGridPaddingY + rect.top;
+        int bottom = top+ mFrameGridHeight - 1;
+        int right = left+ mFrameGridWidth - 1;
 
         //draw vertical lines
-        int offset=paddingX;
-        int top=paddingY;
-        int bottom = paddingY+ mFrameGridHeight - 1;
-
+        int offset=left;
         for (int tile = 0; tile < numTilesX; tile++) {
-            canvas.drawLine(offset, top, offset,bottom, mGridLinePaint);
+            canvas.drawLine(offset, top, offset, bottom, mGridLinePaint);
             offset += SCREEN_GRID_TILE.getLength();
-            canvas.drawLine(offset - 1, top, offset - 1,bottom, mGridLinePaint);
+            canvas.drawLine(offset - 1, top, offset - 1, bottom, mGridLinePaint);
         }
 
-
         //draw horizontal lines
-        offset=paddingY;
-        int left=paddingX;
-        int right = paddingX+ mFrameGridWidth - 1;
-
+        offset=top;
         for (int tile = 0; tile < numTilesY; tile++) {
             canvas.drawLine(left, offset, right, offset, mGridLinePaint);
             offset += SCREEN_GRID_TILE.getLength();
             canvas.drawLine(left, offset - 1, right, offset - 1, mGridLinePaint);
         }
+    }
 
-        //draw paths
+
+    /**
+     * Draws the cycle paths onto the supplied canvas
+     *
+     * @param canvas the canvas that will be drawn on
+     */
+    private void drawPath(Canvas canvas){
+        Rect r =canvas.getClipBounds();
+        int paddingX=mGridPaddingX+r.left;
+        int paddingY=mGridPaddingY+r.top;
+
         canvas.save();
         canvas.clipRect(paddingX,paddingY,paddingX+mFrameGridWidth,paddingY+mFrameGridHeight);
-        for(int i=0;i<mNumCycles;i++){
+        for (int i=0;i<mNumCycles;i++){
             mCycles[i].drawPath(canvas);
         }
         canvas.restore();
+    }
 
-                //Draw Cycles
 
+    /**
+     * Draws the cycles onto the supplied canvas
+     *
+     * @param canvas the canvas that will be drawn on
+     */
+    private void drawCycles(Canvas canvas){
+        Rect r =canvas.getClipBounds();
+        int paddingX=mGridPaddingX+r.left;
+        int paddingY=mGridPaddingY+r.top;
+        int left,right,top,bottom;
+        Cycle cycle;
         for(int i=0;i<mNumCycles;i++) {
-            left = paddingX + gridToFrame(mCycles[i].getLeft());
-            right = paddingX + gridToFrame(mCycles[i].getRight());
-            top = paddingY + gridToFrame(mCycles[i].getTop());
-            bottom = paddingY + gridToFrame(mCycles[i].getBottom());
+            cycle=mCycles[i];
+            left = paddingX +
+                    (int) Tile.convert(Grid.GAME_GRID_TILE, SCREEN_GRID_TILE, cycle.getLeft());
+            right = paddingX +
+                    (int) Tile.convert(Grid.GAME_GRID_TILE, SCREEN_GRID_TILE, cycle.getRight());
+            top = paddingY +
+                    (int) Tile.convert(Grid.GAME_GRID_TILE, SCREEN_GRID_TILE ,cycle.getTop());
+            bottom = paddingY +
+                    (int) Tile.convert(Grid.GAME_GRID_TILE, SCREEN_GRID_TILE, cycle.getBottom());
 
             canvas.save();
-            canvas.clipRect(left,top,right,bottom);
+            canvas.clipRect(left, top, right, bottom);
             mCycles[i].drawCycle(canvas);
             canvas.restore();
         }
-
     }
 
 
     /**
-     * Draws the grid, cycles, and path together into one animation frame. The resulting bitmap is
-     * obtained through getFrameBitmap
-     * TODO delete me
+     * Draws the grid, cycles, and path together into one animation frame on a canvas. Draws the
+     * canvas black before any of the draws take place.
+     *
+     * @param canvas the canvas where a frame of the game animation will be drawn.
      */
-    public void drawFrame(){
-        mCanvas=new Canvas(getNewDrawBitmap());
-        //create a fake rect in order to avoid android studio rendering problems
-        mCanvas.save();
-        mCanvas.clipRect(0, 0, mWidth, mHeight);
-        drawFrame(mCanvas);
-        mCanvas.restore();
+    public void drawFrame(Canvas canvas){
+        canvas.drawColor(Color.BLACK);
+        drawGrid(canvas);
+        drawPath(canvas);
+        drawCycles(canvas);
     }
 
 
     /**
-     * move all the cycles
+     * Creates a new game by initializing new cycles. This method will fail if a game is
+     * currently running.
+     */
+    public void newGame(){
+        if( mRunning )
+            return;
+
+        mRemainingCycles = mNumCycles;
+        mRunning=false;
+        mDirectionChanges.clear();
+        createCycles();
+    }
+
+
+    /**
+     * move all the cycles. This method will fail if a game is not currently running.
      * @param time the time in milliseconds since the game started
      */
     public void move(long time){
+        if( !mRunning )
+            return;
+
         for(int i=0;i<mNumCycles;i++){
             mCycles[i].move(time);
         }
@@ -342,7 +283,7 @@ public class GameFrame {
 
     /**
      * Creates a request to change the direction. The request is valid, it be applied on the next
-     * animation frame.
+     * animation frame. This method will fail if a game is not currently running.
      *
      * @param cycleNum the id for the cycle
      * @param newDirection the new direction for the cycle
@@ -350,9 +291,9 @@ public class GameFrame {
      */
     public void requestDirectionChange(int cycleNum, Compass newDirection, long time){
         //so that buffer isn't full of messages before the game starts
-        if(mStartTime<0){
+        if( !mRunning )
             return;
-        }
+
         DirectionChangeRequest node = new DirectionChangeRequest(newDirection,time,cycleNum);
         mDirectionChanges.add(node);
     }
@@ -360,12 +301,64 @@ public class GameFrame {
 
     /**
      * Checks to see if their are any requests to change directions and apply them they are valid.
+     * This method will fail if a game is not currently running.
      */
     public void checkDirectionChangeRequests(){
+        if( !mRunning )
+            return;
+
         DirectionChangeRequest node = mDirectionChanges.poll();
         while(node!=null){
             mCycles[node.getCycleNum()].changeDirection(node.getDirection(), node.getTime());
             node = mDirectionChanges.poll();
+        }
+    }
+
+
+    /**
+     * Detects if any of cycles have collided and sets them to crashed status preventing them from
+     * moving. This method will fail if a game is not currently running.
+     */
+    public void collisionDetection(){
+        if( !mRunning )
+            return;
+
+        for( int currentCycle = 0; currentCycle < mNumCycles; currentCycle++ ){
+            //don't check if already crashed
+            if( mCycles[currentCycle].hasCrashed() )
+                continue;
+            //check if cycle out of bounds,
+            if( mGameGrid.OutOfBounds(mCycles[currentCycle])) {
+                Log.v(TAG, "Player " + currentCycle + " is out of bounds");
+                mCycles[currentCycle].setCrashed(true);
+                mRemainingCycles--;
+                continue;
+            }
+            //check to see if cycle crashed with its own path
+            if(mCycles[currentCycle].selfCrashed()) {
+                Log.v(TAG, "Player " + currentCycle + " crashed with itself");
+                mCycles[currentCycle].setCrashed(true);
+                mRemainingCycles--;
+                continue;
+            }
+
+            //check to see if cycle crashed with its another cycle or their path
+            for(int otherCycles = 0; otherCycles < mNumCycles; otherCycles++){
+                if(otherCycles == currentCycle )
+                    continue;
+                if(mCycles[otherCycles].intersectsWithPath(mCycles[currentCycle])){
+                    Log.v(TAG,"Player " + currentCycle + " crashed with cycle " + otherCycles);
+                    mCycles[currentCycle].setCrashed(true);
+                    mRemainingCycles--;
+                    break;
+                }
+
+            }
+        }
+
+        if( mRemainingCycles <= 1 ) {
+            mRunning=false;
+            mRunning = false;
         }
     }
 
@@ -376,49 +369,31 @@ public class GameFrame {
      * @param height The new height of the animation frame.
      */
     public void setFrameSize(int width, int height){
-        mWidth=width;
-        mHeight=height;
-        mGridBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        mFrameBitmap =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        mFrameBitmap2 =Bitmap.createBitmap(mWidth,mHeight,Bitmap.Config.ARGB_8888);
-        createFrame();
-        createFrameGrid();
+        mFrameWidth =width;
+        mFrameHeight =height;
+        initFrameSize();
         createCycles();
-        drawFrame();
-
     }
 
 
     /**
-     * set the start time of the game
-     * @param startTime the time that the game will begin, in milliseconds.
+     * Set the game to be either running or not running.
+     *
+     * @param running true if the game is active, false otherwise
      */
-    public void setStartTime(long startTime) {
-        mStartTime = startTime;
+    public void setRunning(boolean running){
+        mRunning = running;
     }
 
 
     /**
-     * @return bitmap containing the current animation frame
+     * @return true if the game is active, false otherwise
      */
-    public Bitmap getFrameBitmap( ){
-        //return mFrameBitmap;
-        //return mFrameBitmap.copy(Bitmap.Config.ARGB_8888,false);
-        if(mBufferToggle)
-            return mFrameBitmap;
-        else
-            return mFrameBitmap2;
-    }
+    public boolean isRunning(){return mRunning;}
 
 
     /**
-     * @return the length of a tile on the animation frame
-     */
-    public int getFrameTileLength(){return SCREEN_GRID_TILE.getLength();}
-
-
-    /**
-     * @return the padding in the x direction of the Grid inside the Frame
+     * @return the padding from the frame edge to the grid edge in x direction
      */
     public int getGridPaddingX() {
         return mGridPaddingX;
@@ -426,7 +401,7 @@ public class GameFrame {
 
 
     /**
-     * @return the padding in the Y direction of the Grid inside the Frame
+     * @return the padding from the frame edge to the grid edge in y direction
      */
     public int getGridPaddingY() {
         return mGridPaddingY;
@@ -453,8 +428,8 @@ public class GameFrame {
      *
      * @return the height of the animation frame
      */
-    public int getHeight() {
-        return mHeight;
+    public int getFrameHeight() {
+        return mFrameHeight;
     }
 
 
@@ -462,24 +437,15 @@ public class GameFrame {
      *
      * @return the width of the animation frame
      */
-    public int getWidth() {
-        return mWidth;
-    }
-
-
-    /**
-     *
-     * @return the start time of the animation
-     */
-    public long getStartTime() {
-        return mStartTime;
+    public int getFrameWidth() {
+        return mFrameWidth;
     }
 
 
     @Override
     public String toString() {
         String description ="~\n"+TAG;
-        description+="\n|\twidth: "+mWidth+", height: "+mHeight;
+        description+="\n|\twidth: "+ mFrameWidth +", height: "+ mFrameHeight;
         description+="\n|\tscreenWidth: "+ mFrameGridWidth +", screenHeight: "+ mFrameGridHeight;
         description+="\n|\tpaddingX: "+mGridPaddingX+", paddingY: "+mGridPaddingY;
         description+="\n|\ttileLength: "+ SCREEN_GRID_TILE.getLength();
@@ -489,44 +455,6 @@ public class GameFrame {
         description+="\n|\t\ttileLength: "+ mGameGrid.getTileLength();
         return description;
     }
-
-
-    /**
-     * Detects if any of cycles have collided and sets them to crashed status preventing them from
-     * moving.
-     */
-    public void collisionDetection(){
-        for( int currentCycle = 0; currentCycle < mNumCycles; currentCycle++ ){
-            //don't check if already crashed
-            if( mCycles[currentCycle].hasCrashed() )
-                continue;
-            //check if cycle out of bounds,
-            if( mGameGrid.OutOfBounds(mCycles[currentCycle])) {
-                Log.v(TAG, "Player " + currentCycle + " is out of bounds");
-                mCycles[currentCycle].setCrashed(true);
-                continue;
-            }
-            //check to see if cycle crashed with its own path
-            if(mCycles[currentCycle].selfCrashed()) {
-                Log.v(TAG, "Player " + currentCycle + " crashed with itself");
-                mCycles[currentCycle].setCrashed(true);
-                continue;
-            }
-
-            //check to see if cycle crashed with its another cycle or their path
-            for(int otherCycles = 0; otherCycles < mNumCycles; otherCycles++){
-                if(otherCycles == currentCycle )
-                    continue;
-                if(mCycles[otherCycles].intersectsWithPath(mCycles[currentCycle])){
-                    Log.v(TAG,"Player " + currentCycle + " crashed with cycle " + otherCycles);
-                    mCycles[currentCycle].setCrashed(true);
-                    break;
-                }
-
-            }
-        }
-    }
-
 
 
     /**
@@ -575,5 +503,10 @@ public class GameFrame {
             return mTime;
         }
 
+        @Override
+        public String toString() {
+            return "Direction Change Request: player " + mCycleNum +
+                    ", direction " + mDirection + ", at time " + mTime;
+        }
     }
 }

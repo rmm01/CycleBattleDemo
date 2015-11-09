@@ -20,7 +20,7 @@ public class PracticeGameActivity extends AppCompatActivity {
     //private GestureDetector mGestureDetector;
     private MultiSwipeListener mSwipeListener;
     private int mPlayerNum;
-    private long mStartTime;
+    private boolean isRunning;
 
 
     @Override
@@ -29,7 +29,7 @@ public class PracticeGameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_practice_game);
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.practice_game_view);
         mPlayerNum=0;
-        mStartTime=0;
+        isRunning=false;
         //mGestureDetector=new GestureDetector(this,new SwipeGestureListener());
         mSwipeListener = new MultiSwipeListener(5);
     }
@@ -59,6 +59,35 @@ public class PracticeGameActivity extends AppCompatActivity {
     }
 
 
+    public void startButton(View view){
+        isRunning=true;
+        mGameSurfaceView.start(System.currentTimeMillis());
+    }
+
+
+    public void pauseButton(View view){
+        isRunning=false;
+        long pauseTime = System.currentTimeMillis();
+        mGameSurfaceView.pause(pauseTime);
+    }
+
+
+    public void resumeButton(View view){
+        isRunning=true;
+        long resumeTime = System.currentTimeMillis();
+        mGameSurfaceView.resume(resumeTime);
+    }
+
+
+    /**
+     * restart the application.
+     * @param view The GameSurfaceView
+     */
+    public void newGameButton(View view) {
+        mGameSurfaceView.newGame();
+    }
+
+
     /**
      * close the application.
      * @param view The GameSurfaceView
@@ -68,25 +97,19 @@ public class PracticeGameActivity extends AppCompatActivity {
 
 
     /**
-     * restart the application.
-     * @param view The GameSurfaceView
-     */
-    public void restartButton(View view) {
-    }
-
-
-    /**
-     * start/stop the application.
+     * start,pause,resume the application.
      * @param view The GameSurfaceView
      */
     public void startToggle(View view) {
+        long currentTime = System.currentTimeMillis();
         ToggleButton t =(ToggleButton)view;
         Log.v(TAG,"isActivated = "+ t.isChecked());
         if(t.isChecked()){
-            mStartTime=System.currentTimeMillis();
-            mGameSurfaceView.start(mStartTime);
+            isRunning=false;
+            mGameSurfaceView.pause(currentTime);
         }else{
-            mGameSurfaceView.stop();
+            isRunning=true;
+            mGameSurfaceView.resume(currentTime);
         }
     }
 
@@ -121,8 +144,8 @@ public class PracticeGameActivity extends AppCompatActivity {
             long currentTime=System.currentTimeMillis();
 
             Compass flingDirection = Compass.getDirection(x1, y1, x2, y2);
-            Log.v(TAG, "FlingDirection = " + flingDirection + " at time " + (currentTime - mStartTime));
-            mGameSurfaceView.requestDirectionChange(mPlayerNum, flingDirection, currentTime - mStartTime);
+            Log.v(TAG, "FlingDirection = " + flingDirection + " at time " + currentTime );
+            mGameSurfaceView.requestDirectionChange(mPlayerNum, flingDirection, currentTime );
             return true;
         }
     }
@@ -186,7 +209,7 @@ public class PracticeGameActivity extends AppCompatActivity {
          */
         private void isFling(MotionEvent event) {
             //don't accept any gestures until the game starts.
-            if( mStartTime == 0 )
+            if(! isRunning )
                 return;
             int index = event.getActionIndex();
             int id = event.getPointerId(index);
@@ -213,7 +236,7 @@ public class PracticeGameActivity extends AppCompatActivity {
         private void onFling(Point p1, Point p2) {
             Compass flingDirection = Compass.getDirection( p1, p2 );
             int player = determinePlayerNumber(p1, p2, mGameSurfaceView.getHeight());
-            long flingTime = System.currentTimeMillis() - mStartTime;
+            long flingTime = System.currentTimeMillis();
 
             Log.v(TAG, " swipe by player " + player + ", FlingDirection = "
                     + flingDirection + " at time " + flingTime);

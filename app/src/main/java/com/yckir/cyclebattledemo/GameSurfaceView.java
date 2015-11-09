@@ -9,26 +9,32 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 /**
- * View that displays the cycle game. Drawing is done on an AsyncTask. To start and stop the game,
- * the user must call start and stop
+ * View that displays the cycle game. Drawing is done on an AsyncTask.
  */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     public static final String TAG = "GAME_SURFACE_VIEW";
     private final GameFrame mGameFrame;
     private RectangleContainer mRectangleContainer;
     private SurfaceDrawingTask mSurfaceDrawingTask;
-
+    private SurfaceHolder mHolder;
+    private long mStartTime;
+    private long mPauseTime;
+    private long mTotalPauseDelay;
 
     /**
      * constructs the view. Custom xml attributes are read. default values are
-     * tiles_x= 6, tiles_y= 6, cycles -1, border_length=10 and all colors are black. GameContainer, GameFrame,
-     * and SurfaceDrawingTask are constructed using these attributes.
+     * tiles_x = 6, tiles_y = 6, cycles = 1, border_length = 10 and all colors are black.
+     * GameContainer, GameFrame, and SurfaceDrawingTask are constructed using these attributes.
      *
      * @param context context
      * @param attrs xml attributes
      */
     public GameSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mStartTime=0;
+        mPauseTime=0;
+        mTotalPauseDelay=0;
 
         //get custom xml attributes
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -41,32 +47,68 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         int borderSize=a.getDimensionPixelSize(R.styleable.GameSurfaceView_border_length, 10);
         a.recycle();
 
-        SurfaceHolder holder = getHolder();
-        holder.addCallback(this);
+        mHolder = getHolder();
+        mHolder.addCallback(this);
 
         //width and height are unknown so the default size for frame and container is used
         mGameFrame = new GameFrame(numTilesX, numTilesY, numCycles);
         mRectangleContainer = new RectangleContainer(boarderColor,backgroundColor,borderSize);
 
-        mSurfaceDrawingTask=new SurfaceDrawingTask(holder,mGameFrame, mRectangleContainer);
+        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder,mGameFrame, mRectangleContainer);
     }
 
 
     /**
-     * start the animation.
+     * Start the animation.
      *
-     * @param startTime current time in milliseconds.
+     * @param startTime current time in milliseconds
      */
     public void start(long startTime){
-        mGameFrame.setStartTime(startTime);
+        mStartTime=startTime;
+        Log.v(TAG,"Starting at time " + startTime);
+        mGameFrame.setRunning(true);
         mSurfaceDrawingTask.execute(startTime);
     }
 
 
     /**
-     * Stop the game. not functional at the moment.
+     * Pause the animation.
+     *
+     * @param pauseTime current time in milliseconds
      */
-    public void stop(){
+    public void pause(long pauseTime){
+        mPauseTime=pauseTime;
+        Log.v(TAG,"Pausing at time " + pauseTime);
+        mGameFrame.setRunning(false);
+    }
+
+
+    /**
+     * Resume the animation.
+     *
+     * @param resumeTime current time in milliseconds
+     */
+    public void resume(long resumeTime){
+        Log.v(TAG,"Resuming at time " + resumeTime);
+        long pauseDelay = resumeTime - mPauseTime;
+        Log.v(TAG,"pause delay was " + pauseDelay);
+
+        mTotalPauseDelay+=pauseDelay;
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
+        mGameFrame.setRunning(true);
+        mSurfaceDrawingTask.execute( mStartTime + mTotalPauseDelay);
+    }
+
+
+    /**
+     * Revert the state to before start was called
+     */
+    public void newGame(){
+        mGameFrame.newGame();
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
+        Canvas canvas = mHolder.lockCanvas();
+        mSurfaceDrawingTask.doDraw(canvas);
+        mHolder.unlockCanvasAndPost(canvas);
     }
 
 
@@ -75,10 +117,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      *
      * @param cycleNum the id for the cycle
      * @param newDirection the new direction for the cycle
-     * @param time time in milliseconds after start was called.
+     * @param currentTime current time in milliseconds
      */
-    public void requestDirectionChange(int cycleNum, Compass newDirection, long time){
-        mGameFrame.requestDirectionChange(cycleNum, newDirection, time);
+    public void requestDirectionChange(int cycleNum, Compass newDirection, long currentTime){
+        mGameFrame.requestDirectionChange( cycleNum, newDirection, currentTime -
+                ( mStartTime + mTotalPauseDelay ) );
     }
 
     //callback methods
