@@ -8,29 +8,40 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ToggleButton;
 import java.util.ArrayList;
 
 /**
  * a practice mode for the game.
  */
-public class PracticeGameActivity extends AppCompatActivity {
+public class PracticeGameActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener {
     public static final String TAG="PRACTICE_GAME";
     private GameSurfaceView mGameSurfaceView;
-    //private GestureDetector mGestureDetector;
     private MultiSwipeListener mSwipeListener;
     private int mPlayerNum;
     private boolean isRunning;
+    private Button mStartButton;
+    private Button mPauseButton;
+    private Button mResumeButton;
+    private Button mNewGameButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_practice_game);
-        mGameSurfaceView = (GameSurfaceView)findViewById(R.id.practice_game_view);
+
         mPlayerNum=0;
         isRunning=false;
-        //mGestureDetector=new GestureDetector(this,new SwipeGestureListener());
+
+        setContentView(R.layout.multiplayer_game_activity);
+        mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
+        mStartButton = (Button)findViewById(R.id.start_game_button);
+        mPauseButton = (Button)findViewById(R.id.pause_game_button);
+        mResumeButton = (Button)findViewById(R.id.resume_game_button);
+        mNewGameButton = (Button)findViewById(R.id.new_game_button);
+
+        mGameSurfaceView.addGameEventListener(this);
         mSwipeListener = new MultiSwipeListener(5);
     }
 
@@ -59,40 +70,55 @@ public class PracticeGameActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Called when the start button is pressed.
+     *
+     * @param view The start Button
+     */
     public void startButton(View view){
         isRunning=true;
+        view.setVisibility(View.INVISIBLE);
+        mPauseButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
     }
 
 
+    /**
+     * Called when the pause button is pressed.
+     *
+     * @param view The pause Button
+     */
     public void pauseButton(View view){
         isRunning=false;
-        long pauseTime = System.currentTimeMillis();
-        mGameSurfaceView.pause(pauseTime);
+        view.setVisibility(View.INVISIBLE);
+        mResumeButton.setVisibility(View.VISIBLE);
+        mGameSurfaceView.pause(System.currentTimeMillis());
     }
 
 
+    /**
+     * Called when the resume button is pressed.
+     *
+     * @param view The resume Button
+     */
     public void resumeButton(View view){
         isRunning=true;
-        long resumeTime = System.currentTimeMillis();
-        mGameSurfaceView.resume(resumeTime);
+        view.setVisibility(View.INVISIBLE);
+        mPauseButton.setVisibility(View.VISIBLE);
+        mGameSurfaceView.resume(System.currentTimeMillis());
     }
 
 
     /**
-     * restart the application.
-     * @param view The GameSurfaceView
+     * Called when the NewGame button is pressed.
+     *
+     * @param view The NewGame Button
      */
     public void newGameButton(View view) {
+        isRunning = false;
+        view.setVisibility(View.INVISIBLE);
+        mStartButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
-    }
-
-
-    /**
-     * close the application.
-     * @param view The GameSurfaceView
-     */
-    public void exitButton(View view) {
     }
 
 
@@ -103,7 +129,7 @@ public class PracticeGameActivity extends AppCompatActivity {
     public void startToggle(View view) {
         long currentTime = System.currentTimeMillis();
         ToggleButton t =(ToggleButton)view;
-        Log.v(TAG,"isActivated = "+ t.isChecked());
+        Log.v(TAG, "isActivated = " + t.isChecked());
         if(t.isChecked()){
             isRunning=false;
             mGameSurfaceView.pause(currentTime);
@@ -117,8 +143,15 @@ public class PracticeGameActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mSwipeListener.receiveTouchEvent(event);
-        //mGestureDetector.onTouchEvent(event);
         return true;
+    }
+
+
+    @Override
+    public void gameEnded(int winner) {
+        isRunning=false;
+        mPauseButton.setVisibility(View.INVISIBLE);
+        mNewGameButton.setVisibility(View.VISIBLE);
     }
 
 

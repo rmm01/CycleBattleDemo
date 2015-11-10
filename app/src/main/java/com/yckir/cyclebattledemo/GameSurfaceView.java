@@ -11,7 +11,7 @@ import android.view.SurfaceView;
 /**
  * View that displays the cycle game. Drawing is done on an AsyncTask.
  */
-public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
+public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, SurfaceDrawingTask.DrawingTaskListener{
     public static final String TAG = "GAME_SURFACE_VIEW";
     private final GameFrame mGameFrame;
     private RectangleContainer mRectangleContainer;
@@ -20,6 +20,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private long mStartTime;
     private long mPauseTime;
     private long mTotalPauseDelay;
+    private GameEventListener mGameEventListener;
+    private int mState;
+    private final int WAITING=0;
+    private final int RUNNING=1;
+    private final int PAUSED=2;
+    private final int FINISHED=3;
 
     /**
      * constructs the view. Custom xml attributes are read. default values are
@@ -32,9 +38,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public GameSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mStartTime=0;
-        mPauseTime=0;
-        mTotalPauseDelay=0;
+        mState = WAITING;
+        mStartTime = 0;
+        mPauseTime = 0;
+        mTotalPauseDelay = 0;
+        mGameEventListener = null;
 
         //get custom xml attributes
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -55,6 +63,17 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mRectangleContainer = new RectangleContainer(boarderColor,backgroundColor,borderSize);
 
         mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder,mGameFrame, mRectangleContainer);
+        mSurfaceDrawingTask.addListener(this);
+    }
+
+
+    /**
+     * Add a listener that will respond to important game events.
+     *
+     * @param listener the listener that will be called notified when game events happen
+     */
+    public void addGameEventListener(GameEventListener listener){
+        mGameEventListener = listener;
     }
 
 
@@ -64,8 +83,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param startTime current time in milliseconds
      */
     public void start(long startTime){
-        mStartTime=startTime;
         Log.v(TAG,"Starting at time " + startTime);
+
+        mState=RUNNING;
+        mStartTime=startTime;
         mGameFrame.setRunning(true);
         mSurfaceDrawingTask.execute(startTime);
     }
@@ -77,8 +98,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param pauseTime current time in milliseconds
      */
     public void pause(long pauseTime){
+        Log.v(TAG, "Pausing at time " + pauseTime);
+
+        mState=PAUSED;
         mPauseTime=pauseTime;
-        Log.v(TAG,"Pausing at time " + pauseTime);
         mGameFrame.setRunning(false);
     }
 
@@ -89,14 +112,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param resumeTime current time in milliseconds
      */
     public void resume(long resumeTime){
-        Log.v(TAG,"Resuming at time " + resumeTime);
+        mState=RUNNING;
         long pauseDelay = resumeTime - mPauseTime;
+        mTotalPauseDelay+=pauseDelay;
+        Log.v(TAG,"Resuming at time " + resumeTime);
         Log.v(TAG,"pause delay was " + pauseDelay);
 
-        mTotalPauseDelay+=pauseDelay;
-        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
         mGameFrame.setRunning(true);
-        mSurfaceDrawingTask.execute( mStartTime + mTotalPauseDelay);
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
+        mSurfaceDrawingTask.addListener(this);
+        mSurfaceDrawingTask.execute(mStartTime + mTotalPauseDelay);
     }
 
 
@@ -104,11 +129,39 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * Revert the state to before start was called
      */
     public void newGame(){
+        mState=WAITING;
+        mStartTime=0;
+        mPauseTime=0;
+        mTotalPauseDelay=0;
+
         mGameFrame.newGame();
         mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
+        mSurfaceDrawingTask.addListener(this);
+
         Canvas canvas = mHolder.lockCanvas();
         mSurfaceDrawingTask.doDraw(canvas);
         mHolder.unlockCanvasAndPost(canvas);
+    }
+
+
+    /**
+     * Gets string form of the current state of the game.
+     *
+     * @return string form of Paused, Running, Waiting, or Finished
+     */
+    public String getState() {
+        switch (mState) {
+            case RUNNING:
+                return "RUNNING";
+            case PAUSED:
+                return "PAUSED";
+            case FINISHED:
+                return "FINISHED";
+            case WAITING:
+                return "WAITING";
+            default:
+                return "UNKNOWN";
+        }
     }
 
 
@@ -124,6 +177,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 ( mStartTime + mTotalPauseDelay ) );
     }
 
+
     //callback methods
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -131,7 +185,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = holder.lockCanvas();
         canvas.drawColor(getResources().getColor(R.color.colorPrimary));
         holder.unlockCanvasAndPost(canvas);
-
     }
 
 
@@ -146,7 +199,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = holder.lockCanvas();
         mSurfaceDrawingTask.doDraw(canvas);
         holder.unlockCanvasAndPost(canvas);
-
     }
 
     @Override
@@ -169,5 +221,32 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mGameFrame.drawFrame(canvas);
         //draw path
         canvas.restore();
+    }
+
+
+    /**
+     * Called when an async task is finished. Notifies a listener if it exists
+     */
+    @Override
+    public void taskEnded() {
+        if(mGameEventListener != null && mState == RUNNING) {
+            mState=FINISHED;
+            mGameEventListener.gameEnded(0);
+        }
+    }
+
+
+    /**
+     * interface to notify of important game events.
+     */
+    interface GameEventListener {
+
+        /**
+         * Called when the game has finished.
+         *
+         * @param winner the cycleNumber of the winner
+         */
+        void gameEnded(int winner);
+
     }
 }

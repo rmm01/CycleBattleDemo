@@ -20,7 +20,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     private long mTotalTaskDelay;
     private long mTotalUpdatePositionDelay;
     private long mTotalDrawDelay;
-
+    private DrawingTaskListener mListener;
 
     /**
      * Constructs drawing task that draws on the canvas provided by a surface holder.
@@ -33,6 +33,17 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         mSurfaceHolder=holder;
         mGameFrame=gameFrame;
         mRectangleContainer = rectangleContainer;
+        mListener=null;
+    }
+
+
+    /**
+     * Add a listener that will be notified when the task ends.
+     *
+     * @param listener the listener that will be notified
+     */
+    public void addListener(DrawingTaskListener listener){
+        mListener = listener;
     }
 
 
@@ -49,15 +60,21 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         Log.v(TAG, "starting at time " + start);
         while (mGameFrame.isRunning()){
             frameStartTime=System.currentTimeMillis() - start;
-            Log.v(TAG, "creating frame at time " + frameStartTime);
             mGameFrame.checkDirectionChangeRequests();
             mGameFrame.move( frameStartTime );
             mGameFrame.collisionDetection();
             drawFrame();
-
         }
-        Log.v(TAG,"Done ");
+        Log.v(TAG,"Done with task");
         return null;
+    }
+
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        if(mListener!=null){
+            mListener.taskEnded();
+        }
     }
 
 
@@ -172,5 +189,18 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
             Log.v("SUMMARY","total updatePosition delay "+ mTotalUpdatePositionDelay);
             Log.v("SUMMARY","total draw delay "+mTotalDrawDelay);
         }
+    }
+
+
+    /**
+     * Interface that responds when the task finishes execution.
+     */
+    interface DrawingTaskListener {
+
+        /**
+         * called when the task finishes execution.
+         */
+        void taskEnded();
+
     }
 }
