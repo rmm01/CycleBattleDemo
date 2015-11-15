@@ -2,6 +2,7 @@ package com.yckir.cyclebattledemo;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,8 +45,31 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         mNewGameButton = (Button)findViewById(R.id.new_game_button);
 
         mGameSurfaceView.addGameEventListener(this);
-        mSwipeListener = new MultiSwipeListener(5);
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int metricHeight = metrics.heightPixels;
+        int statusBarHeight = getStatusBarHeight();
+        int midHeight = (metricHeight + statusBarHeight)/2;
+        Log.v(TAG, metricHeight + ", " + statusBarHeight +", " + midHeight);
+
+        mSwipeListener = new MultiSwipeListener(5,midHeight);
     }
+
+
+    /**
+     * Gets the height of the status bar.
+     *
+     * @return the height of the status bar in pixels
+     */
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
 
     @Override
     protected void onStart() {
@@ -88,8 +112,8 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         Log.v(TAG, " onSaveInstanceState ");
 
         outState.putBoolean(START_VISIBILITY_KEY, mStartButton.getVisibility() == View.VISIBLE);
-        outState.putBoolean(PAUSE_VISIBILITY_KEY, mPauseButton.getVisibility()== View.VISIBLE);
-        outState.putBoolean(RESUME_VISIBILITY_KEY, mResumeButton.getVisibility()== View.VISIBLE);
+        outState.putBoolean(PAUSE_VISIBILITY_KEY, mPauseButton.getVisibility() == View.VISIBLE);
+        outState.putBoolean(RESUME_VISIBILITY_KEY, mResumeButton.getVisibility() == View.VISIBLE);
         outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGameButton.getVisibility() == View.VISIBLE);
 
         super.onSaveInstanceState(outState);
@@ -196,8 +220,6 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     public void logInfoButton(View view) {
         String state = this.toString();
 
-
-
         for( String line : state.split("\n") ) {
             Log.v( "STATE", line );
         }
@@ -260,10 +282,11 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
 
         private ArrayList<Point> mEvents;
         private final double MIN_FLING_DISTANCE = 10;
+        private int mMidHeight;
 
-
-        public MultiSwipeListener(int size){
+        public MultiSwipeListener(int size, int midHeight){
             mEvents = new ArrayList<>(size);
+            mMidHeight=midHeight;
         }
 
 
@@ -336,7 +359,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
          */
         private void onFling(Point p1, Point p2) {
             Compass flingDirection = Compass.getDirection( p1, p2 );
-            int player = determinePlayerNumber(p1, p2, mGameSurfaceView.getHeight());
+            int player = determinePlayerNumber(p1, p2);
             long flingTime = System.currentTimeMillis();
 
             Log.v(TAG, " swipe by player " + player + ", FlingDirection = "
@@ -352,14 +375,13 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
          *
          * @param p1 point 1
          * @param p2 point 2
-         * @param height the height of the screen
          * @return the player that swiped the screen
          */
-        private int determinePlayerNumber(Point p1, Point p2, int height){
+        private int determinePlayerNumber(Point p1, Point p2){
             double y1 = p1.getPositionY();
             double y2 = p2.getPositionY();
             int swipeCenter = (int)( Math.abs( y2 - y1 ) / 2 + Math.min( y2, y1 ) );
-            int player = swipeCenter/(height/2);
+            int player = swipeCenter/mMidHeight;
             if(player>1) {
                 Log.v(TAG,"The swipe was outside the height, assuming it was player 1");
                 player = 1;
