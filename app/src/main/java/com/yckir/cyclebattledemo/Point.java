@@ -117,4 +117,13 @@ public class Point {
         double y2 = p2.getPositionY();
         Log.v(TAG, "p1: " + (int) x1 + ", " + (int) y1 + ",  p2: " + (int) x2 + ", " + (int) y2 + ", ");
     }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("X",X);
+        description.addMember("Y",Y);
+        return description.getString();
+    }
 }

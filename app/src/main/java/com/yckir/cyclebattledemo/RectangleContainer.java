@@ -8,10 +8,10 @@ import android.graphics.Paint;
  * border surrounding it.
  */
 public class RectangleContainer {
-    public static final String TAG = "GAME_SURFACE_VIEW";
-    public static final int DEFAULT_BORDER_LENGTH =10;
+    public static final String      TAG                     =   "RECTANGLE_CONTAINER";
+    public static final int         DEFAULT_BORDER_LENGTH   =   10;
 
-    //the space between theedge of teh container and the inner rectangle
+    //the space between the edge of the container and the inner rectangle
     private int mGridPaddingX;
     private int mGridPaddingY;
 
@@ -206,5 +206,28 @@ public class RectangleContainer {
                 mRight,
                 mBottomOuter,
                 mBorderPaint);
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mGridPaddingX", mGridPaddingX);
+        description.addMember("mGridPaddingY", mGridPaddingY);
+        description.addMember("mWidth", mWidth);
+        description.addMember("mHeight", mHeight);
+        description.addMember("mRectangleWidth", mRectangleWidth);
+        description.addMember("mRectangleHeight", mRectangleHeight);
+        description.addMember("mLeft", mLeft);
+        description.addMember("mRight", mRight);
+        description.addMember("mTop", mTop);
+        description.addMember("mBottom", mBottom);
+        description.addMember("mLeftOuter", mLeftOuter);
+        description.addMember("mRightOuter", mRightOuter);
+        description.addMember("mTopOuter", mTopOuter);
+        description.addMember("mBottomOuter", mBottomOuter);
+        description.addMember("mBorderLength", mBorderLength);
+
+        return description.getString();
     }
 }

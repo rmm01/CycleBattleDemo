@@ -1,5 +1,7 @@
 package com.yckir.cyclebattledemo;
 
+import android.os.Bundle;
+
 /**
  * A line that exists on a 2d grid. Records the time when this line was created. The line has a
  * thickness. Imagine a  horizontal line on a paper and a square pencil. You trace the line on the
@@ -8,6 +10,12 @@ package com.yckir.cyclebattledemo;
  * does not equal lineLength unless the thickness is zero
  */
 public class GridLine implements Grid.GridObject {
+    public  static final String   TAG               =   "GRID_LINE";
+    private static final String   DIRECTION_KEY     =   TAG + ":DIRECTION";
+    private static final String   LINE_LENGTH_KEY   =   TAG + ":LINE_LENGTH";
+    private static final String   END_TIME_KEY      =   TAG + ":END_TIME";
+    private static final String   X_KEY             =   TAG + ":X";
+    private static final String   Y_KEY             =   TAG + ":Y";
 
     private Point mStartPoint;
     private Point mCenterPoint;
@@ -93,7 +101,6 @@ public class GridLine implements Grid.GridObject {
             mTop = mStartPoint.getPositionY() + mLineThickness;
         }
     }
-
 
 
     @Override
@@ -255,5 +262,55 @@ public class GridLine implements Grid.GridObject {
      */
     public GridLine makeCopy(){
         return new GridLine(mStartPoint,mLineLength,mLineThickness,mEndTime,mDirection);
+    }
+
+
+    /**
+     * Save the state of the GridLine onto a bundle.
+     *
+     * @param bundle the bundle to save the state onto
+     */
+    public void saveState(Bundle bundle, String id) {
+        bundle.putSerializable(DIRECTION_KEY + id, mDirection);
+        bundle.putDouble(LINE_LENGTH_KEY + id, mLineLength);
+        bundle.putLong(END_TIME_KEY + id, mEndTime);
+        bundle.putDouble(X_KEY + id, mStartPoint.getPositionX());
+        bundle.putDouble(Y_KEY + id, mStartPoint.getPositionY());
+    }
+
+
+    /**
+     * Restore the previous state of the GridLine from a bundle.
+     *
+     * @param bundle the bundle that has the previous state saved
+     */
+    public static GridLine restoreState(Bundle bundle, String id, double thickness){
+        Compass direction = (Compass) bundle.getSerializable(DIRECTION_KEY + id);
+        double lineLength = bundle.getDouble(LINE_LENGTH_KEY + id);
+        long endTime = bundle.getLong(END_TIME_KEY + id);
+        double x = bundle.getDouble(X_KEY + id);
+        double y = bundle.getDouble(Y_KEY + id);
+        return new GridLine(x,y,lineLength,thickness,endTime,direction);
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mDirection",mDirection );
+        description.addMember("mLineLength",mLineLength );
+        description.addMember("mLineThickness", mLineThickness);
+        description.addMember("mWidth", mWidth);
+        description.addMember("mHeight", mHeight);
+        description.addMember("mLeft", mLeft);
+        description.addMember("mRight",mRight );
+        description.addMember("mTop",mTop );
+        description.addMember("mBottom", mBottom);
+        description.addMember("mEndTime", mEndTime);
+        description.addClassMember("mStartPoint",mStartPoint);
+        description.addClassMember("mCenterPoint",mCenterPoint);
+        description.addClassMember("mEndPoint",mEndPoint);
+
+        return description.getString();
     }
 }

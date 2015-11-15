@@ -3,6 +3,7 @@ package com.yckir.cyclebattledemo;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.util.Log;
 import java.util.ArrayList;
 
@@ -15,13 +16,18 @@ import java.util.ArrayList;
  * path was at the first point on the line.
  */
 public class LinePath {
-    public static final String TAG = "LINE_PATH";
-    private final double DEFAULT_THICKNESS = 0.1;
+    public  static final String     TAG                     =    "LINE_PATH";
+    private static final String     LAST_INDEX_KEY          =    TAG + ":LAST_INDEX";
+    private static final String     DIRECTION_CHANGED_KEY   =    TAG + ":DIRECTION_CHANGED";
+    private static final String     START_TIME_KEY          =    TAG + ":START_TIME";
+    private static final double     DEFAULT_THICKNESS       =    0.1;
+
     private ArrayList<GridLine> mPathHistory;
     private ArrayList<GridLine> mDrawingPathHistory;
-    private int mLastLineIndex;
     private boolean mDirectionChanged;
+    private int mLastLineIndex;
     private long mStartTime;
+
 
 
     /**
@@ -308,5 +314,61 @@ public class LinePath {
      */
     public Point getLastPoint(){
         return mPathHistory.get(mLastLineIndex).getEndPoint();
+    }
+
+
+    /**
+     * Save the state of the LinePath onto a bundle.
+     *
+     * @param bundle the bundle to save the state onto
+     */
+    public void saveState(Bundle bundle, String id) {
+        bundle.putInt(LAST_INDEX_KEY + id,mLastLineIndex);
+        bundle.putBoolean(DIRECTION_CHANGED_KEY + id, mDirectionChanged);
+        bundle.putLong(START_TIME_KEY + id, mStartTime);
+        String lineId;
+        for(int i = 0; i <= mLastLineIndex;i++){
+            lineId=id+"-Line_"+i;
+            mPathHistory.get(i).saveState(bundle, lineId);
+        }
+    }
+
+
+    /**
+     * Restore the previous state of the LinePath from a bundle.
+     *
+     * @param bundle the bundle that has the previous state saved
+     */
+    public void restoreState(Bundle bundle, String id){
+        mLastLineIndex = bundle.getInt(LAST_INDEX_KEY + id, 0);
+        mDirectionChanged = bundle.getBoolean(DIRECTION_CHANGED_KEY + id, false);
+        mStartTime = bundle.getLong(START_TIME_KEY + id, 0);
+
+        mPathHistory = new ArrayList<>();
+
+        String lineId;
+        for(int i = 0; i <= mLastLineIndex;i++){
+            lineId=id+"-Line_"+i;
+            mPathHistory.add( GridLine.restoreState( bundle, lineId, DEFAULT_THICKNESS ) );
+            makeDrawingLine(i);
+        }
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mLastLineIndex", mLastLineIndex );
+        description.addMember("mDirectionChanged", mDirectionChanged);
+        description.addMember("mStartTime", mStartTime);
+
+        for(int i = 0; i <= mLastLineIndex; i ++)
+            description.addClassMember("mPathHistory[" + i + "}", mPathHistory.get(i));
+
+        for(int i = 0; i <= mLastLineIndex; i ++)
+            description.addClassMember("mDrawingPathHistory[" + i + "]", mDrawingPathHistory.get(i));
+
+
+        return description.getString();
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -13,42 +14,52 @@ import java.util.concurrent.ArrayBlockingQueue;
  * the animation frames.
  */
 public class GameFrame {
-    public static final String TAG = "GAME_FRAME";
+    public  static final String     TAG                     =   "GAME_FRAME";
+    private static final String     REMAINING_CYCLES_KEY    =   TAG + ":REMAINING_CYCLES";
+    private static final int        DEFAULT_FRAME_WIDTH     =   300;
+    private static final int        DEFAULT_FRAME_HEIGHT    =   300;
+    private static final int        GAME_GRID_TILE_LENGTH   =   1;
 
     // This grid will be the same for each player in the same game. All movement, collision
     // detection, etc will be done on this grid and later drawn to fit the users device screen.
     private Grid mGameGrid;
 
-    private int mNumCycles;
-    private int mRemainingCycles;
-    private Cycle[] mCycles;
+    /**
+     * queue that holds requests to change the direction
+     */
+    private ArrayBlockingQueue<DirectionChangeRequest> mDirectionChanges;
 
-    // data for a tile that appears on the animation frame, this will depend upon the
-    // users device screen
+    /**
+     * data for a tile that appears on the animation frame, this will depend upon the
+     * users device screen
+     */
     public static Tile<Integer> SCREEN_GRID_TILE = new Tile<>(100);
-
-    //the width and height that the Game must fit into
-    private int mFrameWidth;
-    private int mFrameHeight;
-
-    //the height and width of the Grid when displayed on the animation frame
-    private int mFrameGridWidth;
-    private int mFrameGridHeight;
-
-    //the spacing between the left and top edges of the animation frame and the grid
-    private int mGridPaddingX;
-    private int mGridPaddingY;
 
     private Paint mGridLinePaint;
 
-    private static final int DEFAULT_FRAME_WIDTH =300;
-    private static final int DEFAULT_FRAME_HEIGHT =300;
-    private static final int GAME_GRID_TILE_LENGTH =1;
-
+    private Cycle[] mCycles;
     private boolean mRunning;
+    private int mNumCycles;
+    private int mRemainingCycles;
 
-    //queue that holds requests to change the direction
-    private ArrayBlockingQueue<DirectionChangeRequest> mDirectionChanges;
+    /**
+     *     the width and height that the Game must fit into
+     */
+    private int mFrameWidth;
+    private int mFrameHeight;
+
+    /**
+     *     the height and width of the Grid when displayed on the animation frame
+     */
+    private int mFrameGridWidth;
+    private int mFrameGridHeight;
+
+    /**
+     *     the spacing between the left and top edges of the animation frame and the grid
+     */
+    private int mGridPaddingX;
+    private int mGridPaddingY;
+
 
 
     /**
@@ -152,7 +163,6 @@ public class GameFrame {
         mCycles= new Cycle[mNumCycles];
         for(int i=0;i<mNumCycles;i++){
             mCycles[i]=new Cycle(0.5+i,0.5,.25,.25,i);
-            mCycles[i].drawCycle(SCREEN_GRID_TILE.getLength(), SCREEN_GRID_TILE.getLength());
         }
     }
 
@@ -201,7 +211,7 @@ public class GameFrame {
 
         canvas.save();
         canvas.clipRect(paddingX,paddingY,paddingX+mFrameGridWidth,paddingY+mFrameGridHeight);
-        for (int i=0;i<mNumCycles;i++){
+        for (int i=0; i < mNumCycles; i++){
             mCycles[i].drawPath(canvas);
         }
         canvas.restore();
@@ -442,18 +452,53 @@ public class GameFrame {
     }
 
 
+    /**
+     * Save the state of the GameFrame onto a bundle.
+     *
+     * @param bundle the bundle to save the state onto
+     */
+    public void saveState(Bundle bundle){
+        bundle.putInt(REMAINING_CYCLES_KEY,mRemainingCycles);
+        for(int i = 0; i < mNumCycles; i++){
+            mCycles[i].saveState(bundle);
+        }
+    }
+
+
+    /**
+     * Restore the previous state of the GameFrame from a bundle.
+     *
+     * @param bundle the bundle that has the previous state saved
+     */
+    public void restoreState(Bundle bundle){
+        mRemainingCycles = bundle.getInt(REMAINING_CYCLES_KEY,mNumCycles);
+        for(int i = 0; i < mNumCycles; i++){
+            mCycles[i].restoreState(bundle);
+        }
+    }
+
+
     @Override
     public String toString() {
-        String description ="~\n"+TAG;
-        description+="\n|\twidth: "+ mFrameWidth +", height: "+ mFrameHeight;
-        description+="\n|\tscreenWidth: "+ mFrameGridWidth +", screenHeight: "+ mFrameGridHeight;
-        description+="\n|\tpaddingX: "+mGridPaddingX+", paddingY: "+mGridPaddingY;
-        description+="\n|\ttileLength: "+ SCREEN_GRID_TILE.getLength();
-        description+="\n|\tnumCycles: "+mNumCycles;
-        description+="\n|\t"+Grid.TAG;
-        description+="\n|\t\tnumTilesX: "+ mGameGrid.getNumTilesX()+", numTilesY: "+ mGameGrid.getNumTilesY();
-        description+="\n|\t\ttileLength: "+ mGameGrid.getTileLength();
-        return description;
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mNumCycles",mNumCycles );
+        description.addMember("mRemainingCycles", mRemainingCycles);
+        description.addMember("mFrameWidth", mFrameWidth);
+        description.addMember("mFrameHeight", mFrameHeight);
+        description.addMember("mFrameGridWidth", mFrameGridWidth);
+        description.addMember("mFrameGridHeight", mFrameGridHeight);
+        description.addMember("mGridPaddingX", mGridPaddingX);
+        description.addMember("mGridPaddingY", mGridPaddingY);
+        description.addMember("mRunning", mRunning);
+        description.addClassMember("mGameGrid", mGameGrid);
+        description.addClassMember("SCREEN_GRID_TILE", SCREEN_GRID_TILE);
+
+        for(int i = 0; i <mNumCycles;i++)
+            description.addClassMember("mCycle[" + i + "}", mCycles[i]);
+
+
+        return description.getString();
+
     }
 
 

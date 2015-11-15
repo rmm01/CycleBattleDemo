@@ -1,10 +1,9 @@
 package com.yckir.cyclebattledemo;
 
-
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.util.Log;
 
 
@@ -16,15 +15,14 @@ import android.util.Log;
  *      @version 0.2
  */
 public class Cycle extends GridRectangle{
-    /**
-     * Identifier for debugging.
-     */
-    public static final String TAG= "Cycle";
 
-    /**
-     *     bitmap of the drawn cycle, always square in size
-     */
-    private Bitmap mCycleBitmap;
+    public  static final String     TAG             =   "Cycle";
+    private static final String     CRASHED_KEY     =   TAG + ":CRASHED";
+    private static final String     DIRECTION_KEY   =   TAG + ":DIRECTION";
+    private static final String     X_KEY           =   TAG + ":X";
+    private static final String     Y_KEY           =   TAG + ":Y";
+    private static final int        DEFAULT_SPEED   =   2;
+    private final String TAG_ID;
 
     /**
      *  the id for this cycle
@@ -40,8 +38,11 @@ public class Cycle extends GridRectangle{
      * The speed that the cycle moves at. This is measured in terms of tiles per second
      */
     private int mSpeed;
+
+    /**
+     * If the Cycle crashed and can o longer move
+     */
     private boolean mCrashed;
-    public static final int DEFAULT_SPEED=2;
 
     /**
      * the direction that the cycle is traveling in
@@ -68,13 +69,13 @@ public class Cycle extends GridRectangle{
     public Cycle(double centerX, double centerY,double width, double height,int cycleId) {
         super(centerX, centerY, width, height);
         mCycleId=cycleId;
+        TAG_ID = "-Cycle_"+mCycleId;
         mPaint=new Paint();
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
         mPath=new LinePath(centerX,centerY,0,mDirection);
         mCrashed=false;
         setDefaultCycleColor();
-        drawCycle(50, 50);
     }
 
 
@@ -90,12 +91,12 @@ public class Cycle extends GridRectangle{
     public Cycle(double centerX, double centerY,double width, double height,int cycleId, Paint paint) {
         super(centerX, centerY, width, height);
         mCycleId=cycleId;
+        TAG_ID = "-Cycle_"+mCycleId;
         mPaint=paint;
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
         mCrashed=false;
         mPath=new LinePath(centerX,centerY,0,mDirection);
-        drawCycle(50, 50);
     }
 
 
@@ -147,23 +148,6 @@ public class Cycle extends GridRectangle{
 
 
     /**
-     * Draws the cycle on a bitmap of the specified size. The cycle is a square that is
-     * filled with a single color. The user is responsible for making sure the parameters are
-     * non negative. Get the bitmap with getCycleBitmap();
-     *
-     * @param width  the width of the bitmap that the cycle should be drawn on
-     * @param height the height of the bitmap that the cycle should be drawn on
-     *
-     */
-    public void drawCycle(int width,int height){
-       // Log.v(TAG,"left is "+getLeft()+", top is "+getTop());
-        mCycleBitmap= Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(mCycleBitmap);
-        c.drawColor(mPaint.getColor());
-    }
-
-
-    /**
      * Draw the cycle that fills the given canvas. THe cycle is a solid rectangle.
      *
      * @param canvas the canvas where the cycle will be drawn on
@@ -172,14 +156,6 @@ public class Cycle extends GridRectangle{
         // Log.v(TAG,"left is "+getLeft()+", top is "+getTop());
         canvas.drawColor(mPaint.getColor());
     }
-
-
-    /**
-     * Get the bitmap of the cycle. The default size is 50x50. Calling drawCycle will change
-     * the default size.
-     * @return the cycle drawn onto a bitmap
-     */
-    public Bitmap getCycleBitmap(){return mCycleBitmap;}
 
 
     /**
@@ -260,7 +236,7 @@ public class Cycle extends GridRectangle{
      * @param canvas the canvas that the path should be drawn on
      */
     public void drawPath(Canvas canvas){
-        mPath.drawPath(canvas,mPaint);
+        mPath.drawPath(canvas, mPaint);
     }
 
 
@@ -309,13 +285,47 @@ public class Cycle extends GridRectangle{
     }
 
 
+    /**
+     * Save the state of the cycle onto a bundle.
+     *
+     * @param bundle the bundle to save the state onto
+     */
+    public void saveState(Bundle bundle) {
+        bundle.putBoolean( CRASHED_KEY + TAG_ID, mCrashed );
+        bundle.putSerializable( DIRECTION_KEY + TAG_ID, mDirection );
+        bundle.putDouble( X_KEY + TAG_ID, getX() );
+        bundle.putDouble( Y_KEY + TAG_ID, getY() );
+        mPath.saveState( bundle, TAG_ID );
+    }
+
+
+    /**
+     * Restore the previous state of the cycle from a bundle.
+     *
+     * @param bundle the bundle that has the previous state saved
+     */
+    public void restoreState(Bundle bundle){
+        mCrashed = bundle.getBoolean( CRASHED_KEY +TAG_ID, false );
+        mDirection = (Compass)bundle.getSerializable( DIRECTION_KEY+ TAG_ID );
+        double x = bundle.getDouble( X_KEY + TAG_ID, 0 );
+        double y = bundle.getDouble( Y_KEY + TAG_ID, 0 );
+        setCenter(x, y);
+        mPath.restoreState( bundle, TAG_ID );
+    }
+
+
     @Override
     public String toString() {
-        String details ="~\n"+TAG+":";
-                details+=mCycleId;
-        //details+="\n|\tdirecion: "+mCycleDirection;
-        //details+="\n|\tmoving: "+isCycleMoving;
 
-        return details;
+        ClassStateString description = new ClassStateString(TAG);
+        description.incrementTabs();
+        description.concat(super.toString());
+        description.decrementTabs();
+        description.addMember("mCycleId", mCycleId);
+        description.addMember("mSpeed", mSpeed);
+        description.addMember("mCrashed", mCrashed);
+        description.addMember("mDirection", mDirection);
+        description.addClassMember("mPath", mPath);
+        return description.getString();
     }
 }

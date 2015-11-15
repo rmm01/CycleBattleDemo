@@ -3,6 +3,8 @@ package com.yckir.cyclebattledemo;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -11,21 +13,33 @@ import android.view.SurfaceView;
 /**
  * View that displays the cycle game. Drawing is done on an AsyncTask.
  */
-public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback, SurfaceDrawingTask.DrawingTaskListener{
-    public static final String TAG = "GAME_SURFACE_VIEW";
-    private final GameFrame mGameFrame;
+public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
+        SurfaceDrawingTask.DrawingTaskListener{
+
+    public  static final String     TAG                     =   "GAME_SURFACE_VIEW";
+    private static final String     WIDTH_KEY               =   TAG + ":HEIGHT";
+    private static final String     HEIGHT_KEY              =   TAG + ":WIDTH";
+    private static final String     STATE_KEY               =   TAG + ":STATE";
+    private static final String     START_TIME_KEY          =   TAG + ":START_TIME";
+    private static final String     PAUSE_TIME_KEY          =   TAG + ":PAUSE_TIME";
+    private static final String     TOTAL_PAUSE_DELAY_KEY   =   TAG + ":TOTAL_PAUSE_DELAY";
+    private        final int        WAITING                 =   0;
+    private        final int        RUNNING                 =   1;
+    private        final int        PAUSED                  =   2;
+    private        final int        FINISHED                =   3;
+
+    private GameFrame mGameFrame;
     private RectangleContainer mRectangleContainer;
     private SurfaceDrawingTask mSurfaceDrawingTask;
+    private GameEventListener mGameEventListener;
     private SurfaceHolder mHolder;
+
+    private int mWidth;
+    private int mHeight;
+    private int mState;
     private long mStartTime;
     private long mPauseTime;
     private long mTotalPauseDelay;
-    private GameEventListener mGameEventListener;
-    private int mState;
-    private final int WAITING=0;
-    private final int RUNNING=1;
-    private final int PAUSED=2;
-    private final int FINISHED=3;
 
     /**
      * constructs the view. Custom xml attributes are read. default values are
@@ -42,6 +56,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mStartTime = 0;
         mPauseTime = 0;
         mTotalPauseDelay = 0;
+        mWidth=0;
+        mHeight=0;
         mGameEventListener = null;
 
         //get custom xml attributes
@@ -173,15 +189,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param currentTime current time in milliseconds
      */
     public void requestDirectionChange(int cycleNum, Compass newDirection, long currentTime){
-        mGameFrame.requestDirectionChange( cycleNum, newDirection, currentTime -
-                ( mStartTime + mTotalPauseDelay ) );
+        mGameFrame.requestDirectionChange(cycleNum, newDirection, currentTime -
+                (mStartTime + mTotalPauseDelay));
     }
 
 
-    //callback methods
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        //Log.v(TAG, "surface created");
+        Log.v(TAG, "surfaceCreated");
         Canvas canvas = holder.lockCanvas();
         canvas.drawColor(getResources().getColor(R.color.colorPrimary));
         holder.unlockCanvasAndPost(canvas);
@@ -191,11 +206,15 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void surfaceChanged(SurfaceHolder holder,
                                int format, int width, int height) {
-        //Log.v(TAG, "surfaceChanged:\n format: " + format + ", w = " + width + ", h = " + height);
-
-        mRectangleContainer.setContainerSize(width, height,0.9,0.9);
-        mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
-
+        //Log.v(TAG, "surfaceChanged:\n format: " + format + ", w = " + width + ", h = " + height
+        //+ ", oldW = " +getWidth() + ", oldH = " + getHeight());
+        if( mState == WAITING ) {
+            Log.v(TAG, "surfaceChanged");
+            mWidth=width;
+            mHeight=height;
+            mRectangleContainer.setContainerSize(width, height, 0.9, 0.9);
+            mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+        }
         Canvas canvas = holder.lockCanvas();
         mSurfaceDrawingTask.doDraw(canvas);
         holder.unlockCanvasAndPost(canvas);
@@ -203,7 +222,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        //Log.v(TAG,"surfaceDestroyed");
+        Log.v(TAG, "surfaceDestroyed");
     }
 
 
@@ -224,6 +243,43 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
 
 
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("instanceState", super.onSaveInstanceState());
+        bundle.putInt(WIDTH_KEY, mWidth);
+        bundle.putInt(HEIGHT_KEY,mHeight);
+        bundle.putInt(STATE_KEY,mState);
+        bundle.putLong(START_TIME_KEY, mStartTime);
+        bundle.putLong(PAUSE_TIME_KEY,mPauseTime);
+        bundle.putLong(TOTAL_PAUSE_DELAY_KEY,mTotalPauseDelay);
+        mGameFrame.saveState(bundle);
+        return bundle;
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if(state instanceof Bundle){
+            Bundle bundle = (Bundle) state;
+
+            mWidth = bundle.getInt(WIDTH_KEY, 200);
+            mHeight = bundle.getInt(HEIGHT_KEY, 200);
+            mState = bundle.getInt(STATE_KEY, WAITING);
+            mStartTime = bundle.getLong(START_TIME_KEY, 0);
+            mPauseTime = bundle.getLong(PAUSE_TIME_KEY,0);
+            mTotalPauseDelay = bundle.getLong(TOTAL_PAUSE_DELAY_KEY, 0);
+            state = bundle.getParcelable("instanceState");
+
+            mRectangleContainer.setContainerSize(mWidth, mHeight, 0.9, 0.9);
+            mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+
+            mGameFrame.restoreState(bundle);
+        }
+        super.onRestoreInstanceState(state);
+    }
+
+
     /**
      * Called when an async task is finished. Notifies a listener if it exists
      */
@@ -233,6 +289,22 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mState=FINISHED;
             mGameEventListener.gameEnded(0);
         }
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mState",getState());
+        description.addMember("mStartTime",mStartTime);
+        description.addMember("mPauseTime", mPauseTime);
+        description.addMember("mTotalPauseDelay", mTotalPauseDelay);
+
+        description.addClassMember("mRectangleContainer", mRectangleContainer);
+        description.addClassMember("mSurfaceDrawingTask", mSurfaceDrawingTask);
+        description.addClassMember("mGameFrame", mGameFrame);
+
+        return description.getString();
     }
 
 

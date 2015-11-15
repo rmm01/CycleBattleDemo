@@ -7,14 +7,13 @@ package com.yckir.cyclebattledemo;
  * the Grid.
  */
 public class Grid {
+    public static final String TAG  =   "GRID";
+
+    public static Tile<Integer> GAME_GRID_TILE =new Tile<>(1);
     private int mNumTilesX;
     private int mNumTilesY;
     private double mWidth;
     private double mHeight;
-
-    public static final String TAG="GRID";
-
-    public static Tile<Integer> GAME_GRID_TILE =new Tile<>(1);
 
 
     /**
@@ -129,6 +128,17 @@ public class Grid {
         return true;
     }
 
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mNumTilesX", mNumTilesX);
+        description.addMember("mNumTilesY", mNumTilesY);
+        description.addMember("mWidth", mWidth);
+        description.addMember("mHeight", mHeight);
+        description.addClassMember("GAME_GRID_TILE", GAME_GRID_TILE);
+        return description.getString();
+    }
 
     /**
      * a object with a rectangular area.

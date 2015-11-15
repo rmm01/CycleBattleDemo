@@ -44,6 +44,16 @@
         android:text="@string/resume_button"
         android:visibility="invisible"
         android:onClick="resumeButton"/>
+    <Button
+        android:id="@+id/info_button"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/button_margin"
+        android:text="INFO"
+        android:visibility="visible"
+        android:onClick="logInfoButton"/>
     <com.yckir.cyclebattledemo.GameSurfaceView
         android:id="@+id/multiplayer_game_view"
         android:layout_width="match_parent"

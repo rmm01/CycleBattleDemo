@@ -3,7 +3,6 @@ package com.yckir.cyclebattledemo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -16,22 +15,25 @@ import java.util.ArrayList;
  * a practice mode for the game.
  */
 public class PracticeGameActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener {
-    public static final String TAG="PRACTICE_GAME";
-    private GameSurfaceView mGameSurfaceView;
-    private MultiSwipeListener mSwipeListener;
-    private int mPlayerNum;
-    private boolean isRunning;
+    public  static final String     TAG                         =   "PRACTICE_GAME";
+    private static final String     START_VISIBILITY_KEY        =   TAG + ":START_VISIBILITY";
+    private static final String     PAUSE_VISIBILITY_KEY        =   TAG + ":PAUSE_VISIBILITY";
+    private static final String     RESUME_VISIBILITY_KEY       =   TAG + ":RESUME_VISIBILITY";
+    private static final String     NEW_GAME_VISIBILITY_KEY     =   TAG + ":NEW_GAME_VISIBILITY";
     private Button mStartButton;
     private Button mPauseButton;
     private Button mResumeButton;
     private Button mNewGameButton;
+    private GameSurfaceView mGameSurfaceView;
+    private MultiSwipeListener mSwipeListener;
+    private boolean isRunning;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v(TAG, " onCreate ");
         super.onCreate(savedInstanceState);
 
-        mPlayerNum=0;
         isRunning=false;
 
         setContentView(R.layout.multiplayer_game_activity);
@@ -45,6 +47,70 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         mSwipeListener = new MultiSwipeListener(5);
     }
 
+    @Override
+    protected void onStart() {
+        Log.v(TAG, " onStart ");
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.v(TAG, " onResume ");
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.v(TAG, " onPause ");
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.v(TAG, " onStop ");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.v(TAG, " onDestroy ");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.v(TAG, " onRestart ");
+        super.onRestart();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, " onSaveInstanceState ");
+
+        outState.putBoolean(START_VISIBILITY_KEY, mStartButton.getVisibility() == View.VISIBLE);
+        outState.putBoolean(PAUSE_VISIBILITY_KEY, mPauseButton.getVisibility()== View.VISIBLE);
+        outState.putBoolean(RESUME_VISIBILITY_KEY, mResumeButton.getVisibility()== View.VISIBLE);
+        outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGameButton.getVisibility() == View.VISIBLE);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(TAG, " onRestoreInstanceState ");
+
+        boolean b1 = savedInstanceState.getBoolean(START_VISIBILITY_KEY);
+        boolean b2 = savedInstanceState.getBoolean(PAUSE_VISIBILITY_KEY);
+        boolean b3 = savedInstanceState.getBoolean(RESUME_VISIBILITY_KEY);
+        boolean b4 = savedInstanceState.getBoolean(NEW_GAME_VISIBILITY_KEY);
+
+        mStartButton.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
+        mPauseButton.setVisibility(b2 ? View.VISIBLE : View.INVISIBLE);
+        mResumeButton.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
+        mNewGameButton.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
+
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,6 +189,24 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
 
 
     /**
+     * Logs the current state of the activity and its member variables.
+     *
+     * @param view the view of the Button pressed
+     */
+    public void logInfoButton(View view) {
+        String state = this.toString();
+
+
+
+        for( String line : state.split("\n") ) {
+            Log.v( "STATE", line );
+        }
+
+
+    }
+
+
+    /**
      * start,pause,resume the application.
      * @param view The GameSurfaceView
      */
@@ -155,32 +239,16 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     }
 
 
-    /**
-     * Detects fling Gesture and determines the direction of the fling
-     */
-    public class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener{
-        public static final String TAG="SWIPE_GESTURE_LISTENER";
-
-        @Override
-        /**
-         * Determines the direction of the fling and makes a request to change direction of the
-         * currently selected cycle. The Request will be applied if the direction is perpendicular
-         * to the cycles direction.
-         *
-         * @see Compass
-         */
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            float x1 = e1.getX();
-            float x2 = e2.getX();
-            float y1 = e1.getY();
-            float y2 = e2.getY();
-            long currentTime=System.currentTimeMillis();
-
-            Compass flingDirection = Compass.getDirection(x1, y1, x2, y2);
-            Log.v(TAG, "FlingDirection = " + flingDirection + " at time " + currentTime );
-            mGameSurfaceView.requestDirectionChange(mPlayerNum, flingDirection, currentTime );
-            return true;
-        }
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("isRunning",isRunning);
+        description.addMember("StartButtonVisible", mStartButton.getVisibility() == View.VISIBLE );
+        description.addMember("PauseButtonVisible", mPauseButton.getVisibility() == View.VISIBLE );
+        description.addMember("ResumeButtonVisible", mResumeButton.getVisibility() == View.VISIBLE);
+        description.addMember("NewGameButtonVisible",  mNewGameButton.getVisibility() == View.VISIBLE);
+        description.addClassMember("mGameSurfaceView", mGameSurfaceView);
+        return description.getString();
     }
 
 

@@ -13,14 +13,15 @@ import android.view.SurfaceHolder;
  */
 public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     public static String TAG="SURFACE_DRAWING_TASK";
-    private SurfaceHolder mSurfaceHolder;
-    private GameFrame mGameFrame;
-    private RectangleContainer mRectangleContainer;
+
+    private final SurfaceHolder mSurfaceHolder;
+    private final GameFrame mGameFrame;
+    private final RectangleContainer mRectangleContainer;
+    private DrawingTaskListener mListener;
 
     private long mTotalTaskDelay;
     private long mTotalUpdatePositionDelay;
     private long mTotalDrawDelay;
-    private DrawingTaskListener mListener;
 
     /**
      * Constructs drawing task that draws on the canvas provided by a surface holder.
@@ -173,10 +174,10 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         String s_drawDelay="draw delay = " + drawDelay;
 
 
-        Log.v("FRAME_INFO",s_frameNum+s_startTime);
-        Log.v("FRAME_INFO",s_frameNum+s_taskDelay);
-        Log.v("FRAME_INFO",s_frameNum+s_invalidationDelay);
-        Log.v("FRAME_INFO",s_frameNum+s_drawDelay);
+        Log.v("FRAME_INFO", s_frameNum+s_startTime);
+        Log.v("FRAME_INFO", s_frameNum + s_taskDelay);
+        Log.v("FRAME_INFO", s_frameNum + s_invalidationDelay);
+        Log.v("FRAME_INFO", s_frameNum + s_drawDelay);
 
 
         mTotalTaskDelay+=taskDelay;
@@ -189,6 +190,16 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
             Log.v("SUMMARY","total updatePosition delay "+ mTotalUpdatePositionDelay);
             Log.v("SUMMARY","total draw delay "+mTotalDrawDelay);
         }
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mTotalTaskDelay", mTotalTaskDelay);
+        description.addMember("mTotalUpdatePositionDelay", mTotalUpdatePositionDelay);
+        description.addMember("mTotalDrawDelay", mTotalDrawDelay);
+        return description.getString();
     }
 
 

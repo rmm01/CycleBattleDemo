@@ -182,4 +182,15 @@ public class GridRectangle implements Grid.GridObject{
     public void setY(double y){
         mCenter.setPositionY(y);
     }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mWidth",mWidth );
+        description.addMember("mHeight",mHeight );
+        description.addClassMember("mCenter", mCenter);
+        return description.getString();
+
+    }
 }

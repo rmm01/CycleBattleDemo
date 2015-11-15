@@ -6,7 +6,7 @@ package com.yckir.cyclebattledemo;
  * @param <N> a generic for a number data type, Double,Integer, etc.
  */
 public class Tile<N> {
-
+    public static final String TAG = "TILE";
     private final N mLength;
 
     /**
@@ -16,6 +16,7 @@ public class Tile<N> {
     public Tile(N length){
         mLength=length;
     }
+
 
     /**
      * @return the length of the tile
@@ -37,6 +38,7 @@ public class Tile<N> {
         return valueA * tileB.getLength() / tileA.getLength();
     }
 
+
     /**
      * Converts a point that is measured in tile1 units, into tile2 units.
      *
@@ -49,5 +51,13 @@ public class Tile<N> {
         double x = (point.getPositionX() * tileB.getLength() / tileA.getLength());
         double y = (point.getPositionY() * tileB.getLength() / tileA.getLength());
         return new Point(x,y);
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("mLength", mLength);
+        return description.getString();
     }
 }
