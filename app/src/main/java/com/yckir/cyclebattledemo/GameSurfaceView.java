@@ -17,16 +17,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         SurfaceDrawingTask.DrawingTaskListener{
 
     public  static final String     TAG                     =   "GAME_SURFACE_VIEW";
+    public  static final int        WAITING                 =   0;
+    public  static final int        RUNNING                 =   1;
+    public  static final int        PAUSED                  =   2;
+    public  static final int        FINISHED                =   3;
     private static final String     WIDTH_KEY               =   TAG + ":HEIGHT";
     private static final String     HEIGHT_KEY              =   TAG + ":WIDTH";
     private static final String     STATE_KEY               =   TAG + ":STATE";
     private static final String     START_TIME_KEY          =   TAG + ":START_TIME";
     private static final String     PAUSE_TIME_KEY          =   TAG + ":PAUSE_TIME";
     private static final String     TOTAL_PAUSE_DELAY_KEY   =   TAG + ":TOTAL_PAUSE_DELAY";
-    private        final int        WAITING                 =   0;
-    private        final int        RUNNING                 =   1;
-    private        final int        PAUSED                  =   2;
-    private        final int        FINISHED                =   3;
 
     private GameFrame mGameFrame;
     private RectangleContainer mRectangleContainer;
@@ -165,7 +165,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      *
      * @return string form of Paused, Running, Waiting, or Finished
      */
-    public String getState() {
+    public String getStringState() {
         switch (mState) {
             case RUNNING:
                 return "RUNNING";
@@ -179,6 +179,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 return "UNKNOWN";
         }
     }
+
+
+    /**
+     * Gets state int value for the current state of the game.
+     *
+     * @return int value of Paused, Running, Waiting, or Finished
+     */
+    public int getState(){return mState;}
 
 
     /**
@@ -198,7 +206,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void surfaceCreated(SurfaceHolder holder) {
         Log.v(TAG, "surfaceCreated");
         Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(getResources().getColor(R.color.colorPrimary));
+        //int color = getResources().getColor(R.color.colorPrimary,null);
+        canvas.drawColor(getResources().getColor(R.color.colorPrimary,null));
         holder.unlockCanvasAndPost(canvas);
     }
 
@@ -295,7 +304,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);
-        description.addMember("mState",getState());
+        description.addMember("mState", getStringState());
         description.addMember("mStartTime",mStartTime);
         description.addMember("mPauseTime", mPauseTime);
         description.addMember("mTotalPauseDelay", mTotalPauseDelay);

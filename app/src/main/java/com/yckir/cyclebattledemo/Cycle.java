@@ -21,7 +21,7 @@ public class Cycle extends GridRectangle{
     private static final String     DIRECTION_KEY   =   TAG + ":DIRECTION";
     private static final String     X_KEY           =   TAG + ":X";
     private static final String     Y_KEY           =   TAG + ":Y";
-    private static final int        DEFAULT_SPEED   =   2;
+    private static final int        DEFAULT_SPEED   =   3;
     private final String TAG_ID;
 
     /**
@@ -32,7 +32,7 @@ public class Cycle extends GridRectangle{
     /**
      *  paint for this cycle
      */
-    private Paint mPaint;
+    private Paint mLinePaint;
 
     /**
      * The speed that the cycle moves at. This is measured in terms of tiles per second
@@ -70,12 +70,12 @@ public class Cycle extends GridRectangle{
         super(centerX, centerY, width, height);
         mCycleId=cycleId;
         TAG_ID = "-Cycle_"+mCycleId;
-        mPaint=new Paint();
+        mLinePaint =new Paint();
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
-        mPath=new LinePath(centerX,centerY,0,mDirection);
         mCrashed=false;
-        setDefaultCycleColor();
+        setIdAttributes();
+        mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
 
@@ -92,33 +92,29 @@ public class Cycle extends GridRectangle{
         super(centerX, centerY, width, height);
         mCycleId=cycleId;
         TAG_ID = "-Cycle_"+mCycleId;
-        mPaint=paint;
+        mLinePaint =paint;
         mSpeed=DEFAULT_SPEED;
-        mDirection=Compass.SOUTH;
         mCrashed=false;
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
 
     /**
-     * Determines the color of the cycle based on its id.
+     * Determines the color and direction of the cycle based on its id.
      */
-    private void setDefaultCycleColor(){
+    private void setIdAttributes(){
         switch (mCycleId) {
             case 0:
-                mPaint.setColor(Color.RED);
+                mLinePaint.setColor(Color.RED);
+                mDirection=Compass.SOUTH;
                 break;
             case 1:
-                mPaint.setColor(Color.YELLOW);
-                break;
-            case 2:
-                mPaint.setColor(Color.GREEN);
-                break;
-            case 3:
-                mPaint.setColor(Color.CYAN);
+                mLinePaint.setColor(Color.GREEN);
+                mDirection=Compass.NORTH;
                 break;
             default:
-                mPaint.setColor(Color.WHITE);
+                mLinePaint.setColor(Color.WHITE);
+                mDirection=Compass.SOUTH;
                 break;
         }
     }
@@ -154,7 +150,62 @@ public class Cycle extends GridRectangle{
      */
     public void drawCycle(Canvas canvas){
         // Log.v(TAG,"left is "+getLeft()+", top is "+getTop());
-        canvas.drawColor(mPaint.getColor());
+
+        int paddingX = canvas.getClipBounds().left;
+        int paddingY = canvas.getClipBounds().top;
+
+        float w = (float)Tile.convert(Grid.GAME_GRID_TILE,GameFrame.SCREEN_GRID_TILE,getWidth());
+        float h = (float)Tile.convert(Grid.GAME_GRID_TILE,GameFrame.SCREEN_GRID_TILE,getHeight());
+
+        Paint insidePaint = new Paint();
+        insidePaint.setColor(Color.BLUE);
+        Paint boarderPaint = new Paint();
+        boarderPaint.setColor(Color.GRAY);
+
+        //draw edge of cycle
+        canvas.drawColor(boarderPaint.getColor());
+        //draw inside of cycle
+        canvas.drawRect(
+                paddingX + w / 10,
+                paddingY + h / 10,
+                paddingX + w * 9 / 10,
+                paddingY + h * 9 / 10,
+                insidePaint
+        );
+
+
+
+        //draw Line "engine" based on position
+        switch (mDirection){
+            case SOUTH:
+                canvas.drawRect(
+                        paddingX + w/4,
+                        paddingY,
+                        paddingX + w*3/4 ,
+                        paddingY + h/2, mLinePaint);
+                break;
+            case NORTH:
+                canvas.drawRect(
+                        paddingX + w/4,
+                        paddingY + h/2,
+                        paddingX + w*3/4 ,
+                        paddingY + h, mLinePaint);
+                break;
+            case WEST:
+                canvas.drawRect(
+                        paddingX + w/2,
+                        paddingY + h/4,
+                        paddingX + w ,
+                        paddingY + h*3/4, mLinePaint);
+                break;
+            case EAST:
+                canvas.drawRect(
+                        paddingX,
+                        paddingY + h/4,
+                        paddingX + w/2 ,
+                        paddingY + h*3/4, mLinePaint);
+                break;
+        }
     }
 
 
@@ -236,7 +287,7 @@ public class Cycle extends GridRectangle{
      * @param canvas the canvas that the path should be drawn on
      */
     public void drawPath(Canvas canvas){
-        mPath.drawPath(canvas, mPaint);
+        mPath.drawPath(canvas, mLinePaint);
     }
 
 

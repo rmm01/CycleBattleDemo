@@ -47,10 +47,10 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         mGameSurfaceView.addGameEventListener(this);
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int metricHeight = metrics.heightPixels;
+        int screenHeight = metrics.heightPixels;
         int statusBarHeight = getStatusBarHeight();
-        int midHeight = (metricHeight + statusBarHeight)/2;
-        Log.v(TAG, metricHeight + ", " + statusBarHeight +", " + midHeight);
+        int midHeight = (screenHeight + statusBarHeight)/2;
+        //Log.v(TAG, metricHeight + ", " + statusBarHeight +", " + midHeight);
 
         mSwipeListener = new MultiSwipeListener(5,midHeight);
     }
@@ -86,6 +86,17 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     @Override
     protected void onPause() {
         Log.v(TAG, " onPause ");
+
+        switch (mGameSurfaceView.getState()) {
+            case GameSurfaceView.WAITING:
+            case GameSurfaceView.FINISHED:
+            case GameSurfaceView.PAUSED:
+                break;
+
+            case GameSurfaceView.RUNNING:
+                pauseButton(null);
+                break;
+        }
         super.onPause();
     }
 
@@ -167,7 +178,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
      */
     public void startButton(View view){
         isRunning=true;
-        view.setVisibility(View.INVISIBLE);
+        mStartButton.setVisibility(View.INVISIBLE);
         mPauseButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
     }
@@ -180,7 +191,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
      */
     public void pauseButton(View view){
         isRunning=false;
-        view.setVisibility(View.INVISIBLE);
+        mPauseButton.setVisibility(View.INVISIBLE);
         mResumeButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.pause(System.currentTimeMillis());
     }
@@ -193,7 +204,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
      */
     public void resumeButton(View view){
         isRunning=true;
-        view.setVisibility(View.INVISIBLE);
+        mResumeButton.setVisibility(View.INVISIBLE);
         mPauseButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.resume(System.currentTimeMillis());
     }
@@ -206,7 +217,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
      */
     public void newGameButton(View view) {
         isRunning = false;
-        view.setVisibility(View.INVISIBLE);
+        mNewGameButton.setVisibility(View.INVISIBLE);
         mStartButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
     }
@@ -219,12 +230,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
      */
     public void logInfoButton(View view) {
         String state = this.toString();
-
-        for( String line : state.split("\n") ) {
-            Log.v( "STATE", line );
-        }
-
-
+        Log.v("STATE", state);
     }
 
 
@@ -305,7 +311,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_POINTER_UP:
-                    isFling(event);
+                    isSwipe(event);
                     break;
             }
         }
@@ -331,7 +337,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
          * gesture.
          * @param event event with an action DOWN
          */
-        private void isFling(MotionEvent event) {
+        private void isSwipe(MotionEvent event) {
             //don't accept any gestures until the game starts.
             if(! isRunning )
                 return;
@@ -346,7 +352,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
             if(Point.delta(p1,p2) < MIN_FLING_DISTANCE)
                 return;
 
-            onFling(p1,p2);
+            onSwipe(p1, p2);
         }
 
 
@@ -357,7 +363,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
          * @param p1 point 1
          * @param p2 point 2
          */
-        private void onFling(Point p1, Point p2) {
+        private void onSwipe(Point p1, Point p2) {
             Compass flingDirection = Compass.getDirection( p1, p2 );
             int player = determinePlayerNumber(p1, p2);
             long flingTime = System.currentTimeMillis();
