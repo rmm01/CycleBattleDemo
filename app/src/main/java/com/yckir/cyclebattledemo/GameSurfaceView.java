@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -206,8 +207,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void surfaceCreated(SurfaceHolder holder) {
         Log.v(TAG, "surfaceCreated");
         Canvas canvas = holder.lockCanvas();
-        //int color = getResources().getColor(R.color.colorPrimary,null);
-        canvas.drawColor(getResources().getColor(R.color.colorPrimary,null));
+        canvas.drawColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         holder.unlockCanvasAndPost(canvas);
     }
 
