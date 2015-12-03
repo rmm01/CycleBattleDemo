@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/background_horiz">
     <Button
         android:id="@+id/new_game_button"
         android:layout_width="@dimen/button_width"
@@ -52,7 +52,7 @@
         android:layout_centerHorizontal="true"
         android:layout_margin="@dimen/button_margin"
         android:text="INFO"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:onClick="logInfoButton"/>
     <com.yckir.cyclebattledemo.GameSurfaceView
         android:id="@+id/multiplayer_game_view"
@@ -60,6 +60,8 @@
         android:layout_height="match_parent"
         android:layout_above="@id/new_game_button"
         android:layout_below="@id/pause_game_button"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         app:boarder_color="@color/colorAccent"
         app:background_color="@color/colorPrimary"
         app:border_length="5dp"

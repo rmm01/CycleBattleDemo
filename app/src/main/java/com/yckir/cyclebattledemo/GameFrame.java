@@ -160,22 +160,27 @@ public class GameFrame {
      * Creates cycles with default positions.
      */
     private void createCycles() {
+        Log.v(TAG,"creating " + mNumCycles + " cycles");
         mCycles= new Cycle[mNumCycles];
         double w = Tile.convert(SCREEN_GRID_TILE,Grid.GAME_GRID_TILE,mFrameGridWidth);
         double h = Tile.convert(SCREEN_GRID_TILE,Grid.GAME_GRID_TILE,mFrameGridHeight);
 
-        for(int i=0;i<mNumCycles;i++){
 
-            if(i==0) {
-                mCycles[i] = new Cycle(0.5,0.5, 0.5, 0.5, 0);
-                continue;
-            }
-            if(i==1) {
-                mCycles[i] = new Cycle(w - 0.5, h -0.5, 0.5, 0.5, 1);
-                continue;
-            }
-            mCycles[i]=new Cycle(0.5+i,0.5,0.5,0.5,i);
+
+        if(mNumCycles>=1) {
+            mCycles[0] = new Cycle(w/2,0.5, 0.5, 0.5, 0);
         }
+        if(mNumCycles>=2) {
+            mCycles[1] = new Cycle( w/2, h -0.5, 0.5, 0.5, 1);
+        }
+        if(mNumCycles>=3) {
+            mCycles[2] = new Cycle(0.5, h/2, 0.5, 0.5, 2);
+        }
+        if(mNumCycles>=4) {
+            mCycles[3] = new Cycle(w-0.5, h/2, 0.5, 0.5, 3);
+        }
+
+
     }
 
 
@@ -382,6 +387,13 @@ public class GameFrame {
             mRunning=false;
             mRunning = false;
         }
+    }
+
+
+    public void updateNumPlayers(int numPlayers){
+        mNumCycles=numPlayers;
+        mRemainingCycles=numPlayers;
+        createCycles();
     }
 
 

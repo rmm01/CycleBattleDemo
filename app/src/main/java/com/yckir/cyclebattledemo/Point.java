@@ -104,6 +104,29 @@ public class Point {
     }
 
 
+    public static Point centerOfLine(Point p1, Point p2){
+        double x1 = p1.getPositionX();
+        double x2 = p2.getPositionX();
+        double y1 = p1.getPositionY();
+        double y2 = p2.getPositionY();
+
+
+        double cx = (x1 + x2)/2;
+        double cy = (y1 + y2)/2;
+        return  new Point(cx,cy);
+    }
+
+
+
+    public static double distance(Point p1, Point p2){
+        double x1 = p1.getPositionX();
+        double x2 = p2.getPositionX();
+        double y1 = p1.getPositionY();
+        double y2 = p2.getPositionY();
+        return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    }
+
+
     /**
      * Logs the x and y position of the pwo points in integer form.
      *

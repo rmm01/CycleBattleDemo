@@ -103,6 +103,7 @@ public class Cycle extends GridRectangle{
      * Determines the color and direction of the cycle based on its id.
      */
     private void setIdAttributes(){
+        Log.v(TAG,"setting color for id = " +mCycleId);
         switch (mCycleId) {
             case 0:
                 mLinePaint.setColor(Color.RED);
@@ -112,8 +113,16 @@ public class Cycle extends GridRectangle{
                 mLinePaint.setColor(Color.GREEN);
                 mDirection=Compass.NORTH;
                 break;
-            default:
+            case 2:
                 mLinePaint.setColor(Color.WHITE);
+                mDirection=Compass.EAST;
+                break;
+            case 3:
+                mLinePaint.setColor(Color.MAGENTA);
+                mDirection=Compass.WEST;
+                break;
+            default:
+                mLinePaint.setColor(Color.GRAY);
                 mDirection=Compass.SOUTH;
                 break;
         }

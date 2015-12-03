@@ -162,6 +162,15 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
+     * Update the number of players
+     * @param numPlayers the new number of players.
+     */
+    public void updateNumPlayers(int numPlayers){
+        mGameFrame.updateNumPlayers(numPlayers);
+    }
+
+
+    /**
      * Gets string form of the current state of the game.
      *
      * @return string form of Paused, Running, Waiting, or Finished

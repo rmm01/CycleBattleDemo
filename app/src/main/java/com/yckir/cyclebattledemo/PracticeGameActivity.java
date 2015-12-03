@@ -17,6 +17,7 @@ import java.util.ArrayList;
  */
 public class PracticeGameActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener {
     public  static final String     TAG                         =   "PRACTICE_GAME";
+    public  static final String     NUM_PLAYERS_KEY             =   TAG + ":NUM_CYCLES";
     private static final String     START_VISIBILITY_KEY        =   TAG + ":START_VISIBILITY";
     private static final String     PAUSE_VISIBILITY_KEY        =   TAG + ":PAUSE_VISIBILITY";
     private static final String     RESUME_VISIBILITY_KEY       =   TAG + ":RESUME_VISIBILITY";
@@ -26,7 +27,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     private Button mResumeButton;
     private Button mNewGameButton;
     private GameSurfaceView mGameSurfaceView;
-    private MultiSwipeListener mSwipeListener;
+    private FourPlayerSwipeDetector mSwipeListener;
     private boolean isRunning;
 
 
@@ -48,11 +49,12 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int screenHeight = metrics.heightPixels;
+        int screenWidth = metrics.widthPixels;
         int statusBarHeight = getStatusBarHeight();
         int midHeight = (screenHeight + statusBarHeight)/2;
         //Log.v(TAG, metricHeight + ", " + statusBarHeight +", " + midHeight);
 
-        mSwipeListener = new MultiSwipeListener(5,midHeight);
+        mSwipeListener = new FourPlayerSwipeDetector(screenHeight,screenWidth,10);
     }
 
 
@@ -77,10 +79,19 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         super.onStart();
     }
 
+
     @Override
     protected void onResume() {
         Log.v(TAG, " onResume ");
         super.onResume();
+        Bundle b = getIntent().getExtras();
+        if(b!=null){
+            int numPlayers = b.getInt(NUM_PLAYERS_KEY);
+            if(numPlayers!=0) {
+                mGameSurfaceView.updateNumPlayers(numPlayers);
+                mSwipeListener.setNumPlayers(numPlayers);
+            }
+        }
     }
 
     @Override
@@ -274,7 +285,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         description.addMember("StartButtonVisible", mStartButton.getVisibility() == View.VISIBLE );
         description.addMember("PauseButtonVisible", mPauseButton.getVisibility() == View.VISIBLE );
         description.addMember("ResumeButtonVisible", mResumeButton.getVisibility() == View.VISIBLE);
-        description.addMember("NewGameButtonVisible",  mNewGameButton.getVisibility() == View.VISIBLE);
+        description.addMember("NewGameButtonVisible", mNewGameButton.getVisibility() == View.VISIBLE);
         description.addClassMember("mGameSurfaceView", mGameSurfaceView);
         return description.getString();
     }
@@ -284,13 +295,13 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
      * Detects finger Swipe Gesture and determines the direction of the fling. Is capable of
      * detecting multiple swipes occurring at once.
      */
-    public class MultiSwipeListener{
+    public class TwoPlayerSwipeListener {
 
         private ArrayList<Point> mEvents;
         private final double MIN_FLING_DISTANCE = 10;
         private int mMidHeight;
 
-        public MultiSwipeListener(int size, int midHeight){
+        public TwoPlayerSwipeListener(int size, int midHeight){
             mEvents = new ArrayList<>(size);
             mMidHeight=midHeight;
         }
@@ -394,5 +405,155 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
             }
             return  player;
         }
+    }
+
+
+    public class FourPlayerSwipeDetector {
+        private ArrayList<Point> mEvents;
+        private final double MIN_FLING_DISTANCE = 0;
+        private int mNumPlayers;
+        private int mWidth;
+        private int mHeight;
+        private Point mTop;
+        private Point mBottom;
+        private Point mLeft;
+        private Point mRight;
+
+        public FourPlayerSwipeDetector(int height, int width, int size){
+            mWidth  = width;
+            mHeight = height;
+            mTop    = new Point( mWidth / 2, 0           );
+            mBottom = new Point( mWidth / 2, mHeight     );
+            mLeft   = new Point( 0         , mHeight / 2 );
+            mRight  = new Point( mWidth    , mHeight / 2 );
+            mEvents = new ArrayList<>(size);
+            mNumPlayers=2;
+        }
+
+        /**
+         * set the number of players
+         * @param numPlayers the number of players
+         */
+        public void setNumPlayers(int numPlayers ){mNumPlayers=numPlayers;}
+
+
+        /**
+         * Receive the following touch event and determine what to do to take depending on events
+         * action.
+         *
+         * @param event a motion event
+         */
+        public void receiveTouchEvent(MotionEvent event){
+            int action = event.getActionMasked();
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    capture(event);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                    isSwipe(event);
+                    break;
+            }
+        }
+
+
+        /**
+         * Store the event.
+         *
+         * @param event to be stored
+         */
+        private void capture(MotionEvent event) {
+            int index = event.getActionIndex();
+            int id = event.getPointerId(index);
+            //int x = (int)event.getX(index);
+            //int y = (int)event.getY(index);
+            //Log.v(TAG, "finger pressed: index = " + index + ", id = " + id+ " at " + x + ", " + y);
+            mEvents.add(id,new Point(event.getX(index), event.getY(index) ));
+        }
+
+
+        /**
+         * called when an DOWN has been received for an event. Determines if the event was a swipe
+         * gesture.
+         * @param event event with an action DOWN
+         */
+        private void isSwipe(MotionEvent event) {
+            //don't accept any gestures until the game starts.
+            //if(! isRunning )
+            //    return;
+            int index = event.getActionIndex();
+            int id = event.getPointerId(index);
+            //Log.v( TAG, "finger released: index " + index + " and id " + id );
+
+            Point p1 = mEvents.get(id);
+            Point p2 = new Point( event.getX(index), event.getY(index) );
+            //Point.logPoints(p1, p2);
+
+            if(Point.delta(p1,p2) < MIN_FLING_DISTANCE)
+                return;
+
+            onSwipe(p1, p2);
+        }
+
+
+        /**
+         * A fling has happened at the two points, have the SurfaceView make a request to change
+         * the players direction.
+         *
+         * @param p1 point 1
+         * @param p2 point 2
+         */
+        private void onSwipe(Point p1, Point p2) {
+            Compass flingDirection = Compass.getDirection(p1, p2);
+            int player = determinePlayerNumber(p1, p2);
+            long flingTime = System.currentTimeMillis();
+
+            Log.v(TAG, " swipe by player " + player + ", FlingDirection = "
+                    + flingDirection + " at time " + flingTime);
+            if(! isRunning )
+                return;
+            mGameSurfaceView.requestDirectionChange(player, flingDirection, flingTime);
+        }
+
+
+        /**
+         * Determine which player swiped a finger on the screen. player zero is the top half of the
+         * screen. player 2 is the bottom half of the screen.
+         *
+         * @param p1 point 1
+         * @param p2 point 2
+         * @return the player that swiped the screen
+         */
+        private int determinePlayerNumber(Point p1, Point p2){
+            Point centerPoint = Point.centerOfLine(p1,p2);
+            double n = Point.distance(mTop, centerPoint);
+            double s = Point.distance(mBottom,centerPoint);
+            double e = Point.distance(mRight, centerPoint);
+            double w = Point.distance(mLeft, centerPoint);
+
+            double minDistance=s;
+
+            Log.v(TAG,"n = " + n + ", s = " + s + ", e = " + e + ", w = " + w);
+
+            if(mNumPlayers>=2)
+                minDistance=Math.min(n, s);
+            if(mNumPlayers>=3)
+                minDistance=Math.min(w, minDistance);
+            if(mNumPlayers>=4)
+                minDistance=Math.min(e, minDistance);
+
+            Log.v(TAG," numPlayers = " + mNumPlayers + ", min = " + minDistance);
+
+            if(minDistance == n)
+                return 0;
+            if(minDistance == s)
+                return 1;
+            if(minDistance == w)
+                return 2;
+
+            return 3;
+        }
+
     }
 }
