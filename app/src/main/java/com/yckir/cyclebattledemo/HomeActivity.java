@@ -43,11 +43,11 @@ public class HomeActivity extends AppCompatActivity {
     public void how_to_play_button_clicked(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("1) Place the device on a flat surface of hold it so that all player can see it.\n\n" +
-            "2) The Red player stands on the top of the device, green at the bottom, magenta at the right, " +
-                        "and white on the Left. \n\n" +
-            "3) Once a game begins, each player swipes a finger on the touch screen in the direction " +
+            "2) Player 1 is red, 2 is green, 3 is white, and 4 is Magenta.\n\n" +
+            "3) Place yourself near the edge of the screen where your color appears.  \n\n" +
+            "4) Once a game begins, each player swipes a finger on the touch screen in the direction " +
                         "they want to move.\n\n" +
-            "4) Make sure to swipe as close to your edge of the screen as possible.\n\n" +
+            "5) Make sure to swipe as close to your edge of the screen as possible.\n\n" +
 
                 "Tablet recommended for three and four player modes."
         );
@@ -66,7 +66,8 @@ public class HomeActivity extends AppCompatActivity {
                         "3) Cycles can only travel North, South, East or West.\n\n" +
                         "4) As each cycle moves, they leave behind a path in its color.\n\n" +
                         "5) If a player collides with a path, cycle, or goes outside the grid, they lose.\n\n" +
-                        "6) The last player remaining wins."
+                        "6) The last player remaining wins.\n\n" +
+                        "7) Make sure to swipe as close to your edge of the screen as possible"
 
         );
         builder.setTitle("Game Rules");

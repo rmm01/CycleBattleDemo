@@ -29,6 +29,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     private GameSurfaceView mGameSurfaceView;
     private FourPlayerSwipeDetector mSwipeListener;
     private boolean isRunning;
+    private boolean mCyclesCreated;
 
 
     @Override
@@ -37,6 +38,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         super.onCreate(savedInstanceState);
 
         isRunning=false;
+        mCyclesCreated =false;
 
         setContentView(R.layout.multiplayer_game_activity);
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
@@ -84,14 +86,18 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     protected void onResume() {
         Log.v(TAG, " onResume ");
         super.onResume();
+        if(mCyclesCreated)
+            return;
         Bundle b = getIntent().getExtras();
         if(b!=null){
             int numPlayers = b.getInt(NUM_PLAYERS_KEY);
             if(numPlayers!=0) {
                 mGameSurfaceView.updateNumPlayers(numPlayers);
                 mSwipeListener.setNumPlayers(numPlayers);
+                mCyclesCreated=true;
             }
         }
+
     }
 
     @Override
@@ -144,6 +150,8 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.v(TAG, " onRestoreInstanceState ");
+
+        mCyclesCreated=true;
 
         boolean b1 = savedInstanceState.getBoolean(START_VISIBILITY_KEY);
         boolean b2 = savedInstanceState.getBoolean(PAUSE_VISIBILITY_KEY);

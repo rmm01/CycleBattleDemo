@@ -46,17 +46,12 @@
         android:text="Play Game"/>
 
 
-    <com.yckir.cyclebattledemo.GameSurfaceView
-        android:id="@+id/game_view_player"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <ImageView
+        android:background="@drawable/home_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_above="@id/play_game_button"
-        app:cycles="4"
-        app:boarder_color="@color/colorAccent"
-        app:background_color="@color/colorPrimary"
-        app:border_length="5dp"
-        app:tiles_x="11"
-        app:tiles_y="11"/>
+        android:layout_margin="30dp"
+        android:layout_above="@id/play_game_button"/>
 
 </RelativeLayout>
