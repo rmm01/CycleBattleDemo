@@ -4,6 +4,7 @@
     <dimen name="home_activity_horizontal_margin">10dp</dimen>
     <dimen name="home_activity_vertical_margin">10dp</dimen>
     <dimen name="home_activity_buttons_total_height">170dp</dimen>
+    <dimen name="home_activity_title_text_size">30sp</dimen>
 
     <dimen name="multiplayer_button_size">60dp</dimen>
 

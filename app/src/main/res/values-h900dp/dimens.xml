@@ -3,6 +3,7 @@
     <dimen name="home_activity_buttons_total_height">285dp</dimen>
 
     <dimen name="multiplayer_button_size">95dp</dimen>
+    <dimen name="home_activity_title_text_size">60sp</dimen>
 
     <dimen name="button_margin">10dp</dimen>
     <dimen name="button_height">75dp</dimen>
