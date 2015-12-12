@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import java.util.ArrayList;
+
 /**
  * Draws the cycle game animation on a separate thread. This iteration currently only animates
  * a total of 60 frames.
@@ -73,8 +75,11 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        ArrayList<GameFrame.DirectionChangeRequest> list = mGameFrame.getReplay();
+        //for(int i = 0; i < list.size(); i++)
+        //    Log.v(TAG,list.get(i).toString());
         if(mListener!=null){
-            mListener.taskEnded();
+            mListener.taskEnded(list);
         }
     }
 
@@ -210,8 +215,8 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
         /**
          * called when the task finishes execution.
+         * @param replay a replay of the match that ended.
          */
-        void taskEnded();
-
+        void taskEnded(ArrayList<GameFrame.DirectionChangeRequest> replay);
     }
 }

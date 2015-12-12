@@ -1,5 +1,6 @@
 package com.yckir.cyclebattledemo;
 
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,9 +28,9 @@ public class HomeActivity extends AppCompatActivity {
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(context, PracticeGameActivity.class);
+                Intent intent = new Intent(context, MultiplayerActivity.class);
                 Bundle b = new Bundle();
-                b.putInt(PracticeGameActivity.NUM_PLAYERS_KEY, Integer.parseInt(options[which]));
+                b.putInt(MultiplayerActivity.NUM_PLAYERS_KEY, Integer.parseInt(options[which]));
                 intent.putExtras(b);
                 startActivity(intent);
             }
@@ -47,7 +48,7 @@ public class HomeActivity extends AppCompatActivity {
             "3) Place yourself near the edge of the screen where your color appears.  \n\n" +
             "4) Once a game begins, each player swipes a finger on the touch screen in the direction " +
                         "they want to move.\n\n" +
-            "5) Make sure to swipe as close to your edge of the screen as possible.\n\n" +
+            "5) Make sure to swipe as close to your color region of the screen as possible.\n\n" +
 
                 "Tablet recommended for three and four player modes."
         );

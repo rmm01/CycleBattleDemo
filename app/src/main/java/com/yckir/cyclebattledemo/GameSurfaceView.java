@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+
 /**
  * View that displays the cycle game. Drawing is done on an AsyncTask.
  */
@@ -34,6 +36,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private SurfaceDrawingTask mSurfaceDrawingTask;
     private GameEventListener mGameEventListener;
     private SurfaceHolder mHolder;
+    private GameReplay mGameReplay;
 
     private int mWidth;
     private int mHeight;
@@ -68,7 +71,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         int numTilesY = a.getInt(R.styleable.GameSurfaceView_tiles_y, 6);
         int numCycles = a.getInt(R.styleable.GameSurfaceView_cycles, 1);
         int boarderColor = a.getColor(R.styleable.GameSurfaceView_boarder_color, 0);
-        int backgroundColor = a.getColor(R.styleable.GameSurfaceView_background_color,0);
+        //int backgroundColor = a.getColor(R.styleable.GameSurfaceView_background_color,0);
         int borderSize=a.getDimensionPixelSize(R.styleable.GameSurfaceView_border_length, 10);
         a.recycle();
 
@@ -77,7 +80,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         //width and height are unknown so the default size for frame and container is used
         mGameFrame = new GameFrame(numTilesX, numTilesY, numCycles);
-        mRectangleContainer = new RectangleContainer(boarderColor,backgroundColor,borderSize);
+        mRectangleContainer = new RectangleContainer(boarderColor,borderSize);
 
         mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder,mGameFrame, mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
@@ -162,6 +165,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
+     * show a replay of the most recent game
+     */
+    public void replay(){
+        mGameReplay.play();
+    }
+
+
+    /**
      * Update the number of players
      * @param numPlayers the new number of players.
      */
@@ -230,7 +241,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             Log.v(TAG, "surfaceChanged");
             mWidth=width;
             mHeight=height;
-            mRectangleContainer.setContainerSize(width, height, 0.9, 0.9);
+            mRectangleContainer.setContainerSize(width, height);
             mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
         Canvas canvas = holder.lockCanvas();
@@ -247,7 +258,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     //this method is used so that android studio can render the view
     @Override
     protected void onDraw(Canvas canvas) {
-        mRectangleContainer.setContainerSize(getWidth(), getHeight(), 0.9, 0.9);
+        mRectangleContainer.setContainerSize(getWidth(), getHeight());
         mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         //mSurfaceDrawingTask.doDraw(canvas);
         mRectangleContainer.drawBorder(canvas);
@@ -288,8 +299,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mPauseTime = bundle.getLong(PAUSE_TIME_KEY,0);
             mTotalPauseDelay = bundle.getLong(TOTAL_PAUSE_DELAY_KEY, 0);
             state = bundle.getParcelable("instanceState");
-
-            mRectangleContainer.setContainerSize(mWidth, mHeight, 0.9, 0.9);
+            mRectangleContainer.setContainerSize(mWidth, mHeight);
             mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
 
             mGameFrame.restoreState(bundle);
@@ -298,14 +308,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
 
 
-    /**
-     * Called when an async task is finished. Notifies a listener if it exists
-     */
     @Override
-    public void taskEnded() {
+    public void taskEnded(ArrayList<GameFrame.DirectionChangeRequest> list) {
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
             mGameEventListener.gameEnded(0);
+            mGameReplay = new GameReplay(list,this);
         }
     }
 

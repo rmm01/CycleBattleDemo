@@ -16,7 +16,7 @@ import android.widget.ToggleButton;
 /**
  * a practice mode for the game.
  */
-public class PracticeGameActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener,
+public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener,
         FourRegionSwipeDetector.OnRegionSwipeListener {
     public  static final String     TAG                         =   "PRACTICE_GAME";
     public  static final String     NUM_PLAYERS_KEY             =   TAG + ":NUM_CYCLES";
@@ -303,6 +303,7 @@ public class PracticeGameActivity extends AppCompatActivity implements GameSurfa
         if(! isRunning )
             return;
         mGameSurfaceView.requestDirectionChange(regionNumber, direction, swipeTime);
+
     }
 
 

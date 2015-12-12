@@ -10,4 +10,7 @@
     <string name="pause_button">PAUSE</string>
     <string name="resume_button">RESUME</string>
     <string name="new_game_button">NEW GAME</string>
+
+    <string name="info_button">INFO</string>
+    <string name="replay_button">replay</string>
 </resources>

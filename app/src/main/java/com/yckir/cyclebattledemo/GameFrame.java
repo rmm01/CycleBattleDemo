@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -28,6 +29,11 @@ public class GameFrame {
      * queue that holds requests to change the direction
      */
     private ArrayBlockingQueue<DirectionChangeRequest> mDirectionChanges;
+
+    /**
+     * records all requests to change directions
+     */
+    private ArrayList<DirectionChangeRequest> mRecorder;
 
     /**
      * data for a tile that appears on the animation frame, this will depend upon the
@@ -78,6 +84,7 @@ public class GameFrame {
         mGameGrid = new Grid(numTilesX,numTilesY,1);
 
         mDirectionChanges = new ArrayBlockingQueue<>(15);
+        mRecorder = new ArrayList<>();
         mRemainingCycles =numCycles;
         mRunning = false;
 
@@ -106,6 +113,7 @@ public class GameFrame {
         mFrameHeight = DEFAULT_FRAME_HEIGHT;
 
         mDirectionChanges = new ArrayBlockingQueue<>(15);
+        mRecorder = new ArrayList<>();
         mRemainingCycles =numCycles;
         mRunning = false;
 
@@ -290,6 +298,7 @@ public class GameFrame {
         mRemainingCycles = mNumCycles;
         mRunning=false;
         mDirectionChanges.clear();
+        mRecorder= new ArrayList<>();
         createCycles();
     }
 
@@ -322,7 +331,9 @@ public class GameFrame {
             return;
 
         DirectionChangeRequest node = new DirectionChangeRequest(newDirection,time,cycleNum);
+        DirectionChangeRequest copyNode = node.makeCopy();
         mDirectionChanges.add(node);
+        mRecorder.add(copyNode);
     }
 
 
@@ -476,6 +487,11 @@ public class GameFrame {
     }
 
 
+    public ArrayList<DirectionChangeRequest> getReplay(){
+        return mRecorder;
+    }
+
+
     /**
      * Save the state of the GameFrame onto a bundle.
      *
@@ -529,7 +545,7 @@ public class GameFrame {
     /**
      * An information node that keeps track of the details for when a cycle wants to changes its direction.
      */
-    private final class DirectionChangeRequest {
+    public final class DirectionChangeRequest {
         private final Compass mDirection;
         private final long mTime;
         private final int mCycleNum;
@@ -571,6 +587,15 @@ public class GameFrame {
         public long getTime() {
             return mTime;
         }
+
+
+        /**
+         * @return a copy of the current instance
+         */
+        public DirectionChangeRequest makeCopy(){
+            return new DirectionChangeRequest(mDirection,mTime,mCycleNum);
+        }
+
 
         @Override
         public String toString() {
