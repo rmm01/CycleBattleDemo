@@ -29,8 +29,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private Button mStartButton;
     private Button mResumeButton;
     private Button mNewGameButton;
-    private boolean isRunning;
-    private boolean mCyclesCreated;
 
 
     private void createPauseDialog(){
@@ -68,16 +66,38 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     }
 
 
+    /**
+     * Checks the bundle inside the intent that started this activity to see if it specifies the
+     * number of players.
+     */
+    private void setNumPlayers(){
+        Bundle b = getIntent().getExtras();
+        int noPlayersSpecified=-1;
+        if( b == null )
+            return;
+
+        int numPlayers = b.getInt( NUM_PLAYERS_KEY ,noPlayersSpecified);
+
+        if(numPlayers == noPlayersSpecified)
+            return;
+
+        if(numPlayers < 2 || numPlayers > 4 ) {
+            Log.e(TAG,"invalid number " + numPlayers + " for number of players was passed in " +
+                    "intent bundle, using default value in GameSurfaceView");
+            return;
+        }
+
+        mGameSurfaceView.setNumPlayers(numPlayers);
+        mSwipeListener.setNumRegions(numPlayers);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, " onCreate ");
         disableStatusBar();
 
         super.onCreate(savedInstanceState);
-
-        isRunning=false;
-        mCyclesCreated =false;
-
         setContentView(R.layout.multiplayer_game_activity);
 
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
@@ -87,6 +107,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         mGameSurfaceView.addGameEventListener(this);
         mSwipeListener = new FourRegionSwipeDetector(2, getResources().getDisplayMetrics(), this);
+        setNumPlayers();
         createPauseDialog();
     }
 
@@ -102,18 +123,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     protected void onResume() {
         Log.v(TAG, " onResume ");
         super.onResume();
-        if(mCyclesCreated)
-            return;
-        Bundle b = getIntent().getExtras();
-        if(b!=null){
-            int numPlayers = b.getInt(NUM_PLAYERS_KEY);
-            if(numPlayers!=0) {
-                mGameSurfaceView.updateNumPlayers(numPlayers);
-                mSwipeListener.setNumRegions(numPlayers);
-                mCyclesCreated=true;
-            }
-        }
-
     }
 
 
@@ -162,8 +171,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.v(TAG, " onRestoreInstanceState ");
 
-        mCyclesCreated=true;
-
         boolean b1 = savedInstanceState.getBoolean(START_VISIBILITY_KEY);
         boolean b3 = savedInstanceState.getBoolean(RESUME_VISIBILITY_KEY);
         boolean b4 = savedInstanceState.getBoolean(NEW_GAME_VISIBILITY_KEY);
@@ -190,7 +197,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * @param view The start Button
      */
     public void startButton(View view){
-        isRunning=true;
         mStartButton.setVisibility(View.INVISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
     }
@@ -202,7 +208,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * @param view The resume Button
      */
     public void resumeButton(View view){
-        isRunning=true;
         mResumeButton.setVisibility(View.INVISIBLE);
         mGameSurfaceView.resume(System.currentTimeMillis());
     }
@@ -214,7 +219,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * @param view The NewGame Button
      */
     public void newGameButton(View view) {
-        isRunning = false;
         mNewGameButton.setVisibility(View.INVISIBLE);
         mStartButton.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
@@ -250,7 +254,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     @Override
     public void gameEnded(int winner) {
-        isRunning=false;
         mNewGameButton.setVisibility(View.VISIBLE);
     }
 
@@ -266,7 +269,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);
-        description.addMember("isRunning",isRunning);
         description.addMember("StartButtonVisible", mStartButton.getVisibility() == View.VISIBLE );
         description.addMember("ResumeButtonVisible", mResumeButton.getVisibility() == View.VISIBLE);
         description.addMember("NewGameButtonVisible", mNewGameButton.getVisibility() == View.VISIBLE);

@@ -487,6 +487,12 @@ public class GameManager {
     }
 
 
+    /**
+     * @return the number of cycles
+     */
+    public int getNumCycles(){return mNumCycles;}
+
+
     public ArrayList<DirectionChangeRequest> getReplay(){
         return mRecorder;
     }

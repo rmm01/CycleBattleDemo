@@ -32,11 +32,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private static final String     TOTAL_PAUSE_DELAY_KEY   =   TAG + ":TOTAL_PAUSE_DELAY";
 
     private GameManager mGameManager;
+    private ReplayManager mReplayManager;
     private RectangleContainer mRectangleContainer;
     private SurfaceDrawingTask mSurfaceDrawingTask;
     private GameEventListener mGameEventListener;
     private SurfaceHolder mHolder;
-    private ReplayManager mReplayManager;
 
     private int mWidth;
     private int mHeight;
@@ -173,11 +173,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
-     * Update the number of players
+     * Set the number of players. If the number of players changes, all of the cycles are
+     * recreated.
+     *
      * @param numPlayers the new number of players.
      */
-    public void updateNumPlayers(int numPlayers){
-        mGameManager.updateNumPlayers(numPlayers);
+    public void setNumPlayers(int numPlayers){
+        if(numPlayers != mGameManager.getNumCycles())
+            mGameManager.updateNumPlayers(numPlayers);
     }
 
 
@@ -337,7 +340,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     /**
      * interface to notify of important game events.
      */
-    interface GameEventListener {
+    public interface GameEventListener {
 
         /**
          * Called when the game has finished.
