@@ -31,12 +31,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private static final String     PAUSE_TIME_KEY          =   TAG + ":PAUSE_TIME";
     private static final String     TOTAL_PAUSE_DELAY_KEY   =   TAG + ":TOTAL_PAUSE_DELAY";
 
-    private GameFrame mGameFrame;
+    private GameManager mGameManager;
     private RectangleContainer mRectangleContainer;
     private SurfaceDrawingTask mSurfaceDrawingTask;
     private GameEventListener mGameEventListener;
     private SurfaceHolder mHolder;
-    private GameReplay mGameReplay;
+    private ReplayManager mReplayManager;
 
     private int mWidth;
     private int mHeight;
@@ -48,7 +48,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     /**
      * constructs the view. Custom xml attributes are read. default values are
      * tiles_x = 6, tiles_y = 6, cycles = 1, border_length = 10 and all colors are black.
-     * GameContainer, GameFrame, and SurfaceDrawingTask are constructed using these attributes.
+     * GameContainer, GameManager, and SurfaceDrawingTask are constructed using these attributes.
      *
      * @param context context
      * @param attrs xml attributes
@@ -79,10 +79,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mHolder.addCallback(this);
 
         //width and height are unknown so the default size for frame and container is used
-        mGameFrame = new GameFrame(numTilesX, numTilesY, numCycles);
+        mGameManager = new GameManager(numTilesX, numTilesY, numCycles);
         mRectangleContainer = new RectangleContainer(boarderColor,borderSize);
 
-        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder,mGameFrame, mRectangleContainer);
+        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
     }
 
@@ -107,7 +107,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         mState=RUNNING;
         mStartTime=startTime;
-        mGameFrame.setRunning(true);
+        mGameManager.setRunning(true);
         mSurfaceDrawingTask.execute(startTime);
     }
 
@@ -122,7 +122,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         mState=PAUSED;
         mPauseTime=pauseTime;
-        mGameFrame.setRunning(false);
+        mGameManager.setRunning(false);
     }
 
 
@@ -138,8 +138,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Log.v(TAG,"Resuming at time " + resumeTime);
         Log.v(TAG,"pause delay was " + pauseDelay);
 
-        mGameFrame.setRunning(true);
-        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
+        mGameManager.setRunning(true);
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
         mSurfaceDrawingTask.execute(mStartTime + mTotalPauseDelay);
     }
@@ -154,8 +154,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mPauseTime=0;
         mTotalPauseDelay=0;
 
-        mGameFrame.newGame();
-        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder,mGameFrame,mRectangleContainer);
+        mGameManager.newGame();
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
 
         Canvas canvas = mHolder.lockCanvas();
@@ -168,7 +168,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * show a replay of the most recent game
      */
     public void replay(){
-        mGameReplay.play();
+        mReplayManager.play();
     }
 
 
@@ -177,7 +177,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param numPlayers the new number of players.
      */
     public void updateNumPlayers(int numPlayers){
-        mGameFrame.updateNumPlayers(numPlayers);
+        mGameManager.updateNumPlayers(numPlayers);
     }
 
 
@@ -218,7 +218,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param currentTime current time in milliseconds
      */
     public void requestDirectionChange(int cycleNum, Compass newDirection, long currentTime){
-        mGameFrame.requestDirectionChange(cycleNum, newDirection, currentTime -
+        mGameManager.requestDirectionChange(cycleNum, newDirection, currentTime -
                 (mStartTime + mTotalPauseDelay));
     }
 
@@ -242,7 +242,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mWidth=width;
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
-            mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+            mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
         Canvas canvas = holder.lockCanvas();
         mSurfaceDrawingTask.doDraw(canvas);
@@ -259,14 +259,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     protected void onDraw(Canvas canvas) {
         mRectangleContainer.setContainerSize(getWidth(), getHeight());
-        mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+        mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         //mSurfaceDrawingTask.doDraw(canvas);
         mRectangleContainer.drawBorder(canvas);
         canvas.save();
         canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
 
-        mGameFrame.drawFrame(canvas);
+        mGameManager.drawFrame(canvas);
         //draw path
         canvas.restore();
     }
@@ -282,7 +282,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         bundle.putLong(START_TIME_KEY, mStartTime);
         bundle.putLong(PAUSE_TIME_KEY,mPauseTime);
         bundle.putLong(TOTAL_PAUSE_DELAY_KEY,mTotalPauseDelay);
-        mGameFrame.saveState(bundle);
+        mGameManager.saveState(bundle);
         return bundle;
     }
 
@@ -300,20 +300,20 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mTotalPauseDelay = bundle.getLong(TOTAL_PAUSE_DELAY_KEY, 0);
             state = bundle.getParcelable("instanceState");
             mRectangleContainer.setContainerSize(mWidth, mHeight);
-            mGameFrame.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+            mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
 
-            mGameFrame.restoreState(bundle);
+            mGameManager.restoreState(bundle);
         }
         super.onRestoreInstanceState(state);
     }
 
 
     @Override
-    public void taskEnded(ArrayList<GameFrame.DirectionChangeRequest> list) {
+    public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
             mGameEventListener.gameEnded(0);
-            mGameReplay = new GameReplay(list,this);
+            mReplayManager = new ReplayManager(list,this);
         }
     }
 
@@ -328,7 +328,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         description.addClassMember("mRectangleContainer", mRectangleContainer);
         description.addClassMember("mSurfaceDrawingTask", mSurfaceDrawingTask);
-        description.addClassMember("mGameFrame", mGameFrame);
+        description.addClassMember("mGameManager", mGameManager);
 
         return description.getString();
     }

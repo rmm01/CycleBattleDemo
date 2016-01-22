@@ -61,13 +61,13 @@ public class LinePath {
     private void makeDrawingLine(int index){
         GridLine gridLine = mPathHistory.get(index);
 
-        Point startPoint = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+        Point startPoint = Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,
                 gridLine.getStartPoint());
 
-        double lineLength = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+        double lineLength = Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,
                 gridLine.getLineLength());
 
-        double thickness = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+        double thickness = Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,
                 DEFAULT_THICKNESS);
 
         Compass direction = gridLine.getDirection();
@@ -87,7 +87,7 @@ public class LinePath {
         GridLine gridLine = mPathHistory.get(index);
         GridLine drawingGridLine = mDrawingPathHistory.get(index);
 
-        double lineLength = Tile.convert(Grid.GAME_GRID_TILE, GameFrame.SCREEN_GRID_TILE,
+        double lineLength = Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,
                 gridLine.getLineLength());
         drawingGridLine.changeLength(lineLength);
     }

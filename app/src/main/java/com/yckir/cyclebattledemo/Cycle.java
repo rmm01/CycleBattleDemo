@@ -163,8 +163,8 @@ public class Cycle extends GridRectangle{
         int paddingX = canvas.getClipBounds().left;
         int paddingY = canvas.getClipBounds().top;
 
-        float w = (float)Tile.convert(Grid.GAME_GRID_TILE,GameFrame.SCREEN_GRID_TILE,getWidth());
-        float h = (float)Tile.convert(Grid.GAME_GRID_TILE,GameFrame.SCREEN_GRID_TILE,getHeight());
+        float w = (float)Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,getWidth());
+        float h = (float)Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,getHeight());
 
         Paint insidePaint = new Paint();
         insidePaint.setColor(Color.BLUE);

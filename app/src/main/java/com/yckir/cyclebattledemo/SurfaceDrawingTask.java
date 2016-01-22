@@ -17,7 +17,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     public static String TAG="SURFACE_DRAWING_TASK";
 
     private final SurfaceHolder mSurfaceHolder;
-    private final GameFrame mGameFrame;
+    private final GameManager mGameManager;
     private final RectangleContainer mRectangleContainer;
     private DrawingTaskListener mListener;
 
@@ -29,12 +29,12 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
      * Constructs drawing task that draws on the canvas provided by a surface holder.
      *
      * @param holder used to retrieve canvas to draw on
-     * @param gameFrame holds the game information and knows how to draw the game into a canvas
-     * @param rectangleContainer centers the GameFrame on a canvas and draws a border surrounding it
+     * @param gameManager holds the game information and knows how to draw the game into a canvas
+     * @param rectangleContainer centers the game frame on a canvas and draws a border surrounding it
      */
-    public SurfaceDrawingTask(SurfaceHolder holder, GameFrame gameFrame,RectangleContainer rectangleContainer){
+    public SurfaceDrawingTask(SurfaceHolder holder, GameManager gameManager,RectangleContainer rectangleContainer){
         mSurfaceHolder=holder;
-        mGameFrame=gameFrame;
+        mGameManager = gameManager;
         mRectangleContainer = rectangleContainer;
         mListener=null;
     }
@@ -61,11 +61,11 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         long start =params[0];
         long frameStartTime;
         Log.v(TAG, "starting at time " + start);
-        while (mGameFrame.isRunning()){
+        while (mGameManager.isRunning()){
             frameStartTime=System.currentTimeMillis() - start;
-            mGameFrame.checkDirectionChangeRequests();
-            mGameFrame.move( frameStartTime );
-            mGameFrame.collisionDetection();
+            mGameManager.checkDirectionChangeRequests();
+            mGameManager.move( frameStartTime );
+            mGameManager.collisionDetection();
             drawFrame();
         }
         Log.v(TAG,"Done with task");
@@ -75,7 +75,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        ArrayList<GameFrame.DirectionChangeRequest> list = mGameFrame.getReplay();
+        ArrayList<GameManager.DirectionChangeRequest> list = mGameManager.getReplay();
         //for(int i = 0; i < list.size(); i++)
         //    Log.v(TAG,list.get(i).toString());
         if(mListener!=null){
@@ -100,8 +100,8 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         while (count<60){
             count++;
             frameStartTime=System.currentTimeMillis() - start;
-            mGameFrame.checkDirectionChangeRequests();
-            mGameFrame.move( frameStartTime );
+            mGameManager.checkDirectionChangeRequests();
+            mGameManager.move( frameStartTime );
             actionEnd = System.currentTimeMillis() - start;
 
             //surfaceCanvas = null;
@@ -122,10 +122,9 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
 
     /**
-     * draws the boarder and GameFrame on a canvas
+     * draws the boarder and game frame on a canvas
      *
-     * @param canvas the canvas that will be drawn onto. It is assumed that the user has already
-     *               set the size of the RectangleContainer and GameFrame to match the canvas.
+     * @param canvas the canvas that will be drawn onto.
      */
     public void doDraw(Canvas canvas){
         mRectangleContainer.drawBorder(canvas);
@@ -133,14 +132,14 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
 
-        mGameFrame.drawFrame( canvas );
+        mGameManager.drawFrame( canvas );
         //draw path
         canvas.restore();
     }
 
 
     /**
-     * draws the boarder and GameFrame on the canvas provided by the SurfaceHolder
+     * draws the boarder and game frame on the canvas provided by the SurfaceHolder
      */
     public void drawFrame(){
 
@@ -152,7 +151,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
 
-        mGameFrame.drawFrame( canvas );
+        mGameManager.drawFrame( canvas );
         //draw path
         canvas.restore();
 
@@ -217,6 +216,6 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
          * called when the task finishes execution.
          * @param replay a replay of the match that ended.
          */
-        void taskEnded(ArrayList<GameFrame.DirectionChangeRequest> replay);
+        void taskEnded(ArrayList<GameManager.DirectionChangeRequest> replay);
     }
 }
