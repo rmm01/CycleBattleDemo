@@ -6,6 +6,10 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.Tile;
+
 
 /**
  *      A two dimensional rectangle that is capable of moving its position, recording its path,
@@ -163,7 +167,7 @@ public class Cycle extends GridRectangle{
         int paddingX = canvas.getClipBounds().left;
         int paddingY = canvas.getClipBounds().top;
 
-        float w = (float)Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,getWidth());
+        float w = (float) Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE, getWidth());
         float h = (float)Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,getHeight());
 
         Paint insidePaint = new Paint();

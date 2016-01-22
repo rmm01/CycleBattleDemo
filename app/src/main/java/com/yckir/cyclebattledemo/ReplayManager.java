@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.yckir.cyclebattledemo.utility.Compass;
+
 import java.util.ArrayList;
 
 public class ReplayManager {

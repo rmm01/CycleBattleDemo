@@ -5,6 +5,12 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.Point;
+import com.yckir.cyclebattledemo.utility.Tile;
+
 import java.util.ArrayList;
 
 /**

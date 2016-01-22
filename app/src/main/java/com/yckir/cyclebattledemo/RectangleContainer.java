@@ -3,6 +3,8 @@ package com.yckir.cyclebattledemo;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+
 /**
  * Given a canvas, you can specify a rectangle at its center and this class will draw a colored
  * border surrounding it.

@@ -7,6 +7,10 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.Tile;
+
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -171,7 +175,7 @@ public class GameManager {
         Log.v(TAG,"creating " + mNumCycles + " cycles");
         mCycles= new Cycle[mNumCycles];
         double w = Tile.convert(SCREEN_GRID_TILE,Grid.GAME_GRID_TILE,mFrameGridWidth);
-        double h = Tile.convert(SCREEN_GRID_TILE,Grid.GAME_GRID_TILE,mFrameGridHeight);
+        double h = Tile.convert(SCREEN_GRID_TILE, Grid.GAME_GRID_TILE, mFrameGridHeight);
 
 
 

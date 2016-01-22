@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.utility;
 
 /**
  * A square tile with a length that cant be changed once initialized.

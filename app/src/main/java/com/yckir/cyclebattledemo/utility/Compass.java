@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.utility;
 
 /**
  * Used to identify the four compass directions. Java has the origin at the top left corner

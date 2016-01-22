@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Compass;
+
 import java.util.ArrayList;
 
 /**

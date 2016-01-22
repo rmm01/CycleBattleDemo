@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+
 import java.util.ArrayList;
 
 /**

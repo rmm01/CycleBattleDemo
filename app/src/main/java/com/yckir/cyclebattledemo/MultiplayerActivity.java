@@ -11,6 +11,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
+
 /**
  * A multiplayer Game mode.
  */

@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.utility;
 
 
 public class ClassStateString {

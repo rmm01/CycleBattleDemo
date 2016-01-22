@@ -2,6 +2,10 @@ package com.yckir.cyclebattledemo;
 
 import android.os.Bundle;
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.Point;
+
 /**
  * A line that exists on a 2d grid. Records the time when this line was created. The line has a
  * thickness. Imagine a  horizontal line on a paper and a square pencil. You trace the line on the

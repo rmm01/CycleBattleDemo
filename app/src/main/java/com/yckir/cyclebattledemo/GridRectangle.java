@@ -1,6 +1,9 @@
 package com.yckir.cyclebattledemo;
 
 
+import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.Point;
+
 /**
  *   A rectangle that exists on the xy plane.
  *
