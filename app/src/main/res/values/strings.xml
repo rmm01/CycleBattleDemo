@@ -14,4 +14,32 @@
     <string name="info_button">INFO</string>
     <string name="replay_button">replay</string>
     <string name="app_name_caps">SPLIT SCREEN TRON</string>
+
+    <string name="home_activity_rules_dialog_title">Game Rules</string>
+    <string name="home_activity_rules_dialog_description">
+        1) Cycles can\'t stop moving once they\'ve started.\n\n
+        2) Cycles can\'t move backwards.\n\n
+        3) Cycles can only change direction to its left or right.\n\n
+        4) As each cycle moves, they leave behind a path in their color.\n\n
+        5) If a player collides with a path, cycle, or goes outside the grid, they lose.\n\n
+        6) The last player remaining wins.\n\n
+    </string>
+    
+    <string name="home_activity_how_to_play_dialog_description">
+        1) Position the device parallel to the floor.\n\n
+        2) Player 1 is red, 2 is green, 3 is white, and 4 is Magenta.\n\n
+        3) Place yourself near the edge of the screen where your color appears.\n\n
+        4) Swipe a finger on the touch screen towards the direction they want to move.\n\n
+        5) Swipe as close to your edge of the screen as possible.\n\n\t\t
+        Large Screens recommended for three and four player modes.
+    </string>
+    <string name="home_activity_how_to_play_dialog_title">How to Play</string>
+
+    <string name="home_activity_play_dialog_title">Select Number of Players</string>
+    <string name="home_activity_play_dialog_negative_button">Cancel</string>
+
+    <string name="multiplayer_activity_pause_dialog_title">Exit Game</string>
+    <string name="multiplayer_activity_pause_dialog_message">Are you sure you want to leave the game?</string>
+    <string name="multiplayer_activity_pause_dialog_negative_button">Leave</string>
+    <string name="multiplayer_activity_pause_dialog_positive_button">Stay</string>
 </resources>

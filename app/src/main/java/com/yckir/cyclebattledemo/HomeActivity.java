@@ -8,21 +8,58 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class HomeActivity extends AppCompatActivity {
 
+    private AlertDialog mHowToPlayDialog;
+    private AlertDialog mRulesDialog;
+    private AlertDialog mPlayDialog;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        disableStatusBar();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        initHowToPlayDialog();
+        initRulesDialog();
+        initPlayDialog();
     }
 
 
-    public void player_button_clicked(View view) {
+    /**
+     * Disables the status bar
+     */
+    private void disableStatusBar(){
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+
+    private void initHowToPlayDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final String[] options = {"2","3","4"};
+        builder.setMessage(R.string.home_activity_how_to_play_dialog_description);
+        builder.setTitle(R.string.home_activity_how_to_play_dialog_title);
+        mHowToPlayDialog = builder.create();
+    }
+
+
+    private void initRulesDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.home_activity_rules_dialog_description);
+        builder.setTitle(R.string.home_activity_rules_dialog_title);
+        mRulesDialog = builder.create();
+    }
+
+
+    private void initPlayDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final String[] options = getResources().getStringArray(R.array.home_activity_play_dialog_num_players_array);
         final Context context = this;
-        builder.setItems(options, new DialogInterface.OnClickListener() {
+        builder.setItems( options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(context, MultiplayerActivity.class);
@@ -32,45 +69,23 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        builder.setTitle("How many players");
-        builder.setNegativeButton("cancel", null);
-        builder.create().show();
+        builder.setTitle(R.string.home_activity_play_dialog_title);
+        builder.setNegativeButton(R.string.home_activity_play_dialog_negative_button, null);
+        mPlayDialog=builder.create();
+    }
+
+
+    public void play_button_clicked(View view) {
+        mPlayDialog.show();
     }
 
 
     public void how_to_play_button_clicked(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("1) Place the device on a flat surface of hold it so that all player can see it.\n\n" +
-            "2) Player 1 is red, 2 is green, 3 is white, and 4 is Magenta.\n\n" +
-            "3) Place yourself near the edge of the screen where your color appears.  \n\n" +
-            "4) Once a game begins, each player swipes a finger on the touch screen in the direction " +
-                        "they want to move.\n\n" +
-            "5) Make sure to swipe as close to your color region of the screen as possible.\n\n" +
-
-                "Tablet recommended for three and four player modes."
-        );
-        builder.setTitle("How To Play");
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        mHowToPlayDialog.show();
     }
 
 
     public void rules_button_clicked(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(
-                        "1) Cycles cant stop moving once they've started.\n\n" +
-                        "2) Cycles can't move backwards.\n\n" +
-                        "3) Cycles can only travel North, South, East or West.\n\n" +
-                        "4) As each cycle moves, they leave behind a path in its color.\n\n" +
-                        "5) If a player collides with a path, cycle, or goes outside the grid, they lose.\n\n" +
-                        "6) The last player remaining wins.\n\n" +
-                        "7) Make sure to swipe as close to your edge of the screen as possible"
-
-        );
-        builder.setTitle("Game Rules");
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        mRulesDialog.show();
     }
 }
