@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.activities;
 
 
 import android.app.AlertDialog;
@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.yckir.cyclebattledemo.R;
 
 public class HomeActivity extends AppCompatActivity {
 
