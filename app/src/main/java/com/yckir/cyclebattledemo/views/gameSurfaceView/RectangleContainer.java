@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

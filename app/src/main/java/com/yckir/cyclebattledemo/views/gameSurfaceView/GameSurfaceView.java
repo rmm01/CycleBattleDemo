@@ -12,7 +12,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.yckir.cyclebattledemo.R;
-import com.yckir.cyclebattledemo.RectangleContainer;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 

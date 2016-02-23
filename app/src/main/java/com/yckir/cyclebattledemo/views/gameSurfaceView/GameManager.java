@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.yckir.cyclebattledemo.Grid;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 import com.yckir.cyclebattledemo.utility.Tile;

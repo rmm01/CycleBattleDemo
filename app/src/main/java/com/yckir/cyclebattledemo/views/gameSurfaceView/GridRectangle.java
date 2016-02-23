@@ -1,8 +1,9 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Point;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.Grid;
 
 /**
  *   A rectangle that exists on the xy plane.

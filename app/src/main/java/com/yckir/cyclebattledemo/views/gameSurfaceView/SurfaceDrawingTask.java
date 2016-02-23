@@ -7,9 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import com.yckir.cyclebattledemo.RectangleContainer;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
-import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
 
 import java.util.ArrayList;
 

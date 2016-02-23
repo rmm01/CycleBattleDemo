@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 
 import android.graphics.Canvas;
@@ -11,6 +11,8 @@ import com.yckir.cyclebattledemo.utility.Compass;
 import com.yckir.cyclebattledemo.utility.Point;
 import com.yckir.cyclebattledemo.utility.Tile;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.Grid;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.GridLine;
 
 import java.util.ArrayList;
 

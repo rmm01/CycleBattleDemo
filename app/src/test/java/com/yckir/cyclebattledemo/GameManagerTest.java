@@ -3,6 +3,7 @@ package com.yckir.cyclebattledemo;
 import android.graphics.Paint;
 
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.Grid;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

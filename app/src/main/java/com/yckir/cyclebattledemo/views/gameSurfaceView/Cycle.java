@@ -6,13 +6,9 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.yckir.cyclebattledemo.Grid;
-import com.yckir.cyclebattledemo.GridRectangle;
-import com.yckir.cyclebattledemo.LinePath;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 import com.yckir.cyclebattledemo.utility.Tile;
-import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
 
 
 /**
