@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -11,6 +11,11 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.yckir.cyclebattledemo.GameManager;
+import com.yckir.cyclebattledemo.R;
+import com.yckir.cyclebattledemo.RectangleContainer;
+import com.yckir.cyclebattledemo.ReplayManager;
+import com.yckir.cyclebattledemo.SurfaceDrawingTask;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 
@@ -20,7 +25,7 @@ import java.util.ArrayList;
  * View that displays the cycle game. Drawing is done on an AsyncTask.
  */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
-        SurfaceDrawingTask.DrawingTaskListener{
+        SurfaceDrawingTask.DrawingTaskListener {
 
     public  static final String     TAG                     =   "GAME_SURFACE_VIEW";
     public  static final int        WAITING                 =   0;

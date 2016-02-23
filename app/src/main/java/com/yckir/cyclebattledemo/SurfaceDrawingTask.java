@@ -212,7 +212,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     /**
      * Interface that responds when the task finishes execution.
      */
-    interface DrawingTaskListener {
+    public interface DrawingTaskListener {
 
         /**
          * called when the task finishes execution.

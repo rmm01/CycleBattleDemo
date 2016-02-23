@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
 
 import java.util.ArrayList;
 
