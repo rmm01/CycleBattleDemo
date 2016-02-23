@@ -25,7 +25,7 @@
         android:textStyle="bold|italic"
         android:gravity="center_horizontal"/>
 
-    <com.yckir.cyclebattledemo.SquareView
+    <com.yckir.cyclebattledemo.views.squareView.SquareView
         android:id="@+id/logo"
         android:background="@drawable/home_background"
         android:layout_width="wrap_content"
