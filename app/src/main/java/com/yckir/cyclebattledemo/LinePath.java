@@ -10,6 +10,7 @@ import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 import com.yckir.cyclebattledemo.utility.Point;
 import com.yckir.cyclebattledemo.utility.Tile;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
 
 import java.util.ArrayList;
 

@@ -2,6 +2,8 @@ package com.yckir.cyclebattledemo;
 
 import android.graphics.Paint;
 
+import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

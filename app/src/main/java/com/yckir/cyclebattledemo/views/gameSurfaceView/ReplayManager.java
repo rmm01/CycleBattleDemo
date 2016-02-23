@@ -1,4 +1,4 @@
-package com.yckir.cyclebattledemo;
+package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.views.gameSurfaceView.GameManager;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
 
 import java.util.ArrayList;
