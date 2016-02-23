@@ -42,18 +42,6 @@
         android:visibility="invisible"
         android:onClick="resumeButton"/>
     <Button
-        android:id="@+id/pause_game_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:layout_margin="@dimen/button_margin"
-        android:padding="@dimen/button_padding"
-        android:textSize="@dimen/button_text_size"
-        android:text="@string/pause_button"
-        android:visibility="invisible"
-        android:onClick="pauseButton"/>
-    <Button
         android:id="@+id/info_button"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
