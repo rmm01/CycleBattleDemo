@@ -1,5 +1,6 @@
 package com.yckir.cyclebattledemo.utility;
 
+import android.support.v4.view.MotionEventCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -14,8 +15,9 @@ import java.util.ArrayList;
  */
 public class FourRegionSwipeDetector {
     public static final String TAG = "4_REGION_SWIPE_DETECTOR";
+    public static final int MAX_NUM_FINGERS = 5;
     private final static double MIN_FLING_DISTANCE = 0;
-    private ArrayList<Point> mEvents;
+    private ArrayList<SwipeMotionEvent> mEvents;
     private OnRegionSwipeListener mListener;
     private DisplayMetrics mDisplayMetrics;
     public boolean mDisabled;
@@ -31,7 +33,12 @@ public class FourRegionSwipeDetector {
      */
     public FourRegionSwipeDetector(int numRegions, DisplayMetrics metrics, OnRegionSwipeListener listener){
         mDisplayMetrics = metrics;
-        mEvents = new ArrayList<>(10);
+
+        mEvents = new ArrayList<>(MAX_NUM_FINGERS);
+        for (int i = 0; i < MAX_NUM_FINGERS; i++){
+            mEvents.add(i,new SwipeMotionEvent(i,new Point(0,0),false));
+        }
+
         if(listener==null)
             mListener = new OnRegionSwipeListener() {
                 @Override
@@ -48,7 +55,7 @@ public class FourRegionSwipeDetector {
         }
         if(numRegions>4){
             mNumRegions=4;
-            Log.e(TAG,"number of regions is greater that 4, setting numRegions to 1");
+            Log.e(TAG,"number of regions is greater that 4, setting numRegions to 4");
             return;
         }
         mNumRegions =numRegions;
@@ -84,23 +91,45 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * save the event.
+     * Triggered as a result of ACTION_DOWN or ACTION_POINTER_DOWN on the motion event.
+     * Stores the x,y,and id of the event as a SwipeMotionEvent.
+     * The SwipeMotionEvent Id uses the Motion Events id.
      *
-     * @param event to be stored
+     * @param event the event that had .
      */
     private void downAction(MotionEvent event) {
-        int index = event.getActionIndex();
-        int id = event.getPointerId(index);
-        //int x = (int)event.getX(index);
-        //int y = (int)event.getY(index);
-        //Log.v(TAG, "finger pressed: index = " + index + ", id = " + id+ " at " + x + ", " + y);
-        mEvents.add(id, new Point(event.getX(index), event.getY(index)));
+        int index = MotionEventCompat.getActionIndex(event);
+        int id = MotionEventCompat.getPointerId(event, index);
+        int x = (int)event.getX(index);
+        int y = (int)event.getY(index);
+
+        mEvents.set(id, new SwipeMotionEvent(id, new Point(x, y),true));
     }
 
 
     /**
+     * Triggered as a result of ACTION_MOVE on the motion event.
+     * Stores the MotionEvent's position as the end position of a SwipeMotionEvent for each pointer
+     * in the motion event.
+     * The SwipeMotionEvent was created and saved in method downAction.
+     * The SwipeMotionEvent uses the id of the MotionEvent.
+     *
+     * @param event the event to have its position stored.
+     */
+    private void moveAction(MotionEvent event){
+        int pointerCount = event.getPointerCount();
+
+        for(int p = 0; p < pointerCount; p++){
+            int id = MotionEventCompat.getPointerId(event,p);
+            int x = (int)event.getX(p);
+            int y = (int)event.getY(p);
+            mEvents.get(id).EndPoint.setPosition(x, y);
+        }
+    }
+
+    /**
      * A swipe has happened at the two points, determine the region, direction, and time of the
-     * swipe. Call the listeners onRegionSwipe method if the seipe happened at a valid region.
+     * swipe. Call the listeners onRegionSwipe method if the swipe happened at a valid region.
      *
      * @param p1 point 1
      * @param p2 point 2
@@ -120,23 +149,41 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * called when an DOWN has been received for an event. Determines if the event was a swipe
-     * gesture.
-     * @param event event with an action DOWN
+     * Triggered as a result of ACTION_CANCEL or ACTION_OUTSIDE on a motion event, or when a swipe has complected.
+     * Uses the id of the MotionEvent to set its corresponding SwipeMotionEvent
+     * Active field to false.
+     *
+     * @param event the event what was canceled or completed a SwipeMotionEvent
+     */
+    private void endSwipeMotionEvent(MotionEvent event){
+        int index = MotionEventCompat.getActionIndex(event);
+        int id = MotionEventCompat.getPointerId(event, index);
+        mEvents.get(id).Active=false;
+    }
+
+
+    /**
+     * Triggered as a result of ACTION_UP of ACTION_POINTER_UP on a motion event.
+     * Determines if the the events SwipeMotionEvent was valid, if so then the current classes
+     * listener has its methods called.
+     *
+     * @param event event with an ACTION_DOWN
      */
     private void upAction(MotionEvent event) {
-        int index = event.getActionIndex();
-        int id = event.getPointerId(index);
-        //Log.v( TAG, "finger released: index " + index + " and id " + id );
+        int index = MotionEventCompat.getActionIndex(event);
+        int id = MotionEventCompat.getPointerId(event, index);
+        int x = (int)event.getX(index);
+        int y = (int)event.getY(index);
 
-        Point p1 = mEvents.get(id);
-        Point p2 = new Point( event.getX(index), event.getY(index) );
-        //Point.logPoints(p1, p2);
+        //Log.v(TAG, "finger released: index = " + index + ", id = " + id + " at " + x + ", " + y);
 
-        if(Point.distance(p1, p2) < MIN_FLING_DISTANCE)
-            return;
+        Point p1 = mEvents.get(id).StartPoint;
+        Point p2 = new Point( x, y );
 
-        onSwipe(p1, p2);
+        endSwipeMotionEvent(event);
+
+        if(Point.distance(p1, p2) > MIN_FLING_DISTANCE)
+            onSwipe(p1, p2);
     }
 
 
@@ -198,15 +245,16 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Receive a touch event and either save the event if it was a down, or check if it was a
-     * swipe if it was an up action. Does nothing of is disabled.
+     * Receive a touch event and perform action bases on if the its action.
+     * The actions chccked are down, up move outside and cancel.
      *
      * @param event a motion event
      */
     public void receiveTouchEvent(MotionEvent event){
         if(mDisabled)
             return;
-        int action = event.getActionMasked();
+
+        int action = MotionEventCompat.getActionMasked(event);
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -217,6 +265,14 @@ public class FourRegionSwipeDetector {
             case MotionEvent.ACTION_POINTER_UP:
                 upAction(event);
                 break;
+
+            case MotionEvent.ACTION_MOVE:
+                moveAction(event);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_OUTSIDE:
+                endSwipeMotionEvent(event);
+
         }
     }
 
@@ -233,5 +289,65 @@ public class FourRegionSwipeDetector {
          * @param swipeTime the time that the swipe occurred. This is when the finger was released.
          */
         void onRegionSwipe(int regionNumber, Compass direction, long swipeTime);
+    }
+
+
+    /**
+     * Container class that stores information for detecting swiping motions.
+     */
+    private class SwipeMotionEvent{
+
+        public Point StartPoint;
+        public Point EndPoint;
+        public boolean Active;
+        public int Id;
+
+        /**
+         * Create a SwipeMotionEvent. the EndPosition is given a copy of Start position for initialization.
+         *
+         * @param id          the unique id for the motionEvent. Their will never bee two active motion
+         *                    events with the same id
+         * @param startPoint  the initial position of the swipe.
+         * @param active      determines if the swipe is in progress, meaning it has not completed yet.
+         */
+        SwipeMotionEvent(int id, Point startPoint, boolean active){
+            Id = id;
+            StartPoint = startPoint;
+            EndPoint = startPoint.makeCopy();
+            Active = active;
+        }
+
+        @Override
+        public String toString() {
+            return  "id = " + Id+" \n " + "Active = " + Active +" \n " + StartPoint.toString() +" \n " + EndPoint.toString();
+        }
+    }
+
+
+    /**
+     * Debugging method to log details about a motion event
+     * @param event the event to have its details logged
+     */
+    private void logMotionEvent(MotionEvent event){
+        Log.v(TAG, "received motion event " + event.toString());
+
+        int pointerCount = event.getPointerCount();
+        int historySize = event.getHistorySize();
+
+        Log.v(TAG,"hs = "+historySize +", pc = " +pointerCount);
+        for (int h = 0; h < historySize; h++) {
+            Log.v( TAG, "\tAt time " + event.getHistoricalEventTime(h) + ":" );
+            for (int p = 0; p < pointerCount; p++) {
+                Log.v(TAG, "\t\t  pointer " +  event.getPointerId(p)
+                        + ": ("+event.getHistoricalX(p, h)+","+event.getHistoricalY(p, h)+")");
+            }
+        }
+        Log.v(TAG,"+");
+        Log.v(TAG,"\tAt time "+ event.getEventTime()+":");
+        for (int p = 0; p < pointerCount; p++) {
+            Log.v(TAG, "\t\t  pointer " +  event.getPointerId(p)
+                    + ": ("+ event.getX(p)+","+ event.getY(p)+")");
+        }
+        Log.v(TAG,"---------");
     }
 }
