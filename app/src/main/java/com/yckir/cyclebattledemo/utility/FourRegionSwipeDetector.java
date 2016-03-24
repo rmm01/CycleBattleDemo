@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class FourRegionSwipeDetector {
     public static final String TAG = "4_REGION_SWIPE_DETECTOR";
     public static final int MAX_NUM_FINGERS = 5;
-    private final static double MIN_FLING_DISTANCE = 0;
+    private final static double MIN_SWIPE_DISTANCE = 0;
     private ArrayList<SwipeMotionEvent> mEvents;
     private OnRegionSwipeListener mListener;
     private DisplayMetrics mDisplayMetrics;
@@ -103,7 +103,11 @@ public class FourRegionSwipeDetector {
         int x = (int)event.getX(index);
         int y = (int)event.getY(index);
 
-        mEvents.set(id, new SwipeMotionEvent(id, new Point(x, y),true));
+        SwipeMotionEvent sme = mEvents.get(id);
+        sme.Active = true;
+        sme.StartPoint.setPosition(x,y);
+        sme.EndPoint.setPosition(x,y);
+        sme.Region = determineRegion(sme.StartPoint);
     }
 
 
@@ -127,26 +131,6 @@ public class FourRegionSwipeDetector {
         }
     }
 
-    /**
-     * A swipe has happened at the two points, determine the region, direction, and time of the
-     * swipe. Call the listeners onRegionSwipe method if the swipe happened at a valid region.
-     *
-     * @param p1 point 1
-     * @param p2 point 2
-     */
-    private void onSwipe(Point p1, Point p2) {
-        Compass swipeDirection = Compass.getDirection(p1, p2);
-        int region = determineRegion(p1);
-        if(region>= mNumRegions)
-            return;
-        long swipeTime = System.currentTimeMillis();
-
-        //Log.v(TAG, " swipe at region " + region + ", swipeDirection = "
-        //        + swipeDirection + " at time " + swipeTime);
-        if(mListener!=null)
-            mListener.onRegionSwipe(region, swipeDirection, swipeTime);
-    }
-
 
     /**
      * Triggered as a result of ACTION_CANCEL or ACTION_OUTSIDE on a motion event, or when a swipe has complected.
@@ -164,26 +148,29 @@ public class FourRegionSwipeDetector {
 
     /**
      * Triggered as a result of ACTION_UP of ACTION_POINTER_UP on a motion event.
-     * Determines if the the events SwipeMotionEvent was valid, if so then the current classes
-     * listener has its methods called.
+     * The SwipeMotionEvent for the MotionEvent's id considered valid if
+     * the swipe is was greater than MIN_SWIPE_DISTANCE and if a valid region was swiped.
+     * If valid, the listeners onRegionSwipe method is called.
      *
      * @param event event with an ACTION_DOWN
      */
     private void upAction(MotionEvent event) {
         int index = MotionEventCompat.getActionIndex(event);
         int id = MotionEventCompat.getPointerId(event, index);
-        int x = (int)event.getX(index);
-        int y = (int)event.getY(index);
 
-        //Log.v(TAG, "finger released: index = " + index + ", id = " + id + " at " + x + ", " + y);
+        SwipeMotionEvent sme = mEvents.get(id);
 
-        Point p1 = mEvents.get(id).StartPoint;
-        Point p2 = new Point( x, y );
+        //if distance between the points is too small or an invalid region was swiped, do nothing
+        if(Point.distance(sme.StartPoint, sme.EndPoint) < MIN_SWIPE_DISTANCE || sme.Region>= mNumRegions)
+            return;
 
-        endSwipeMotionEvent(event);
+        Compass swipeDirection = Compass.getDirection(sme.StartPoint, sme.EndPoint);
 
-        if(Point.distance(p1, p2) > MIN_FLING_DISTANCE)
-            onSwipe(p1, p2);
+        long swipeTime = System.currentTimeMillis();
+
+        if(mListener!=null)
+            mListener.onRegionSwipe(sme.Region, swipeDirection, swipeTime);
+
     }
 
 
@@ -261,18 +248,21 @@ public class FourRegionSwipeDetector {
             case MotionEvent.ACTION_POINTER_DOWN:
                 downAction(event);
                 break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_POINTER_UP:
-                upAction(event);
-                break;
 
             case MotionEvent.ACTION_MOVE:
                 moveAction(event);
                 break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+                upAction(event);
+                endSwipeMotionEvent(event);
+                break;
+
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_OUTSIDE:
                 endSwipeMotionEvent(event);
-
+                break;
         }
     }
 
@@ -301,6 +291,7 @@ public class FourRegionSwipeDetector {
         public Point EndPoint;
         public boolean Active;
         public int Id;
+        public int Region;
 
         /**
          * Create a SwipeMotionEvent. the EndPosition is given a copy of Start position for initialization.
@@ -315,6 +306,7 @@ public class FourRegionSwipeDetector {
             StartPoint = startPoint;
             EndPoint = startPoint.makeCopy();
             Active = active;
+            Region = 0;
         }
 
         @Override
