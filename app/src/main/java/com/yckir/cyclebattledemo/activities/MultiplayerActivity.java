@@ -76,7 +76,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * Checks the bundle inside the intent that started this activity to see if it specifies the
      * number of players.
      */
-    private void setNumPlayers(){
+    private void parseIntentBundle(){
         Bundle b = getIntent().getExtras();
         int noPlayersSpecified=-1;
         if( b == null )
@@ -113,7 +113,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         mGameSurfaceView.addGameEventListener(this);
         mSwipeListener = new FourRegionSwipeDetector(2, getResources().getDisplayMetrics(), this);
-        setNumPlayers();
+        parseIntentBundle();
         createPauseDialog();
     }
 
