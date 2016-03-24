@@ -1,5 +1,8 @@
 package com.yckir.cyclebattledemo.utility;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v4.view.MotionEventCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -63,22 +66,19 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Determine which region was swiped based on two points.
+     * Determine which region was swiped based on the given point
      *
-     * @param p1 point 1
-     * @param p2 point 2
-     * @return the region that was swiped
+     * @param point the point being tested
+     * @return an integer value in the range 0-3 that represents identifies region that was swiped
      */
-    private int determineRegion(Point p1, Point p2){
-        Point centerPoint = Point.centerOfLine(p1, p2);
-
-        int verticalRegion = (int)centerPoint.getPositionY()/(mDisplayMetrics.heightPixels/4);
+    private int determineRegion(Point point){
+        int verticalRegion = (int)point.getPositionY()/(mDisplayMetrics.heightPixels/4);
         switch(verticalRegion){
             case 0:
                 return 0;
             case 1:
             case 2:
-                if(centerPoint.getPositionX()< mDisplayMetrics.widthPixels/2)
+                if(point.getPositionX()< mDisplayMetrics.widthPixels/2)
                     return 2;
                 else
                     return 3;
@@ -136,7 +136,7 @@ public class FourRegionSwipeDetector {
      */
     private void onSwipe(Point p1, Point p2) {
         Compass swipeDirection = Compass.getDirection(p1, p2);
-        int region = determineRegion(p1, p2);
+        int region = determineRegion(p1);
         if(region>= mNumRegions)
             return;
         long swipeTime = System.currentTimeMillis();
