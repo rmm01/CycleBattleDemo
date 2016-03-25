@@ -133,20 +133,6 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Triggered as a result of ACTION_CANCEL or ACTION_OUTSIDE on a motion event, or when a swipe has complected.
-     * Uses the id of the MotionEvent to set its corresponding SwipeMotionEvent
-     * Active field to false.
-     *
-     * @param event the event what was canceled or completed a SwipeMotionEvent
-     */
-    private void endSwipeMotionEvent(MotionEvent event){
-        int index = MotionEventCompat.getActionIndex(event);
-        int id = MotionEventCompat.getPointerId(event, index);
-        mEvents.get(id).Active=false;
-    }
-
-
-    /**
      * Triggered as a result of ACTION_UP of ACTION_POINTER_UP on a motion event.
      * The SwipeMotionEvent for the MotionEvent's id considered valid if
      * the swipe is was greater than MIN_SWIPE_DISTANCE and if a valid region was swiped.
@@ -171,6 +157,20 @@ public class FourRegionSwipeDetector {
         if(mListener!=null)
             mListener.onRegionSwipe(sme.Region, swipeDirection, swipeTime);
 
+    }
+
+
+    /**
+     * Triggered as a result of ACTION_CANCEL or ACTION_OUTSIDE on a motion event, or when a swipe has complected.
+     * Uses the id of the MotionEvent to set its corresponding SwipeMotionEvent
+     * Active field to false.
+     *
+     * @param event the event what was canceled or completed a SwipeMotionEvent
+     */
+    private void endSwipeMotionEvent(MotionEvent event){
+        int index = MotionEventCompat.getActionIndex(event);
+        int id = MotionEventCompat.getPointerId(event, index);
+        mEvents.get(id).Active=false;
     }
 
 
@@ -263,6 +263,101 @@ public class FourRegionSwipeDetector {
             case MotionEvent.ACTION_OUTSIDE:
                 endSwipeMotionEvent(event);
                 break;
+        }
+    }
+
+
+    /**
+     * Draw the current swipes on the canvas.
+     *
+     * @param canvas Canvas to be draw. The canvas should be the as large as the touvh bounds of the device.
+     */
+    public void drawOnCanvas(Canvas canvas){
+        float x1,x2,y1,y2;
+        float circleRadius = 15 *mDisplayMetrics.density;
+        float margins = 5 * mDisplayMetrics.density;
+        int width = mDisplayMetrics.widthPixels;
+        int height = mDisplayMetrics.heightPixels;
+
+        Paint black = new Paint();
+        black.setColor(Color.BLACK);
+        black.setStyle(Paint.Style.STROKE);
+
+
+        Paint blue = new Paint();
+        blue.setColor(Color.BLUE);
+        blue.setStrokeWidth(5 * mDisplayMetrics.density);
+
+        Paint gray = new Paint();
+        gray.setColor(Color.GRAY);
+        gray.setAlpha(100);
+
+        for(int i = 0; i< mEvents.size(); i++){
+            SwipeMotionEvent event = mEvents.get(i);
+            if(event!= null && event.Active) {
+
+                x1 = (float) event.StartPoint.getPositionX();
+                y1 = (float) event.StartPoint.getPositionY();
+                x2 = (float) event.EndPoint.getPositionX();
+                y2 = (float) event.EndPoint.getPositionY();
+
+                Compass direction = Compass.getDirection(x1,y1,x2,y2);
+
+                canvas.drawCircle(x1, y1, circleRadius, black);
+                canvas.drawCircle(x2, y2, circleRadius, black);
+
+                switch (direction) {
+                    case NORTH:
+                    case SOUTH:
+                        canvas.drawLine(x1, y1, x1, y2, blue);
+                        break;
+                    case EAST:
+                    case WEST:
+                        canvas.drawLine(x1, y1, x2, y1, blue);
+                        break;
+                }
+
+                switch (event.Region){
+                    case 0:
+                        canvas.drawRect(
+                                0,
+                                0,
+                                width      - margins,
+                                height / 4 - margins,
+                                gray);
+
+                        break;
+
+                    case 1:
+                        canvas.drawRect(
+                                0,
+                                height * 3/4 + margins,
+                                width        - margins,
+                                height       - margins,
+                                gray);
+
+                        break;
+
+                    case 2:
+                        canvas.drawRect(
+                                0,
+                                height / 4    + margins,
+                                width  / 2    - margins,
+                                height * 3/4  - margins,
+                                gray);
+                        break;
+
+                    case 3:
+                        canvas.drawRect(
+                                width  / 2    + margins,
+                                height / 4    + margins,
+                                width         - margins,
+                                height * 3/4  - margins,
+                                gray);
+                        break;
+                }
+
+            }
         }
     }
 
