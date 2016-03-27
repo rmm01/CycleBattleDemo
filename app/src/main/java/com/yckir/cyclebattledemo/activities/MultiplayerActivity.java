@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,14 +13,11 @@ import android.widget.Button;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
-import com.yckir.cyclebattledemo.utility.Compass;
-import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
 
 /**
  * A multiplayer Game mode.
  */
-public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener,
-        FourRegionSwipeDetector.OnRegionSwipeListener {
+public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener{
 
     public  static final String     TAG                         =   "PRACTICE_GAME";
     public  static final String     NUM_PLAYERS_KEY             =   TAG + ":NUM_PLAYERS";
@@ -30,7 +26,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private static final String     NEW_GAME_VISIBILITY_KEY     =   TAG + ":NEW_GAME_VISIBILITY";
 
     private AlertDialog mPauseDialog;
-    private FourRegionSwipeDetector mSwipeListener;
     private GameSurfaceView mGameSurfaceView;
     private Button mStartButton;
     private Button mResumeButton;
@@ -94,7 +89,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         }
 
         mGameSurfaceView.setNumPlayers(numPlayers);
-        mSwipeListener.setNumRegions(numPlayers);
     }
 
 
@@ -112,7 +106,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mNewGameButton = (Button)findViewById(R.id.new_game_button);
 
         mGameSurfaceView.addGameEventListener(this);
-        mSwipeListener = new FourRegionSwipeDetector(2, getResources().getDisplayMetrics(), this);
         parseIntentBundle();
         createPauseDialog();
     }
@@ -252,23 +245,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mSwipeListener.receiveTouchEvent(event);
-        return true;
-    }
-
-
-    @Override
     public void gameEnded(int winner) {
         mNewGameButton.setVisibility(View.VISIBLE);
-    }
-
-
-    @Override
-    public void onRegionSwipe(int playerNumber, Compass direction, long swipeTime) {
-        if( mGameSurfaceView.getState() != GameSurfaceView.RUNNING )
-            return;
-        mGameSurfaceView.requestDirectionChange(playerNumber, direction, swipeTime);
     }
 
 

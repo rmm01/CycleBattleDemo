@@ -8,12 +8,14 @@ import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
 
 import java.util.ArrayList;
 
@@ -21,7 +23,7 @@ import java.util.ArrayList;
  * View that displays the cycle game. Drawing is done on an AsyncTask.
  */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
-        SurfaceDrawingTask.DrawingTaskListener {
+        SurfaceDrawingTask.DrawingTaskListener, FourRegionSwipeDetector.OnRegionSwipeListener {
 
     public  static final String     TAG                     =   "GAME_SURFACE_VIEW";
     public  static final int        WAITING                 =   0;
@@ -41,6 +43,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private SurfaceDrawingTask mSurfaceDrawingTask;
     private GameEventListener mGameEventListener;
     private SurfaceHolder mHolder;
+    private FourRegionSwipeDetector mSwipeListener;
 
     private int mWidth;
     private int mHeight;
@@ -88,6 +91,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
+
+        mSwipeListener = new FourRegionSwipeDetector(numCycles,
+                context.getResources().getDisplayMetrics(), this);
     }
 
 
@@ -183,8 +189,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param numPlayers the new number of players.
      */
     public void setNumPlayers(int numPlayers){
-        if(numPlayers != mGameManager.getNumCycles())
+        if(numPlayers != mGameManager.getNumCycles()) {
             mGameManager.updateNumPlayers(numPlayers);
+            mSwipeListener.setNumRegions(numPlayers);
+        }
     }
 
 
@@ -240,8 +248,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder,
-                               int format, int width, int height) {
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         //Log.v(TAG, "surfaceChanged:\n format: " + format + ", w = " + width + ", h = " + height
         //+ ", oldW = " +getWidth() + ", oldH = " + getHeight());
         if( mState == WAITING ) {
@@ -284,11 +291,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Bundle bundle = new Bundle();
         bundle.putParcelable("instanceState", super.onSaveInstanceState());
         bundle.putInt(WIDTH_KEY, mWidth);
-        bundle.putInt(HEIGHT_KEY,mHeight);
-        bundle.putInt(STATE_KEY,mState);
+        bundle.putInt(HEIGHT_KEY, mHeight);
+        bundle.putInt(STATE_KEY, mState);
         bundle.putLong(START_TIME_KEY, mStartTime);
-        bundle.putLong(PAUSE_TIME_KEY,mPauseTime);
-        bundle.putLong(TOTAL_PAUSE_DELAY_KEY,mTotalPauseDelay);
+        bundle.putLong(PAUSE_TIME_KEY, mPauseTime);
+        bundle.putLong(TOTAL_PAUSE_DELAY_KEY, mTotalPauseDelay);
         mGameManager.saveState(bundle);
         return bundle;
     }
@@ -316,12 +323,26 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mSwipeListener.receiveTouchEvent(event);
+        return true;
+    }
+
+    @Override
     public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
             mGameEventListener.gameEnded(0);
             mReplayManager = new ReplayManager(list,this);
         }
+    }
+
+
+    @Override
+    public void onRegionSwipe(int playerNumber, Compass direction, long swipeTime) {
+            if( mState != RUNNING )
+                return;
+            requestDirectionChange(playerNumber, direction, swipeTime);
     }
 
 
