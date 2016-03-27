@@ -3,8 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background_multi">
+    android:layout_height="match_parent">
+
+    <com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView
+        android:id="@+id/multiplayer_game_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:boarder_color="@color/colorAccent"
+        app:background_color="@color/colorPrimary"
+        app:border_length="5dp"
+        app:tiles_x="11"
+        app:tiles_y="11"
+        app:cycles="2"/>
 
     <Button
         android:id="@+id/start_game_button"
@@ -66,18 +76,4 @@
         android:visibility="invisible"
         android:onClick="replayButton"/>
 
-    <com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView
-        android:id="@+id/multiplayer_game_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/multiplayer_button_size"
-        android:layout_marginBottom="@dimen/multiplayer_button_size"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        app:boarder_color="@color/colorAccent"
-        app:background_color="@color/colorPrimary"
-        app:border_length="5dp"
-        app:tiles_x="11"
-        app:tiles_y="11"
-        app:cycles="2"/>
 </RelativeLayout>

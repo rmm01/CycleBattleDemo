@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
 
 import java.util.ArrayList;
 
@@ -22,6 +23,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     private final GameManager mGameManager;
     private final RectangleContainer mRectangleContainer;
     private DrawingTaskListener mListener;
+    private FourRegionSwipeDetector mDetector = null;
 
     private long mTotalTaskDelay;
     private long mTotalUpdatePositionDelay;
@@ -53,6 +55,16 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
 
     /**
+     * Set the swipe detector that will be used to draw the touch feedback.
+     *
+     * @param detector that is tracking the touch events.
+     */
+    public void setSwipeDetector(FourRegionSwipeDetector detector){
+        mDetector = detector;
+    }
+
+
+    /**
      * Runs until all but one cycle crash.
      *
      * @param params the start time of the animation
@@ -63,12 +75,19 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         long start =params[0];
         long frameStartTime;
         Log.v(TAG, "starting at time " + start);
-        while (mGameManager.isRunning()){
-            frameStartTime=System.currentTimeMillis() - start;
+        while (mGameManager.isRunning()) {
+            frameStartTime = System.currentTimeMillis() - start;
             mGameManager.checkDirectionChangeRequests();
-            mGameManager.move( frameStartTime );
+            mGameManager.move(frameStartTime);
             mGameManager.collisionDetection();
-            drawFrame();
+
+            Canvas canvas = mSurfaceHolder.lockCanvas();
+            drawFrame(canvas);
+
+            if (mDetector != null)
+                mDetector.drawTouchAndRegions(canvas);
+
+            mSurfaceHolder.unlockCanvasAndPost(canvas);
         }
         Log.v(TAG,"Done with task");
         return null;
@@ -135,18 +154,16 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
 
         mGameManager.drawFrame( canvas );
-        //draw path
+        mDetector.drawRegions( canvas );
+
         canvas.restore();
     }
 
 
     /**
-     * draws the boarder and game frame on the canvas provided by the SurfaceHolder
+     * draws the boarder and game frame on the canvas provided
      */
-    public void drawFrame(){
-
-        Canvas canvas = mSurfaceHolder.lockCanvas();
-
+    public void drawFrame(Canvas canvas){
         mRectangleContainer.drawBorder( canvas );
 
         canvas.save();
@@ -156,8 +173,6 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         mGameManager.drawFrame( canvas );
         //draw path
         canvas.restore();
-
-        mSurfaceHolder.unlockCanvasAndPost( canvas );
     }
 
 

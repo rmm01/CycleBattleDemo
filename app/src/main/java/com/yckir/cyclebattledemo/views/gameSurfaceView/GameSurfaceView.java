@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -89,11 +90,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mGameManager = new GameManager(numTilesX, numTilesY, numCycles);
         mRectangleContainer = new RectangleContainer(boarderColor,borderSize);
 
-        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer);
-        mSurfaceDrawingTask.addListener(this);
-
         mSwipeListener = new FourRegionSwipeDetector(numCycles,
                 context.getResources().getDisplayMetrics(), this);
+
+        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer);
+        mSurfaceDrawingTask.addListener(this);
+        mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
+
     }
 
 
@@ -118,6 +121,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mState=RUNNING;
         mStartTime=startTime;
         mGameManager.setRunning(true);
+        mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         mSurfaceDrawingTask.execute(startTime);
     }
 
@@ -151,6 +155,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mGameManager.setRunning(true);
         mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
+        mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         mSurfaceDrawingTask.execute(mStartTime + mTotalPauseDelay);
     }
 
@@ -167,7 +172,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mGameManager.newGame();
         mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer);
         mSurfaceDrawingTask.addListener(this);
-
+        mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         Canvas canvas = mHolder.lockCanvas();
         mSurfaceDrawingTask.doDraw(canvas);
         mHolder.unlockCanvasAndPost(canvas);
@@ -325,8 +330,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mSwipeListener.receiveTouchEvent(event);
+        if(mState != RUNNING && MotionEventCompat.getActionMasked(event) != MotionEvent.ACTION_MOVE){
+            Canvas canvas = mHolder.lockCanvas();
+            mSurfaceDrawingTask.doDraw(canvas);
+            mHolder.unlockCanvasAndPost(canvas);
+        }
         return true;
     }
+
 
     @Override
     public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {

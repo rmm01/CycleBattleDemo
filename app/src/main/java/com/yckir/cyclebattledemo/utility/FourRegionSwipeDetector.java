@@ -229,11 +229,12 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Draw the current swipes on the canvas. This method can be safely called in separate threads
+     * Draw the current swipes and the regions swiped on the canvas.
+     * This method can be safely called in separate threads
      *
      * @param canvas Canvas to be draw. The canvas should be the size of the device.
      */
-    public void drawOnCanvas(Canvas canvas){
+    public void drawTouchAndRegions(Canvas canvas){
         float x1,x2,y1,y2;
         float circleRadius = 15 *mDisplayMetrics.density;
         float margins = 5 * mDisplayMetrics.density;
@@ -279,6 +280,119 @@ public class FourRegionSwipeDetector {
                         canvas.drawLine(x1, y1, x2, y1, blue);
                         break;
                 }
+
+                switch (event.getSwipedRegion()){
+                    case 0:
+                        canvas.drawRect(
+                                0,
+                                0,
+                                width      - margins,
+                                height / 4 - margins,
+                                gray);
+
+                        break;
+
+                    case 1:
+                        canvas.drawRect(
+                                0,
+                                height * 3/4 + margins,
+                                width        - margins,
+                                height       - margins,
+                                gray);
+
+                        break;
+
+                    case 2:
+                        canvas.drawRect(
+                                0,
+                                height / 4    + margins,
+                                width  / 2    - margins,
+                                height * 3/4  - margins,
+                                gray);
+                        break;
+
+                    case 3:
+                        canvas.drawRect(
+                                width  / 2    + margins,
+                                height / 4    + margins,
+                                width         - margins,
+                                height * 3/4  - margins,
+                                gray);
+                        break;
+                }
+
+            }
+        }
+    }
+
+
+    /**
+     * Draw the current swipes on the canvas.
+     * This method can be safely called in separate threads
+     *
+     * @param canvas Canvas to be draw. The canvas should be the size of the device.
+     */
+    public void drawTouch(Canvas canvas){
+        float x1,x2,y1,y2;
+        float circleRadius = 15 *mDisplayMetrics.density;
+
+        Paint black = new Paint();
+        black.setColor(Color.BLACK);
+        black.setStyle(Paint.Style.STROKE);
+
+        Paint blue = new Paint();
+        blue.setColor(Color.BLUE);
+        blue.setStrokeWidth(5 * mDisplayMetrics.density);
+
+        for(int i = 0; i< mEvents.size(); i++){
+            SwipeMotionEvent event = mEvents.get(i);
+            if(event != null && event.isSwiping()) {
+                Point startPoint = event.getStartPoint();
+                Point endPoint = event.getLastPoint();
+
+                x1 = (float) startPoint.getPositionX();
+                y1 = (float) startPoint.getPositionY();
+                x2 = (float) endPoint.getPositionX();
+                y2 = (float) endPoint.getPositionY();
+
+                Compass direction = Compass.getDirection(x1,y1,x2,y2);
+
+                canvas.drawCircle(x1, y1, circleRadius, black);
+                canvas.drawCircle(x2, y2, circleRadius, black);
+
+                switch (direction) {
+                    case NORTH:
+                    case SOUTH:
+                        canvas.drawLine(x1, y1, x1, y2, blue);
+                        break;
+                    case EAST:
+                    case WEST:
+                        canvas.drawLine(x1, y1, x2, y1, blue);
+                        break;
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Draw the the regions swiped on the canvas.
+     * This method can be safely called in separate threads
+     *
+     * @param canvas Canvas to be draw. The canvas should be the size of the device.
+     */
+    public void drawRegions(Canvas canvas){
+        float margins = 5 * mDisplayMetrics.density;
+        int width = mDisplayMetrics.widthPixels;
+        int height = mDisplayMetrics.heightPixels;
+
+        Paint gray = new Paint();
+        gray.setColor(Color.GRAY);
+        gray.setAlpha(100);
+
+        for(int i = 0; i< mEvents.size(); i++){
+            SwipeMotionEvent event = mEvents.get(i);
+            if(event != null && event.isSwiping()) {
 
                 switch (event.getSwipedRegion()){
                     case 0:
