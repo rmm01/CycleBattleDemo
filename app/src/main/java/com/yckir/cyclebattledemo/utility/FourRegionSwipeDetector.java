@@ -39,17 +39,10 @@ public class FourRegionSwipeDetector {
 
         mEvents = new ArrayList<>(MAX_NUM_FINGERS);
         for (int i = 0; i < MAX_NUM_FINGERS; i++){
-            mEvents.add(i,new SwipeMotionEvent(i,new Point(0,0),false));
+            mEvents.add(i,new SwipeMotionEvent());
         }
 
-        if(listener==null)
-            mListener = new OnRegionSwipeListener() {
-                @Override
-                public void onRegionSwipe(int regionNumber, Compass direction, long swipeTime) {
-                }
-            };
-        else
-            mListener = listener;
+        mListener = listener;
 
         if(numRegions<1){
             mNumRegions=1;
@@ -62,31 +55,6 @@ public class FourRegionSwipeDetector {
             return;
         }
         mNumRegions =numRegions;
-    }
-
-
-    /**
-     * Determine which region was swiped based on the given point
-     *
-     * @param point the point being tested
-     * @return an integer value in the range 0-3 that represents identifies region that was swiped
-     */
-    private int determineRegion(Point point){
-        int verticalRegion = (int)point.getPositionY()/(mDisplayMetrics.heightPixels/4);
-        switch(verticalRegion){
-            case 0:
-                return 0;
-            case 1:
-            case 2:
-                if(point.getPositionX()< mDisplayMetrics.widthPixels/2)
-                    return 2;
-                else
-                    return 3;
-            case 3:
-                return 1;
-            default:
-                return 100;
-        }
     }
 
 
@@ -104,10 +72,8 @@ public class FourRegionSwipeDetector {
         int y = (int)event.getY(index);
 
         SwipeMotionEvent sme = mEvents.get(id);
-        sme.Active = true;
-        sme.StartPoint.setPosition(x,y);
-        sme.EndPoint.setPosition(x,y);
-        sme.Region = determineRegion(sme.StartPoint);
+
+        sme.startSwipe(x,y);
     }
 
 
@@ -127,7 +93,7 @@ public class FourRegionSwipeDetector {
             int id = MotionEventCompat.getPointerId(event,p);
             int x = (int)event.getX(p);
             int y = (int)event.getY(p);
-            mEvents.get(id).EndPoint.setPosition(x, y);
+            mEvents.get(id).moveSwipe(x,y);
         }
     }
 
@@ -147,16 +113,11 @@ public class FourRegionSwipeDetector {
         SwipeMotionEvent sme = mEvents.get(id);
 
         //if distance between the points is too small or an invalid region was swiped, do nothing
-        if(Point.distance(sme.StartPoint, sme.EndPoint) < MIN_SWIPE_DISTANCE || sme.Region>= mNumRegions)
+        if(sme.getSwipeDistance() < MIN_SWIPE_DISTANCE || sme.getSwipedRegion() >= mNumRegions)
             return;
 
-        Compass swipeDirection = Compass.getDirection(sme.StartPoint, sme.EndPoint);
-
-        long swipeTime = System.currentTimeMillis();
-
         if(mListener!=null)
-            mListener.onRegionSwipe(sme.Region, swipeDirection, swipeTime);
-
+            mListener.onRegionSwipe(sme.getSwipedRegion(), sme.getSwipeDirection(), System.currentTimeMillis());
     }
 
 
@@ -170,7 +131,7 @@ public class FourRegionSwipeDetector {
     private void endSwipeMotionEvent(MotionEvent event){
         int index = MotionEventCompat.getActionIndex(event);
         int id = MotionEventCompat.getPointerId(event, index);
-        mEvents.get(id).Active=false;
+        mEvents.get(id).endSwipe();
     }
 
 
@@ -268,9 +229,9 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Draw the current swipes on the canvas.
+     * Draw the current swipes on the canvas. This method can be safely called in separate threads
      *
-     * @param canvas Canvas to be draw. The canvas should be the as large as the touvh bounds of the device.
+     * @param canvas Canvas to be draw. The canvas should be the size of the device.
      */
     public void drawOnCanvas(Canvas canvas){
         float x1,x2,y1,y2;
@@ -294,12 +255,14 @@ public class FourRegionSwipeDetector {
 
         for(int i = 0; i< mEvents.size(); i++){
             SwipeMotionEvent event = mEvents.get(i);
-            if(event!= null && event.Active) {
+            if(event != null && event.isSwiping()) {
+                Point startPoint = event.getStartPoint();
+                Point endPoint = event.getLastPoint();
 
-                x1 = (float) event.StartPoint.getPositionX();
-                y1 = (float) event.StartPoint.getPositionY();
-                x2 = (float) event.EndPoint.getPositionX();
-                y2 = (float) event.EndPoint.getPositionY();
+                x1 = (float) startPoint.getPositionX();
+                y1 = (float) startPoint.getPositionY();
+                x2 = (float) endPoint.getPositionX();
+                y2 = (float) endPoint.getPositionY();
 
                 Compass direction = Compass.getDirection(x1,y1,x2,y2);
 
@@ -317,7 +280,7 @@ public class FourRegionSwipeDetector {
                         break;
                 }
 
-                switch (event.Region){
+                switch (event.getSwipedRegion()){
                     case 0:
                         canvas.drawRect(
                                 0,
@@ -378,35 +341,148 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Container class that stores information for detecting swiping motions.
+     * Tracks information related to swiping motions. The initial position of the swipe is given in
+     * startSwipe, the last position updated at moveSwipe, and finished with endSwipe.
+     * This class is updated in the ui thread as motion events are received and drawn on
+     * SurfaceDrawingTask's thread. Because of this, the methods are synchronized
+     *
      */
     private class SwipeMotionEvent{
 
-        public Point StartPoint;
-        public Point EndPoint;
-        public boolean Active;
-        public int Id;
-        public int Region;
+        private Point mStartPoint;
+        private Point mEndPoint;
+        private boolean mActive;
+        private int mRegion;
 
         /**
-         * Create a SwipeMotionEvent. the EndPosition is given a copy of Start position for initialization.
-         *
-         * @param id          the unique id for the motionEvent. Their will never bee two active motion
-         *                    events with the same id
-         * @param startPoint  the initial position of the swipe.
-         * @param active      determines if the swipe is in progress, meaning it has not completed yet.
+         * Create an inactive SwipeMotionEvent.
          */
-        SwipeMotionEvent(int id, Point startPoint, boolean active){
-            Id = id;
-            StartPoint = startPoint;
-            EndPoint = startPoint.makeCopy();
-            Active = active;
-            Region = 0;
+        SwipeMotionEvent(){
+            mStartPoint = new Point(0,0);
+            mEndPoint = new Point(0,0);
+            mActive = false;
+            mRegion = -1;
         }
+
+
+        /**
+         * Determines what region of the screen was swiped
+         */
+        private void determineRegion(){
+            int verticalRegion = (int)mStartPoint.getPositionY() /(mDisplayMetrics.heightPixels/4);
+            switch(verticalRegion){
+                case 0:
+                    mRegion = 0;
+                    break;
+                case 1:
+                case 2:
+                    if((int)mStartPoint.getPositionX() < mDisplayMetrics.widthPixels/2)
+                        mRegion = 2;
+                    else
+                        mRegion = 3;
+                    break;
+                case 3:
+                    mRegion = 1;
+                    break;
+                default:
+                    mRegion = 0;
+                    break;
+            }
+        }
+
+
+        /**
+         * starts a swipe at the specified position
+         *
+         * @param x x coordinate
+         * @param y y coordinate
+         */
+        public synchronized void startSwipe(int x, int y){
+            mStartPoint.setPosition(x,y);
+            mEndPoint.setPosition(x,y);
+            mActive = true;
+            determineRegion();
+        }
+
+
+        /**
+         * Move the swipe to the specified direction.
+         *
+         * @param x x coordinate
+         * @param y y coordinate
+         */
+        public synchronized void moveSwipe(int x, int y){
+            mEndPoint.setPosition(x, y);
+        }
+
+
+        /**
+         * The swipe is no longer considered active
+         */
+        public synchronized void endSwipe(){
+            mActive = false;
+            mRegion = -1;
+        }
+
+
+        /**
+         * Get the distance between the start and end position of the swipe.
+         *
+         * @return the distance the swipe has traveled across the screen.
+         *         Measured in density pixels(dp).
+         */
+        public synchronized double getSwipeDistance(){
+            return Point.distance(mStartPoint,mEndPoint) * mDisplayMetrics.density;
+        }
+
+
+        /**
+         * @return the id for the region that was swiped.
+         */
+        public synchronized int getSwipedRegion(){
+            return mRegion;
+        }
+
+
+        /**
+         * @return the direction of the swipe
+         */
+        public synchronized Compass getSwipeDirection(){
+            return Compass.getDirection(mStartPoint, mEndPoint);
+        }
+
+
+        /**
+         * get the starting position of the swipe
+         *
+         * @return a copy of start position
+         */
+        public synchronized Point getStartPoint(){
+            return mStartPoint.makeCopy();
+        }
+
+
+        /**
+         * get the last position of the swipe.
+         *
+         * @return a copy of last position
+         */
+        public synchronized Point getLastPoint(){
+            return mEndPoint.makeCopy();
+        }
+
+
+        /**
+         * check if currently tracking a swipe
+         *
+         * @return true if currently tracking an active swipe, false otherwise
+         */
+        public synchronized boolean isSwiping(){ return mActive; }
+
 
         @Override
         public String toString() {
-            return  "id = " + Id+" \n " + "Active = " + Active +" \n " + StartPoint.toString() +" \n " + EndPoint.toString();
+            return "Active = " + mActive +" \n " + mStartPoint.toString() +" \n " + mEndPoint.toString();
         }
     }
 
