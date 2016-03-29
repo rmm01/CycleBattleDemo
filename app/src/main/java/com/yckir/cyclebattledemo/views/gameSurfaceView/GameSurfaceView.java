@@ -174,7 +174,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mSurfaceDrawingTask.addListener(this);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         Canvas canvas = mHolder.lockCanvas();
-        mSurfaceDrawingTask.doDraw(canvas);
+        mSurfaceDrawingTask.drawFrame(canvas);
+        mSwipeListener.drawTouchBoundaries(canvas);
         mHolder.unlockCanvasAndPost(canvas);
     }
 
@@ -264,7 +265,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
         Canvas canvas = holder.lockCanvas();
-        mSurfaceDrawingTask.doDraw(canvas);
+        mSurfaceDrawingTask.drawFrame(canvas);
+        mSwipeListener.drawTouchBoundaries(canvas);
         holder.unlockCanvasAndPost(canvas);
     }
 
@@ -330,11 +332,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mSwipeListener.receiveTouchEvent(event);
-        if(mState != RUNNING && MotionEventCompat.getActionMasked(event) != MotionEvent.ACTION_MOVE){
-            Canvas canvas = mHolder.lockCanvas();
-            mSurfaceDrawingTask.doDraw(canvas);
-            mHolder.unlockCanvasAndPost(canvas);
-        }
         return true;
     }
 

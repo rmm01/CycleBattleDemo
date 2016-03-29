@@ -93,7 +93,11 @@ public class FourRegionSwipeDetector {
             int id = MotionEventCompat.getPointerId(event,p);
             int x = (int)event.getX(p);
             int y = (int)event.getY(p);
-            mEvents.get(id).moveSwipe(x,y);
+
+            if(id >= MAX_NUM_FINGERS)
+                continue;
+
+            mEvents.get(id).moveSwipe(x, y);
         }
     }
 
@@ -202,6 +206,10 @@ public class FourRegionSwipeDetector {
         if(mDisabled)
             return;
 
+        int id = MotionEventCompat.getPointerId(event,MotionEventCompat.getActionIndex(event));
+        if(id >= MAX_NUM_FINGERS)
+            return;
+
         int action = MotionEventCompat.getActionMasked(event);
 
         switch (action) {
@@ -229,104 +237,6 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Draw the current swipes and the regions swiped on the canvas.
-     * This method can be safely called in separate threads
-     *
-     * @param canvas Canvas to be draw. The canvas should be the size of the device.
-     */
-    public void drawTouchAndRegions(Canvas canvas){
-        float x1,x2,y1,y2;
-        float circleRadius = 15 *mDisplayMetrics.density;
-        float margins = 5 * mDisplayMetrics.density;
-        int width = mDisplayMetrics.widthPixels;
-        int height = mDisplayMetrics.heightPixels;
-
-        Paint black = new Paint();
-        black.setColor(Color.BLACK);
-        black.setStyle(Paint.Style.STROKE);
-
-
-        Paint blue = new Paint();
-        blue.setColor(Color.BLUE);
-        blue.setStrokeWidth(5 * mDisplayMetrics.density);
-
-        Paint gray = new Paint();
-        gray.setColor(Color.GRAY);
-        gray.setAlpha(100);
-
-        for(int i = 0; i< mEvents.size(); i++){
-            SwipeMotionEvent event = mEvents.get(i);
-            if(event != null && event.isSwiping()) {
-                Point startPoint = event.getStartPoint();
-                Point endPoint = event.getLastPoint();
-
-                x1 = (float) startPoint.getPositionX();
-                y1 = (float) startPoint.getPositionY();
-                x2 = (float) endPoint.getPositionX();
-                y2 = (float) endPoint.getPositionY();
-
-                Compass direction = Compass.getDirection(x1,y1,x2,y2);
-
-                canvas.drawCircle(x1, y1, circleRadius, black);
-                canvas.drawCircle(x2, y2, circleRadius, black);
-
-                switch (direction) {
-                    case NORTH:
-                    case SOUTH:
-                        canvas.drawLine(x1, y1, x1, y2, blue);
-                        break;
-                    case EAST:
-                    case WEST:
-                        canvas.drawLine(x1, y1, x2, y1, blue);
-                        break;
-                }
-
-                switch (event.getSwipedRegion()){
-                    case 0:
-                        canvas.drawRect(
-                                0,
-                                0,
-                                width      - margins,
-                                height / 4 - margins,
-                                gray);
-
-                        break;
-
-                    case 1:
-                        canvas.drawRect(
-                                0,
-                                height * 3/4 + margins,
-                                width        - margins,
-                                height       - margins,
-                                gray);
-
-                        break;
-
-                    case 2:
-                        canvas.drawRect(
-                                0,
-                                height / 4    + margins,
-                                width  / 2    - margins,
-                                height * 3/4  - margins,
-                                gray);
-                        break;
-
-                    case 3:
-                        canvas.drawRect(
-                                width  / 2    + margins,
-                                height / 4    + margins,
-                                width         - margins,
-                                height * 3/4  - margins,
-                                gray);
-                        break;
-                }
-
-            }
-        }
-    }
-
-
-    /**
      * Draw the current swipes on the canvas.
      * This method can be safely called in separate threads
      *
@@ -336,13 +246,15 @@ public class FourRegionSwipeDetector {
         float x1,x2,y1,y2;
         float circleRadius = 15 *mDisplayMetrics.density;
 
-        Paint black = new Paint();
-        black.setColor(Color.BLACK);
-        black.setStyle(Paint.Style.STROKE);
+        Paint circlePaint = new Paint();
+        circlePaint.setColor(Color.GRAY);
+        circlePaint.setAlpha(100);
+        circlePaint.setStyle(Paint.Style.STROKE);
 
-        Paint blue = new Paint();
-        blue.setColor(Color.BLUE);
-        blue.setStrokeWidth(5 * mDisplayMetrics.density);
+        Paint linePaint = new Paint();
+        linePaint.setColor(Color.GRAY);
+        linePaint.setAlpha(100);
+        linePaint.setStrokeWidth(5 * mDisplayMetrics.density);
 
         for(int i = 0; i< mEvents.size(); i++){
             SwipeMotionEvent event = mEvents.get(i);
@@ -357,21 +269,57 @@ public class FourRegionSwipeDetector {
 
                 Compass direction = Compass.getDirection(x1,y1,x2,y2);
 
-                canvas.drawCircle(x1, y1, circleRadius, black);
-                canvas.drawCircle(x2, y2, circleRadius, black);
+                canvas.drawCircle(x1, y1, circleRadius, circlePaint);
+                canvas.drawCircle(x2, y2, circleRadius, circlePaint);
 
                 switch (direction) {
                     case NORTH:
                     case SOUTH:
-                        canvas.drawLine(x1, y1, x1, y2, blue);
+                        canvas.drawLine(x1, y1, x1, y2, linePaint);
                         break;
                     case EAST:
                     case WEST:
-                        canvas.drawLine(x1, y1, x2, y1, blue);
+                        canvas.drawLine(x1, y1, x2, y1, linePaint);
                         break;
                 }
             }
         }
+    }
+
+
+    /**
+     * Draw the boundaries for touch region
+     * @param canvas
+     */
+    public void drawTouchBoundaries(Canvas canvas){
+        float lineWidth = 5 * mDisplayMetrics.density;
+        int width = mDisplayMetrics.widthPixels;
+        int height = mDisplayMetrics.heightPixels;
+
+        Paint regionPaint = new Paint();
+        regionPaint.setColor(Color.GRAY);
+        regionPaint.setAlpha(100);
+        regionPaint.setStrokeWidth( lineWidth );
+
+        canvas.drawLine(
+                0,
+                height / 4,
+                width,
+                height / 4,
+                regionPaint);
+        canvas.drawLine(
+                0,
+                height * 3 / 4,
+                width,
+                height * 3 / 4,
+                regionPaint);
+        canvas.drawLine(
+                width  / 2,
+                height / 4,
+                width  / 2,
+                height * 3 / 4,
+                regionPaint);
+
     }
 
 

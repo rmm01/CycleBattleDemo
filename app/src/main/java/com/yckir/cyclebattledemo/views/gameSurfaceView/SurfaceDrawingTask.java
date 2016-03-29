@@ -83,10 +83,10 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
 
             Canvas canvas = mSurfaceHolder.lockCanvas();
             drawFrame(canvas);
-
-            if (mDetector != null)
-                mDetector.drawTouchAndRegions(canvas);
-
+            if (mDetector != null) {
+                mDetector.drawTouch(canvas);
+                mDetector.drawTouchBoundaries(canvas);
+            }
             mSurfaceHolder.unlockCanvasAndPost(canvas);
         }
         Log.v(TAG,"Done with task");
@@ -105,61 +105,6 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     }
 
 
-    //Alternate but identical version of doInBackGround. Used for logging
-    protected Void doInBackgroundDebug(Long... params) {
-        Log.v(TAG, "doInBackGround");
-        long start =params[0];
-        int count=0;
-        Canvas surfaceCanvas;
-        long frameStartTime;
-        long frameEndTime;
-
-        long actionEnd;
-
-        long drawStart;
-        long drawEnd;
-        while (count<60){
-            count++;
-            frameStartTime=System.currentTimeMillis() - start;
-            mGameManager.checkDirectionChangeRequests();
-            mGameManager.move( frameStartTime );
-            actionEnd = System.currentTimeMillis() - start;
-
-            //surfaceCanvas = null;
-            surfaceCanvas = mSurfaceHolder.lockCanvas();
-            drawStart = System.currentTimeMillis();
-            doDraw(surfaceCanvas);
-            drawEnd = System.currentTimeMillis();
-
-            if( surfaceCanvas != null )
-                mSurfaceHolder.unlockCanvasAndPost( surfaceCanvas );
-            frameEndTime = System.currentTimeMillis() - start;
-
-            logFrameInfo(count, frameStartTime, frameEndTime - frameStartTime, actionEnd - frameStartTime,
-                    drawEnd - drawStart);
-        }
-        return null;
-    }
-
-
-    /**
-     * draws the boarder and game frame on a canvas
-     *
-     * @param canvas the canvas that will be drawn onto.
-     */
-    public void doDraw(Canvas canvas){
-        mRectangleContainer.drawBorder(canvas);
-        canvas.save();
-        canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
-                mRectangleContainer.getRight(), mRectangleContainer.getBottom());
-
-        mGameManager.drawFrame( canvas );
-        mDetector.drawRegions( canvas );
-
-        canvas.restore();
-    }
-
-
     /**
      * draws the boarder and game frame on the canvas provided
      */
@@ -171,7 +116,6 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
 
         mGameManager.drawFrame( canvas );
-        //draw path
         canvas.restore();
     }
 
