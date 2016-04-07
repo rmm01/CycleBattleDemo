@@ -2,11 +2,11 @@ package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -16,8 +16,10 @@ import android.view.SurfaceView;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.FileUtility;
 import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -52,6 +54,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private long mStartTime;
     private long mPauseTime;
     private long mTotalPauseDelay;
+
 
     /**
      * constructs the view. Custom xml attributes are read. default values are
@@ -93,10 +96,53 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mSwipeListener = new FourRegionSwipeDetector(numCycles,
                 context.getResources().getDisplayMetrics(), this);
 
-        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer);
+        mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer, SurfaceDrawingTask.FULL_DRAW);
         mSurfaceDrawingTask.addListener(this);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
+    }
 
+
+    /**
+     * Creates and saves the background image onto a file. If the the file exists, it retrieves and
+     * returns that file. Sets the
+     * {@link com.yckir.cyclebattledemo.views.gameSurfaceView.SurfaceDrawingTask.Draw_Mode}
+     *  of mSurfaceDrawingTask.
+     *
+     * @param fileName the name of the Background file.
+     * @return File of the background image, null if the file could not be made,
+     */
+    private File createBackgroundImage(String fileName){
+
+        //if file exists, set the mode and return
+        if(FileUtility.backgroundFileExists(fileName, getContext())){
+            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
+            return FileUtility.getBackgroundFile(fileName, getContext());
+        }
+
+        File backgroundImageFile = FileUtility.getBackgroundFile(fileName, getContext());
+
+        //if cant make the file, set mode to draw background and animations
+        if(backgroundImageFile == null){
+            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
+            return null;
+        }
+
+        //draw the image onto a canvas
+        mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.BACKGROUND_DRAW);
+        Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        mSurfaceDrawingTask.draw(canvas);
+
+        // if cant write image to file, set set mode to draw background and animations
+        if( !FileUtility.writeBitmapToPNG(bitmap, backgroundImageFile )){
+            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
+            FileUtility.deleteBackgroundFile(fileName, getContext());
+            return null;
+        }
+
+        //successfully drew the image, set mode to draw only the cycle animations
+        mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
+        return  backgroundImageFile;
     }
 
 
@@ -153,7 +199,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Log.v(TAG,"pause delay was " + pauseDelay);
 
         mGameManager.setRunning(true);
-        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer);
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer,
+                mSurfaceDrawingTask.getDrawMode());
         mSurfaceDrawingTask.addListener(this);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         mSurfaceDrawingTask.execute(mStartTime + mTotalPauseDelay);
@@ -170,11 +217,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mTotalPauseDelay=0;
 
         mGameManager.newGame();
-        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer);
+        mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer,
+                mSurfaceDrawingTask.getDrawMode());
         mSurfaceDrawingTask.addListener(this);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         Canvas canvas = mHolder.lockCanvas();
-        mSurfaceDrawingTask.drawFrame(canvas);
+        mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
         mHolder.unlockCanvasAndPost(canvas);
     }
@@ -263,9 +311,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+
+            String fileName = "MultiplayerBackgroundImage_"+width+"x"+height+".png";
+            File backgroundFile = createBackgroundImage(fileName);
+            if(backgroundFile != null)
+                mGameEventListener.backgroundReady(backgroundFile);
         }
         Canvas canvas = holder.lockCanvas();
-        mSurfaceDrawingTask.drawFrame(canvas);
+        mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
         holder.unlockCanvasAndPost(canvas);
     }
@@ -287,7 +340,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         canvas.clipRect(mRectangleContainer.getLeft(), mRectangleContainer.getTop(),
                 mRectangleContainer.getRight(), mRectangleContainer.getBottom());
 
-        mGameManager.drawFrame(canvas);
+        mGameManager.drawFull(canvas);
         //draw path
         canvas.restore();
     }
@@ -381,6 +434,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
          * @param winner the cycleNumber of the winner
          */
         void gameEnded(int winner);
+
+        /**
+         * Called when the background file is ready to be used.
+         *
+         * @param file the background image
+         */
+        void backgroundReady(File file);
 
     }
 }

@@ -3,6 +3,7 @@ package com.yckir.cyclebattledemo.views.gameSurfaceView;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
@@ -278,14 +279,37 @@ public class GameManager {
 
 
     /**
-     * Draws the grid, cycles, and path together into one animation frame on a canvas. Draws the
-     * canvas black before any of the draws take place.
+     * Draws a black background, grid, cycles, and path together onto a canvas.
      *
-     * @param canvas the canvas where a frame of the game animation will be drawn.
+     * @param canvas the canvas to be drawn to.
      */
-    public void drawFrame(Canvas canvas){
+    public void drawFull(Canvas canvas){
         canvas.drawColor(Color.BLACK);
         drawGrid(canvas);
+        drawPath(canvas);
+        drawCycles(canvas);
+    }
+
+
+    /**
+     * Draw the background Image on a canvas. This includes a black canvas with the grid.
+     *
+     * @param canvas the canvas to be drawn to.
+     */
+    public void drawBackground(Canvas canvas){
+        canvas.drawColor(Color.BLACK);
+        drawGrid(canvas);
+    }
+
+
+    /**
+     * Draw the animation onto a canvas. this clears the canvas making it transparent and
+     * then draws the path and cycles.
+     *
+     * @param canvas the canvas to be drawn to.
+     */
+    public void drawAnimation(Canvas canvas){
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         drawPath(canvas);
         drawCycles(canvas);
     }

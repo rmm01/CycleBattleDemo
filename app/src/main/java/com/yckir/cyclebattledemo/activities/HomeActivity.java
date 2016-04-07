@@ -66,7 +66,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(context, MultiplayerActivity.class);
                 Bundle b = new Bundle();
-                b.putInt(MultiplayerActivity.NUM_PLAYERS_KEY, Integer.parseInt(options[which]));
+                b.putInt(MultiplayerActivity.NUM_PLAYERS_BUNDLE_KEY, Integer.parseInt(options[which]));
                 intent.putExtras(b);
                 startActivity(intent);
             }

@@ -2,6 +2,10 @@ package com.yckir.cyclebattledemo.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,29 +13,42 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 
+import com.yckir.cyclebattledemo.utility.FileUtility;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 
+import java.io.File;
+
 /**
- * A multiplayer Game mode.
+ * A multiplayer Game mode. Checks the bundle received via intent for the NUM_PLAYERS_BUNDLE_KEY argument.
+ * This can be used to set the number of players. If it is not included, then the GameSurfaceView in xml
+ * will determine the number of players. A call to onPause will pause a game if it is running.
+ * An ImageView is used to display a static background. A GameSurfaceView is used to draw the animation.
+ * The static background saved to a file by the GameSurfaceView and the ImageView sets it as its
+ * main content once its ready.
  */
 public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener{
 
     public  static final String     TAG                         =   "PRACTICE_GAME";
-    public  static final String     NUM_PLAYERS_KEY             =   TAG + ":NUM_PLAYERS";
+    public  static final String     NUM_PLAYERS_BUNDLE_KEY      =   TAG + ":NUM_PLAYERS";
     private static final String     START_VISIBILITY_KEY        =   TAG + ":START_VISIBILITY";
     private static final String     RESUME_VISIBILITY_KEY       =   TAG + ":RESUME_VISIBILITY";
     private static final String     NEW_GAME_VISIBILITY_KEY     =   TAG + ":NEW_GAME_VISIBILITY";
 
     private AlertDialog mPauseDialog;
     private GameSurfaceView mGameSurfaceView;
+    private ImageView mBackgroundView;
     private Button mStartButton;
     private Button mResumeButton;
     private Button mNewGameButton;
 
 
+    /**
+     * initialize the pause dialog.
+     */
     private void createPauseDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.multiplayer_activity_pause_dialog_title);
@@ -77,7 +94,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         if( b == null )
             return;
 
-        int numPlayers = b.getInt( NUM_PLAYERS_KEY ,noPlayersSpecified);
+        int numPlayers = b.getInt(NUM_PLAYERS_BUNDLE_KEY,noPlayersSpecified);
 
         if(numPlayers == noPlayersSpecified)
             return;
@@ -104,24 +121,15 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mStartButton = (Button)findViewById(R.id.start_game_button);
         mResumeButton = (Button)findViewById(R.id.resume_game_button);
         mNewGameButton = (Button)findViewById(R.id.new_game_button);
+        mBackgroundView = (ImageView)findViewById(R.id.background_image_view);
 
         mGameSurfaceView.addGameEventListener(this);
+        mGameSurfaceView.setZOrderOnTop(true);
+        mGameSurfaceView.getHolder().setFormat(PixelFormat.TRANSPARENT);
+
         parseIntentBundle();
         createPauseDialog();
-    }
-
-
-    @Override
-    protected void onStart() {
-        Log.v(TAG, " onStart ");
-        super.onStart();
-    }
-
-
-    @Override
-    protected void onResume() {
-        Log.v(TAG, " onResume ");
-        super.onResume();
+        FileUtility.createDirectories(this);
     }
 
 
@@ -130,27 +138,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         Log.v(TAG, " onPause ");
         pauseGame();
         super.onPause();
-    }
-
-
-    @Override
-    protected void onStop() {
-        Log.v(TAG, " onStop ");
-        super.onStop();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        Log.v(TAG, " onDestroy ");
-        super.onDestroy();
-    }
-
-
-    @Override
-    protected void onRestart() {
-        Log.v(TAG, " onRestart ");
-        super.onRestart();
     }
 
 
@@ -249,6 +236,15 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mNewGameButton.setVisibility(View.VISIBLE);
     }
 
+
+    @Override
+    public void backgroundReady(File file) {
+
+        Bitmap myBitmap = BitmapFactory.decodeFile(file.getPath());
+        BitmapDrawable drawable = new BitmapDrawable(getResources(),myBitmap);
+
+        mBackgroundView.setImageDrawable(drawable);
+    }
 
     @Override
     public String toString() {
