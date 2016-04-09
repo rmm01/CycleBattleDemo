@@ -39,6 +39,13 @@ public class Cycle extends GridRectangle {
      */
     private Paint mLinePaint;
 
+
+    /**
+     * the name of the cycle, this is currently its color.
+     */
+    private String mName;
+
+
     /**
      * The speed that the cycle moves at. This is measured in terms of tiles per second
      */
@@ -120,22 +127,27 @@ public class Cycle extends GridRectangle {
         switch (mCycleId) {
             case 0:
                 mLinePaint.setColor(Color.RED);
+                mName = "Red";
                 mDirection=Compass.SOUTH;
                 break;
             case 1:
                 mLinePaint.setColor(Color.GREEN);
+                mName = "Green";
                 mDirection=Compass.NORTH;
                 break;
             case 2:
                 mLinePaint.setColor(Color.WHITE);
+                mName = "White";
                 mDirection=Compass.EAST;
                 break;
             case 3:
                 mLinePaint.setColor(Color.MAGENTA);
+                mName = "Magenta";
                 mDirection=Compass.WEST;
                 break;
             default:
                 mLinePaint.setColor(Color.GRAY);
+                mName = "Grey";
                 mDirection=Compass.SOUTH;
                 break;
         }
@@ -246,6 +258,15 @@ public class Cycle extends GridRectangle {
      */
     public Compass getDirection() {
         return mDirection;
+    }
+
+
+    /**
+     * get the name of the cycle. This is currently its color
+     * @return the color of the cycle.
+     */
+    public String getName(){
+        return mName;
     }
 
 
