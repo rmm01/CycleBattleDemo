@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#eeeeee"
+    android:layout_centerInParent="true"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/result_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:text="@string/results_title"/>
+
+
+    <ListView
+        android:id="@+id/place_list"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/result_label"
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"/>
+
+    <ListView
+        android:id="@+id/player_list"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/result_label"
+        android:layout_toRightOf="@id/place_list"
+        android:layout_toEndOf="@id/place_list"
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"/>
+
+    <ListView
+        android:id="@+id/duration_list"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/result_label"
+        android:layout_toRightOf="@id/player_list"
+        android:layout_toEndOf="@id/player_list"
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"/>
+
+    <ListView
+        android:id="@+id/wins_list"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/result_label"
+        android:layout_toRightOf="@id/duration_list"
+        android:layout_toEndOf="@id/duration_list"
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"/>
+
+    <TextView
+        android:id="@+id/play_again"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/place_list"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/results_play_again"/>
+
+    <TextView
+        android:id="@+id/watch_replay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/play_again"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/results_watch_replay"/>
+
+    <TextView
+        android:id="@+id/save_replay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/watch_replay"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/results_save_replay"/>
+
+    <TextView
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/save_replay"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/results_exit"/>
+
+</RelativeLayout>

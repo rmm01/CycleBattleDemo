@@ -42,4 +42,10 @@
     <string name="multiplayer_activity_pause_dialog_message">Are you sure you want to leave the game?</string>
     <string name="multiplayer_activity_pause_dialog_negative_button">Leave</string>
     <string name="multiplayer_activity_pause_dialog_positive_button">Stay</string>
+    <string name="results_title">Results</string>
+    <string name="results_play_again">Play Again</string>
+    <string name="results_watch_replay">Watch Replay</string>
+    <string name="results_save_replay">Save Replay</string>
+    <string name="results_exit">Main Menu</string>
+
 </resources>
