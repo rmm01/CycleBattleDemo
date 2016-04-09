@@ -384,8 +384,10 @@ public class GameManager {
     /**
      * Detects if any of cycles have collided and sets them to crashed status preventing them from
      * moving. This method will fail if a game is not currently running.
+     *
+     * @param currentTime the current time in milliseconds.
      */
-    public void collisionDetection(){
+    public void collisionDetection(long currentTime){
         if( !mRunning )
             return;
 
@@ -396,14 +398,14 @@ public class GameManager {
             //check if cycle out of bounds,
             if( mGameGrid.OutOfBounds(mCycles[currentCycle])) {
                 Log.v(TAG, "Player " + currentCycle + " is out of bounds");
-                mCycles[currentCycle].setCrashed(true);
+                mCycles[currentCycle].crashed(currentTime);
                 mRemainingCycles--;
                 continue;
             }
             //check to see if cycle crashed with its own path
             if(mCycles[currentCycle].selfCrashed()) {
                 Log.v(TAG, "Player " + currentCycle + " crashed with itself");
-                mCycles[currentCycle].setCrashed(true);
+                mCycles[currentCycle].crashed(currentTime);
                 mRemainingCycles--;
                 continue;
             }
@@ -414,7 +416,7 @@ public class GameManager {
                     continue;
                 if(mCycles[otherCycles].intersectsWithPath(mCycles[currentCycle])){
                     Log.v(TAG,"Player " + currentCycle + " crashed with cycle " + otherCycles);
-                    mCycles[currentCycle].setCrashed(true);
+                    mCycles[currentCycle].crashed(currentTime);
                     mRemainingCycles--;
                     break;
                 }
@@ -423,7 +425,6 @@ public class GameManager {
         }
 
         if( mRemainingCycles <= 1 ) {
-            mRunning=false;
             mRunning = false;
         }
     }

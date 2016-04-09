@@ -22,6 +22,7 @@ public class Cycle extends GridRectangle {
 
     public  static final String     TAG             =   "Cycle";
     private static final String     CRASHED_KEY     =   TAG + ":CRASHED";
+    private static final String     CRASH_TIME_KEY  =   TAG + ":CRASH_TIME";
     private static final String     DIRECTION_KEY   =   TAG + ":DIRECTION";
     private static final String     X_KEY           =   TAG + ":X";
     private static final String     Y_KEY           =   TAG + ":Y";
@@ -47,6 +48,12 @@ public class Cycle extends GridRectangle {
      * If the Cycle crashed and can o longer move
      */
     private boolean mCrashed;
+
+    /**
+     * the time in milliseconds that indicates when the cycle crashed. use crashed(long time)
+     * to set this value.
+     */
+    private long mCrashTime;
 
     /**
      * the direction that the cycle is traveling in
@@ -78,6 +85,7 @@ public class Cycle extends GridRectangle {
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
         mCrashed=false;
+        mCrashTime=-1;
         setIdAttributes();
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
@@ -99,6 +107,7 @@ public class Cycle extends GridRectangle {
         mLinePaint =paint;
         mSpeed=DEFAULT_SPEED;
         mCrashed=false;
+        mCrashTime=-1;
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
@@ -305,16 +314,27 @@ public class Cycle extends GridRectangle {
 
 
     /**
-     * set if the cycle has crashed or not
-     * @param crashed true if the cycle has crashed and cant move, false otherwise
+     * Set the cycle to be in a crashed state.
+     *
+     * @param crashTime the time in milliseconds when the cycle crashed.
      */
-    public void setCrashed(boolean crashed){
-        mCrashed=crashed;
+    public void crashed(long crashTime){
+        mCrashed=true;
+        mCrashTime = crashTime;
     }
 
 
     /**
-     * @return true true if the cycle has crashed and cant move, false otherwise
+     * set the cycle to the not be crashed. The crash time is reset ot the default of -1.
+     */
+    public void uncrash(){
+        mCrashed = false;
+        mCrashTime = -1;
+    }
+
+
+    /**
+     * @return true if the cycle has crashed and cant move, false otherwise
      */
     public boolean hasCrashed(){return mCrashed;}
 
@@ -356,6 +376,7 @@ public class Cycle extends GridRectangle {
      */
     public void saveState(Bundle bundle) {
         bundle.putBoolean( CRASHED_KEY + TAG_ID, mCrashed );
+        bundle.putLong( CRASH_TIME_KEY + TAG_ID, mCrashTime );
         bundle.putSerializable( DIRECTION_KEY + TAG_ID, mDirection );
         bundle.putDouble( X_KEY + TAG_ID, getX() );
         bundle.putDouble( Y_KEY + TAG_ID, getY() );
@@ -370,6 +391,7 @@ public class Cycle extends GridRectangle {
      */
     public void restoreState(Bundle bundle){
         mCrashed = bundle.getBoolean( CRASHED_KEY +TAG_ID, false );
+        mCrashTime = bundle.getLong(CRASH_TIME_KEY + TAG_ID, 0);
         mDirection = (Compass)bundle.getSerializable( DIRECTION_KEY+ TAG_ID );
         double x = bundle.getDouble( X_KEY + TAG_ID, 0 );
         double y = bundle.getDouble( Y_KEY + TAG_ID, 0 );
@@ -388,6 +410,7 @@ public class Cycle extends GridRectangle {
         description.addMember("mCycleId", mCycleId);
         description.addMember("mSpeed", mSpeed);
         description.addMember("mCrashed", mCrashed);
+        description.addMember("mCrashTIme", mCrashTime);
         description.addMember("mDirection", mDirection);
         description.addClassMember("mPath", mPath);
         return description.getString();
