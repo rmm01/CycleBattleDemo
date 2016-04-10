@@ -391,7 +391,7 @@ public class GameManager {
         if( !mRunning )
             return;
 
-        int place = mRemainingCycles;
+        int place = mRemainingCycles + 1;
 
         for( int currentCycle = 0; currentCycle < mNumCycles; currentCycle++ ){
             //don't check if already crashed
