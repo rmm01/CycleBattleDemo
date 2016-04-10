@@ -391,6 +391,8 @@ public class GameManager {
         if( !mRunning )
             return;
 
+        int place = mRemainingCycles;
+
         for( int currentCycle = 0; currentCycle < mNumCycles; currentCycle++ ){
             //don't check if already crashed
             if( mCycles[currentCycle].hasCrashed() )
@@ -398,14 +400,14 @@ public class GameManager {
             //check if cycle out of bounds,
             if( mGameGrid.OutOfBounds(mCycles[currentCycle])) {
                 Log.v(TAG, "Player " + currentCycle + " is out of bounds");
-                mCycles[currentCycle].crashed(currentTime);
+                mCycles[currentCycle].crashed(currentTime, place);
                 mRemainingCycles--;
                 continue;
             }
             //check to see if cycle crashed with its own path
             if(mCycles[currentCycle].selfCrashed()) {
                 Log.v(TAG, "Player " + currentCycle + " crashed with itself");
-                mCycles[currentCycle].crashed(currentTime);
+                mCycles[currentCycle].crashed(currentTime, place);
                 mRemainingCycles--;
                 continue;
             }
@@ -416,7 +418,7 @@ public class GameManager {
                     continue;
                 if(mCycles[otherCycles].intersectsWithPath(mCycles[currentCycle])){
                     Log.v(TAG,"Player " + currentCycle + " crashed with cycle " + otherCycles);
-                    mCycles[currentCycle].crashed(currentTime);
+                    mCycles[currentCycle].crashed(currentTime, place);
                     mRemainingCycles--;
                     break;
                 }

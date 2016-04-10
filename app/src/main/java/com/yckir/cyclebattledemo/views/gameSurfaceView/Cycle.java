@@ -24,6 +24,7 @@ public class Cycle extends GridRectangle {
     private static final String     CRASHED_KEY     =   TAG + ":CRASHED";
     private static final String     CRASH_TIME_KEY  =   TAG + ":CRASH_TIME";
     private static final String     DIRECTION_KEY   =   TAG + ":DIRECTION";
+    private static final String     PLACE_KEY       =   TAG + ":PLACE";
     private static final String     X_KEY           =   TAG + ":X";
     private static final String     Y_KEY           =   TAG + ":Y";
     private static final int        DEFAULT_SPEED   =   3;
@@ -62,6 +63,12 @@ public class Cycle extends GridRectangle {
      */
     private long mCrashTime;
 
+
+    /**
+     * The place that the cycle finished in, 1 = first etc.
+     */
+    private int mPlace;
+
     /**
      * the direction that the cycle is traveling in
      */
@@ -93,6 +100,7 @@ public class Cycle extends GridRectangle {
         mDirection=Compass.SOUTH;
         mCrashed=false;
         mCrashTime=-1;
+        mPlace = 0;
         setIdAttributes();
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
@@ -115,6 +123,7 @@ public class Cycle extends GridRectangle {
         mSpeed=DEFAULT_SPEED;
         mCrashed=false;
         mCrashTime=-1;
+        mPlace = 0;
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
@@ -252,6 +261,9 @@ public class Cycle extends GridRectangle {
     }
 
 
+    public long getCrashTime(){ return mCrashTime; }
+
+
     /**
      * @return the direction the cycle is traveling in
      * @see Compass
@@ -268,6 +280,18 @@ public class Cycle extends GridRectangle {
     public String getName(){
         return mName;
     }
+
+
+    /**
+     * @return current place that the cycle finished in. Default is zero
+     */
+    public int getPlace(){return mPlace;}
+
+
+    /**
+     * @return the cycles id
+     */
+    public int getId(){return mCycleId;}
 
 
     /**
@@ -339,9 +363,10 @@ public class Cycle extends GridRectangle {
      *
      * @param crashTime the time in milliseconds when the cycle crashed.
      */
-    public void crashed(long crashTime){
+    public void crashed(long crashTime, int place){
         mCrashed=true;
         mCrashTime = crashTime;
+        mPlace = place;
     }
 
 
@@ -398,6 +423,7 @@ public class Cycle extends GridRectangle {
     public void saveState(Bundle bundle) {
         bundle.putBoolean( CRASHED_KEY + TAG_ID, mCrashed );
         bundle.putLong( CRASH_TIME_KEY + TAG_ID, mCrashTime );
+        bundle.putLong( PLACE_KEY + TAG_ID, mPlace );
         bundle.putSerializable( DIRECTION_KEY + TAG_ID, mDirection );
         bundle.putDouble( X_KEY + TAG_ID, getX() );
         bundle.putDouble( Y_KEY + TAG_ID, getY() );
@@ -413,6 +439,7 @@ public class Cycle extends GridRectangle {
     public void restoreState(Bundle bundle){
         mCrashed = bundle.getBoolean( CRASHED_KEY +TAG_ID, false );
         mCrashTime = bundle.getLong(CRASH_TIME_KEY + TAG_ID, 0);
+        mPlace = bundle.getInt(PLACE_KEY + TAG_ID, 0);
         mDirection = (Compass)bundle.getSerializable( DIRECTION_KEY+ TAG_ID );
         double x = bundle.getDouble( X_KEY + TAG_ID, 0 );
         double y = bundle.getDouble( Y_KEY + TAG_ID, 0 );
@@ -432,6 +459,7 @@ public class Cycle extends GridRectangle {
         description.addMember("mSpeed", mSpeed);
         description.addMember("mCrashed", mCrashed);
         description.addMember("mCrashTIme", mCrashTime);
+        description.addMember("mPlace", mPlace);
         description.addMember("mDirection", mDirection);
         description.addClassMember("mPath", mPath);
         return description.getString();
