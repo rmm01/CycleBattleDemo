@@ -100,7 +100,7 @@ public class Cycle extends GridRectangle {
         mDirection=Compass.SOUTH;
         mCrashed=false;
         mCrashTime=-1;
-        mPlace = 0;
+        mPlace = 1;
         setIdAttributes();
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
@@ -123,7 +123,7 @@ public class Cycle extends GridRectangle {
         mSpeed=DEFAULT_SPEED;
         mCrashed=false;
         mCrashTime=-1;
-        mPlace = 0;
+        mPlace = 1;
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
@@ -283,7 +283,7 @@ public class Cycle extends GridRectangle {
 
 
     /**
-     * @return current place that the cycle finished in. Default is zero
+     * @return current place that the cycle finished in. Default is one
      */
     public int getPlace(){return mPlace;}
 

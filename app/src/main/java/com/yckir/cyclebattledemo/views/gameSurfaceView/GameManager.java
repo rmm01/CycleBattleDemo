@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.GameData;
 import com.yckir.cyclebattledemo.utility.Tile;
 
 import java.util.ArrayList;
@@ -391,7 +392,7 @@ public class GameManager {
         if( !mRunning )
             return;
 
-        int place = mRemainingCycles + 1;
+        int place = mRemainingCycles;
 
         for( int currentCycle = 0; currentCycle < mNumCycles; currentCycle++ ){
             //don't check if already crashed
