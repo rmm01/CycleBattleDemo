@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.yckir.cyclebattledemo.utility.FileUtility;
+import com.yckir.cyclebattledemo.utility.GameResultsData;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
@@ -232,7 +233,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     @Override
-    public void gameEnded(int winner) {
+    public void gameEnded(GameResultsData gameResultsData) {
+
         mNewGameButton.setVisibility(View.VISIBLE);
     }
 

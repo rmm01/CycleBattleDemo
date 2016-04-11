@@ -18,6 +18,7 @@ import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 import com.yckir.cyclebattledemo.utility.FileUtility;
 import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
+import com.yckir.cyclebattledemo.utility.GameResultsData;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -323,6 +324,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         holder.unlockCanvasAndPost(canvas);
     }
 
+
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.v(TAG, "surfaceDestroyed");
@@ -393,7 +395,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
-            mGameEventListener.gameEnded(0);
+            mGameEventListener.gameEnded(mGameManager.generateResults());
             mReplayManager = new ReplayManager(list,this);
         }
     }
@@ -431,9 +433,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         /**
          * Called when the game has finished.
          *
-         * @param winner the cycleNumber of the winner
+         * @param gameResultsData object containing data related to the results of the game.
          */
-        void gameEnded(int winner);
+        void gameEnded(GameResultsData gameResultsData);
 
         /**
          * Called when the background file is ready to be used.
