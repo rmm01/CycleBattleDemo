@@ -21,6 +21,8 @@ import com.yckir.cyclebattledemo.utility.Tile;
 public class Cycle extends GridRectangle {
 
     public  static final String     TAG             =   "Cycle";
+    public  static final int        DEFAULT_PLACE   =   -1;
+    public  static final int        DEFAULT_TIME    =   -1;
     private static final String     CRASHED_KEY     =   TAG + ":CRASHED";
     private static final String     CRASH_TIME_KEY  =   TAG + ":CRASH_TIME";
     private static final String     DIRECTION_KEY   =   TAG + ":DIRECTION";
@@ -99,8 +101,8 @@ public class Cycle extends GridRectangle {
         mSpeed=DEFAULT_SPEED;
         mDirection=Compass.SOUTH;
         mCrashed=false;
-        mCrashTime=-1;
-        mPlace = 1;
+        mCrashTime = DEFAULT_TIME;
+        mPlace = DEFAULT_PLACE;
         setIdAttributes();
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
@@ -122,8 +124,8 @@ public class Cycle extends GridRectangle {
         mLinePaint =paint;
         mSpeed=DEFAULT_SPEED;
         mCrashed=false;
-        mCrashTime=-1;
-        mPlace = 1;
+        mCrashTime = DEFAULT_TIME;
+        mPlace = DEFAULT_PLACE;
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
@@ -304,6 +306,15 @@ public class Cycle extends GridRectangle {
 
 
     /**
+     * set the place that the cycle finished in.
+     * @param place the place of the cycle
+     */
+    public void setPlace(int place){
+        mPlace = place;
+    }
+
+
+    /**
      * change the new direction the cycle will be traveling in
      * @param direction the new direction the cycle will be traveling in. If the is opposite of
      *                  the current direction, the direction will not change
@@ -363,10 +374,9 @@ public class Cycle extends GridRectangle {
      *
      * @param crashTime the time in milliseconds when the cycle crashed.
      */
-    public void crashed(long crashTime, int place){
+    public void crashed(long crashTime){
         mCrashed=true;
         mCrashTime = crashTime;
-        mPlace = place;
     }
 
 
