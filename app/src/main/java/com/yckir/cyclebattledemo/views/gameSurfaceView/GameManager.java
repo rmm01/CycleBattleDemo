@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
-import com.yckir.cyclebattledemo.utility.GameData;
+import com.yckir.cyclebattledemo.utility.GameResultsData;
 import com.yckir.cyclebattledemo.utility.Tile;
 
 import java.util.ArrayList;
@@ -480,6 +480,18 @@ public class GameManager {
      * @return true if the game is active, false otherwise
      */
     public boolean isRunning(){return mRunning;}
+
+
+    /**
+     * generates an object containing the results of the game.
+     *
+     * @return an instance of GameResultsData, null if the game is still running.
+     */
+    public GameResultsData generateResults(){
+        if(mRunning)
+            return null;
+        return new GameResultsData(mCycles);
+    }
 
 
     /**
