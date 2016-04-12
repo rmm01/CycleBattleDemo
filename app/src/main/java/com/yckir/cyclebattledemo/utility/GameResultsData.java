@@ -1,15 +1,17 @@
 package com.yckir.cyclebattledemo.utility;
 
 
-import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 import com.yckir.cyclebattledemo.views.gameSurfaceView.Cycle;
 
+import java.util.HashMap;
+
 /**
- * Used to store data for a finished game. Stores place, name, and crashTime from cycles into
+ * Used to store data for a finished game. Stores place, name, wins, and crashTime from cycles into
  * arrays that are accessed get methods. the zeroth element of each array contains a label for the
- * data,
+ * data. Because wins are not tracked by cycles, a map must be provided each to initialize the wins
+ * array.
  */
 public class GameResultsData {
 
@@ -24,7 +26,7 @@ public class GameResultsData {
     private String[] mPlaces;
     private String[] mNames;
     private String[] mDurations;
-
+    private String[] mWins;
 
 
     /**
@@ -39,10 +41,12 @@ public class GameResultsData {
         mPlaces = new String[dataSize];
         mNames = new String[dataSize];
         mDurations = new String[dataSize];
+        mWins = new String[mPlaces.length];
 
         mPlaces[0] = PLACE_LABEL;
         mNames[0] = NAME_LABEL;
         mDurations[0] = TIME_LABEL;
+        mWins[0] = WINS_LABEL;
 
         for(int i =1; i < dataSize; i++){
             mPlaces[i] = DEFAULT_PLACE;
@@ -67,6 +71,60 @@ public class GameResultsData {
         mPlaces[index] =  formatPlace(place);
         mNames[index] = cycle.getName();
         mDurations[index] = formatTime(cycle.getCrashTime());
+    }
+
+
+    /**
+     * Get the data array index for a given place. Ties can happen causing multiple cycles
+     * to have the same place. This function will search for the next available index in this case.
+     *
+     * @param place the place of a cycle.
+     * @return the data array index to store itd data
+     */
+    private int getPlaceIndex( int place ){
+
+        for(int index = place; index < mPlaces.length; index++){
+
+            if( mPlaces[index].compareTo(DEFAULT_PLACE) == 0 )
+                return index;
+        }
+        Log.e(TAG, "unable to find place for " + place);
+        return 0;
+    }
+
+
+    /**
+     * Initializes the map to contain a zero for each cycle name this object currently has.
+     *
+     * @param map map to be initialized.
+     */
+    public void initWins(HashMap<String, Integer> map){
+        for (String name : mNames){
+            map.put(name ,0);
+        }
+    }
+
+
+    /**
+     *  For each entry in mPlaces that has a value of 1, its value in the map will be incremented.
+     *  initWins should have been called one time before this method.
+     *
+     * @param winsMap map containing the number of wins for each cycle, indexed by its name.
+     * @return formatted string array for the number of wins.
+     */
+    public void updateWins(HashMap<String, Integer> winsMap){
+        int numWins;
+
+        for(int i = 1; i < mPlaces.length; i++){
+
+            numWins =  winsMap.get( mNames[i]);
+
+            if(mPlaces[i].compareTo(formatPlace(1)) == 0 ){
+                numWins += 1;
+                winsMap.put( mNames[i], numWins);
+            }
+            mWins[i] = formatWins(numWins);
+        }
     }
 
 
@@ -114,63 +172,7 @@ public class GameResultsData {
 
 
     /**
-     * Get the data array index for a given place. Ties can happen causing multiple cycles
-     * to have the same place. This function will search for the next available index in this case.
-     *
-     * @param place the place of a cycle.
-     * @return the data array index to store itd data
-     */
-    private int getPlaceIndex( int place ){
-
-        for(int index = place; index < mPlaces.length; index++){
-
-            if( mPlaces[index].compareTo(DEFAULT_PLACE) == 0 )
-                return index;
-        }
-        Log.e(TAG, "unable to find place for " + place);
-        return 0;
-    }
-
-
-    /**
-     * Initializes the map to contain a zero for each cycle name this object currently has.
-     *
-     * @param map map to be initialized.
-     */
-    public void initMap(ArrayMap<String, Integer> map){
-        for (String name : mNames){
-            map.put(name ,0);
-        }
-    }
-
-
-    /**
-     *  For each entry in mPlaces that has a value of 1, its value in the map will be incremented.
-     *
-     * @param winsMap map containing the number of wins for each cycle, indexed by its name.
-     * @return formatted string array for the number of wins.
-     */
-    public String[] updateWins(ArrayMap<String, Integer> winsMap){
-        String[] winsArray = new String[mPlaces.length];
-        winsArray[0] = WINS_LABEL;
-        int numWins;
-
-        for(int i = 1; i < mPlaces.length; i++){
-
-            numWins =  winsMap.get( mNames[i]);
-
-            if(mPlaces[i].compareTo(formatPlace(1)) == 0 ){
-                numWins += 1;
-                winsMap.put( mNames[i], numWins);
-            }
-            winsArray[i] = formatWins(numWins);
-        }
-        return winsArray;
-    }
-
-
-    /**
-     * @return the durations array for hte cycles, ordered by the cycles places.
+     * @return the durations array for the cycles, ordered by the cycles places.
      */
     public String[] getDurations() {
         return mDurations;
@@ -178,7 +180,7 @@ public class GameResultsData {
 
 
     /**
-     * @return the place array for hte cycles.
+     * @return the place array for the cycles.
      */
     public String[] getPlace() {
         return mPlaces;
@@ -186,9 +188,17 @@ public class GameResultsData {
 
 
     /**
-     * @return the durations array for hte cycles, ordered by the cycles places.
+     * @return the durations array for the cycles, ordered by the cycles places.
      */
     public String[] getNames() {
         return mNames;
+    }
+
+
+    /**
+     * @return the wins array for the cycles, ordered by the cycles places.
+     */
+    public String[] getWins() {
+        return mWins;
     }
 }
