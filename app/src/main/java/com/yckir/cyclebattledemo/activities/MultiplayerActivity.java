@@ -15,6 +15,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.yckir.cyclebattledemo.fragments.ResultsDialogFragment;
 import com.yckir.cyclebattledemo.utility.FileUtility;
@@ -48,7 +49,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private AlertDialog mPauseDialog;
     private GameSurfaceView mGameSurfaceView;
     private ImageView mBackgroundView;
-    private Button mStartButton;
+    private TextView mStartPrompt;
     private Button mResumeButton;
     private Button mNewGameButton;
 
@@ -125,7 +126,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         setContentView(R.layout.multiplayer_game_activity);
 
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
-        mStartButton = (Button)findViewById(R.id.start_game_button);
+        mStartPrompt = (TextView)findViewById(R.id.start_prompt);
         mResumeButton = (Button)findViewById(R.id.resume_game_button);
         mNewGameButton = (Button)findViewById(R.id.new_game_button);
         mBackgroundView = (ImageView)findViewById(R.id.background_image_view);
@@ -154,7 +155,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     protected void onSaveInstanceState(Bundle outState) {
         Log.v(TAG, " onSaveInstanceState ");
 
-        outState.putBoolean(START_VISIBILITY_KEY, mStartButton.getVisibility() == View.VISIBLE);
+        outState.putBoolean(START_VISIBILITY_KEY, mStartPrompt.getVisibility() == View.VISIBLE);
         outState.putBoolean(RESUME_VISIBILITY_KEY, mResumeButton.getVisibility() == View.VISIBLE);
         outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGameButton.getVisibility() == View.VISIBLE);
         outState.putSerializable(WINS_KEY, mWins);
@@ -171,7 +172,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         boolean b3 = savedInstanceState.getBoolean(RESUME_VISIBILITY_KEY);
         boolean b4 = savedInstanceState.getBoolean(NEW_GAME_VISIBILITY_KEY);
 
-        mStartButton.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
+        mStartPrompt.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
         mResumeButton.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
         mNewGameButton.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
 
@@ -196,7 +197,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * @param view The start Button
      */
     public void startButton(View view){
-        mStartButton.setVisibility(View.INVISIBLE);
+        mStartPrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
     }
 
@@ -219,7 +220,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      */
     public void newGameButton(View view) {
         mNewGameButton.setVisibility(View.INVISIBLE);
-        mStartButton.setVisibility(View.VISIBLE);
+        mStartPrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
     }
 
@@ -273,7 +274,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);
-        description.addMember("StartButtonVisible", mStartButton.getVisibility() == View.VISIBLE );
+        description.addMember("StartPromptVisible", mStartPrompt.getVisibility() == View.VISIBLE );
         description.addMember("ResumeButtonVisible", mResumeButton.getVisibility() == View.VISIBLE);
         description.addMember("NewGameButtonVisible", mNewGameButton.getVisibility() == View.VISIBLE);
         description.addClassMember("mGameSurfaceView", mGameSurfaceView);

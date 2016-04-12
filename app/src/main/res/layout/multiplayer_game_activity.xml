@@ -22,17 +22,16 @@
         app:tiles_y="11"
         app:cycles="2"/>
 
-    <Button
-        android:id="@+id/start_game_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:layout_margin="@dimen/button_margin"
-        android:padding="@dimen/button_padding"
-        android:textSize="@dimen/button_text_size"
-        android:text="@string/start_button"
-        android:onClick="startButton"/>
+    <TextView
+        android:id="@+id/start_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:onClick="startButton"
+        android:text="@string/multiplayer_prompt"/>
+
     <Button
         android:id="@+id/new_game_button"
         android:layout_alignParentBottom="true"

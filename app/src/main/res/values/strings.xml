@@ -47,5 +47,6 @@
     <string name="results_watch_replay">Watch Replay</string>
     <string name="results_save_replay">Save Replay</string>
     <string name="results_exit">Main Menu</string>
+    <string name="multiplayer_prompt">Touch the screen to start</string>
 
 </resources>
