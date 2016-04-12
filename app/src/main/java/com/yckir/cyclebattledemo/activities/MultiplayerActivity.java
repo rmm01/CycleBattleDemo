@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.yckir.cyclebattledemo.fragments.ResultsDialogFragment;
 import com.yckir.cyclebattledemo.utility.FileUtility;
 import com.yckir.cyclebattledemo.utility.GameResultsData;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
@@ -22,6 +24,7 @@ import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 
 import java.io.File;
+import java.util.HashMap;
 
 /**
  * A multiplayer Game mode. Checks the bundle received via intent for the NUM_PLAYERS_BUNDLE_KEY argument.
@@ -38,6 +41,9 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private static final String     START_VISIBILITY_KEY        =   TAG + ":START_VISIBILITY";
     private static final String     RESUME_VISIBILITY_KEY       =   TAG + ":RESUME_VISIBILITY";
     private static final String     NEW_GAME_VISIBILITY_KEY     =   TAG + ":NEW_GAME_VISIBILITY";
+    private static final String     WINS_KEY                    =   TAG + ":WINS";
+
+    private HashMap<String, Integer> mWins;
 
     private AlertDialog mPauseDialog;
     private GameSurfaceView mGameSurfaceView;
@@ -128,6 +134,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mGameSurfaceView.setZOrderOnTop(true);
         mGameSurfaceView.getHolder().setFormat(PixelFormat.TRANSPARENT);
 
+        mWins = new HashMap<>(4);
+
         parseIntentBundle();
         createPauseDialog();
         FileUtility.createDirectories(this);
@@ -149,6 +157,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         outState.putBoolean(START_VISIBILITY_KEY, mStartButton.getVisibility() == View.VISIBLE);
         outState.putBoolean(RESUME_VISIBILITY_KEY, mResumeButton.getVisibility() == View.VISIBLE);
         outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGameButton.getVisibility() == View.VISIBLE);
+        outState.putSerializable(WINS_KEY, mWins);
 
         super.onSaveInstanceState(outState);
     }
@@ -165,6 +174,9 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mStartButton.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
         mResumeButton.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
         mNewGameButton.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
+
+        mWins = (HashMap<String, Integer>) savedInstanceState.getSerializable(WINS_KEY);
+
 
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -236,6 +248,16 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     public void gameEnded(GameResultsData gameResultsData) {
 
         mNewGameButton.setVisibility(View.VISIBLE);
+
+        if(mWins.isEmpty())
+            gameResultsData.initWins(mWins);
+
+       gameResultsData.updateWins(mWins);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ResultsDialogFragment fragment = ResultsDialogFragment.newInstance(gameResultsData);
+        fragment.show(fragmentManager,"dialog");
+
     }
 
 

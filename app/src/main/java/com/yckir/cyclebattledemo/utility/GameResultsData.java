@@ -110,7 +110,6 @@ public class GameResultsData {
      *  initWins should have been called one time before this method.
      *
      * @param winsMap map containing the number of wins for each cycle, indexed by its name.
-     * @return formatted string array for the number of wins.
      */
     public void updateWins(HashMap<String, Integer> winsMap){
         int numWins;
