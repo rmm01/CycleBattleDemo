@@ -1,6 +1,7 @@
 package com.yckir.cyclebattledemo.utility;
 
 
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 import com.yckir.cyclebattledemo.views.gameSurfaceView.Cycle;
@@ -17,6 +18,7 @@ public class GameResultsData {
     private static final String PLACE_LABEL = "Place";
     private static final String NAME_LABEL = "Player";
     private static final String TIME_LABEL = "Time";
+    private static final String WINS_LABEL = "Wins";
     private static final String DEFAULT_PLACE = "0";
 
     private String[] mPlaces;
@@ -62,21 +64,32 @@ public class GameResultsData {
         int place = cycle.getPlace();
         int index = getPlaceIndex(place);
 
-        mPlaces[index] =  Integer.toString(place);
+        mPlaces[index] =  formatPlace(place);
         mNames[index] = cycle.getName();
         mDurations[index] = formatTime(cycle.getCrashTime());
     }
 
 
     /**
-     * Format the time into a string into the format "nn.nn" (n = digit). If the time is equal
+     * Formats the place to a string that will be displayed to the user.
+     * This will be in the format of "   place"
+     *
+     * @param place the place that the cycle finished in
+     * @return the formatted parameter.
+     */
+    public static String formatPlace(int place){
+        return "   " + Integer.toString(place);
+    }
+
+
+    /**
+     * Formats the time into a string into the format "nn.nn" (n = digit). If the time is equal
      * to the cycles default value, the formatted result will be "- - - -".
      *
      * @param time the time in milliseconds to format
      * @return the formatted value of the parameter
      */
-    private String formatTime( long time ){
-        Log.v(TAG, "time = " + time);
+    public static String formatTime( long time ){
         if(time == Cycle.DEFAULT_TIME){
             return "- - - -";
         }else{
@@ -85,6 +98,18 @@ public class GameResultsData {
             int length = ( formattedTime.length() > 4 ) ? 4 : formattedTime.length();
             return formattedTime.substring(0,length);
         }
+    }
+
+
+    /**
+     * Formats the parameter to a string that will be displayed to the user.
+     * This will be in the format of "   param"
+     *
+     * @param wins the number of wins for the cycle
+     * @return the formatted parameter
+     */
+    public static String formatWins( int wins){
+        return "   " + Integer.toString(wins);
     }
 
 
@@ -104,6 +129,43 @@ public class GameResultsData {
         }
         Log.e(TAG, "unable to find place for " + place);
         return 0;
+    }
+
+
+    /**
+     * Initializes the map to contain a zero for each cycle name this object currently has.
+     *
+     * @param map map to be initialized.
+     */
+    public void initMap(ArrayMap<String, Integer> map){
+        for (String name : mNames){
+            map.put(name ,0);
+        }
+    }
+
+
+    /**
+     *  For each entry in mPlaces that has a value of 1, its value in the map will be incremented.
+     *
+     * @param winsMap map containing the number of wins for each cycle, indexed by its name.
+     * @return formatted string array for the number of wins.
+     */
+    public String[] updateWins(ArrayMap<String, Integer> winsMap){
+        String[] winsArray = new String[mPlaces.length];
+        winsArray[0] = WINS_LABEL;
+        int numWins;
+
+        for(int i = 1; i < mPlaces.length; i++){
+
+            numWins =  winsMap.get( mNames[i]);
+
+            if(mPlaces[i].compareTo(formatPlace(1)) == 0 ){
+                numWins += 1;
+                winsMap.put( mNames[i], numWins);
+            }
+            winsArray[i] = formatWins(numWins);
+        }
+        return winsArray;
     }
 
 
