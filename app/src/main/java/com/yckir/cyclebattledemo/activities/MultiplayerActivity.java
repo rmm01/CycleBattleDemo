@@ -51,7 +51,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private ImageView mBackgroundView;
     private TextView mStartPrompt;
     private TextView mResumePrompt;
-    private Button mNewGameButton;
+    private TextView mNewGamePrompt;
 
 
     /**
@@ -128,7 +128,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
         mStartPrompt = (TextView)findViewById(R.id.start_prompt);
         mResumePrompt = (TextView)findViewById(R.id.resume_prompt);
-        mNewGameButton = (Button)findViewById(R.id.new_game_button);
+        mNewGamePrompt = (TextView) findViewById(R.id.new_game_prompt);
         mBackgroundView = (ImageView)findViewById(R.id.background_image_view);
 
         mGameSurfaceView.addGameEventListener(this);
@@ -157,7 +157,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         outState.putBoolean(START_VISIBILITY_KEY, mStartPrompt.getVisibility() == View.VISIBLE);
         outState.putBoolean(RESUME_VISIBILITY_KEY, mResumePrompt.getVisibility() == View.VISIBLE);
-        outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGameButton.getVisibility() == View.VISIBLE);
+        outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGamePrompt.getVisibility() == View.VISIBLE);
         outState.putSerializable(WINS_KEY, mWins);
 
         super.onSaveInstanceState(outState);
@@ -174,7 +174,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         mStartPrompt.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
         mResumePrompt.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
-        mNewGameButton.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
+        mNewGamePrompt.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
 
         mWins = (HashMap<String, Integer>) savedInstanceState.getSerializable(WINS_KEY);
 
@@ -213,12 +213,12 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     /**
-     * Called when the NewGame button is pressed.
+     * Called when the NewGame text is pressed.
      *
-     * @param view The NewGame Button
+     * @param view The NewGame text view
      */
-    public void newGameButton(View view) {
-        mNewGameButton.setVisibility(View.INVISIBLE);
+    public void newGameClick(View view) {
+        mNewGamePrompt.setVisibility(View.INVISIBLE);
         mStartPrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
     }
@@ -247,7 +247,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public void gameEnded(GameResultsData gameResultsData) {
 
-        mNewGameButton.setVisibility(View.VISIBLE);
+        mNewGamePrompt.setVisibility(View.VISIBLE);
 
         if(mWins.isEmpty())
             gameResultsData.initWins(mWins);
@@ -275,7 +275,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         ClassStateString description = new ClassStateString(TAG);
         description.addMember("StartPromptVisible", mStartPrompt.getVisibility() == View.VISIBLE );
         description.addMember("ResumeButtonVisible", mResumePrompt.getVisibility() == View.VISIBLE);
-        description.addMember("NewGameButtonVisible", mNewGameButton.getVisibility() == View.VISIBLE);
+        description.addMember("NewGameButtonVisible", mNewGamePrompt.getVisibility() == View.VISIBLE);
         description.addClassMember("mGameSurfaceView", mGameSurfaceView);
         return description.getString();
     }

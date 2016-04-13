@@ -6,7 +6,7 @@
     <!-- Multiplayer Text -->
     <string name="start_prompt">Touch the screen to start</string>
     <string name="resume_prompt">Touch the screen to resume</string>
-    <string name="new_game_button">NEW GAME</string>
+    <string name="new_game_prompt">Touch the screen to create a new game</string>
     <string name="info_button">INFO</string>
     <string name="replay_button">replay</string>
 

@@ -44,18 +44,18 @@
         android:onClick="resumeClick"
         android:text="@string/resume_prompt"/>
 
-    <Button
-        android:id="@+id/new_game_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:layout_margin="@dimen/button_margin"
-        android:padding="@dimen/button_padding"
-        android:textSize="@dimen/button_text_size"
-        android:text="@string/new_game_button"
+
+    <TextView
+        android:id="@+id/new_game_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:padding="@dimen/button_margin"
         android:visibility="invisible"
-        android:onClick="newGameButton"/>
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/button_text_size"
+        android:onClick="newGameClick"
+        android:text="@string/new_game_prompt"/>
 
     <Button
         android:id="@+id/info_button"
