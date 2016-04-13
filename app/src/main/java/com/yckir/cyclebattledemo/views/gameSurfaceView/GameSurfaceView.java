@@ -312,12 +312,13 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
-
-            String fileName = "MultiplayerBackgroundImage_"+width+"x"+height+".png";
-            File backgroundFile = createBackgroundImage(fileName);
-            if(backgroundFile != null)
-                mGameEventListener.backgroundReady(backgroundFile);
         }
+
+        String fileName = "MultiplayerBackgroundImage_"+width+"x"+height+".png";
+        File backgroundFile = createBackgroundImage(fileName);
+        if(backgroundFile != null)
+            mGameEventListener.backgroundReady(backgroundFile);
+
         Canvas canvas = holder.lockCanvas();
         mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
