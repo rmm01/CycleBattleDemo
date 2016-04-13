@@ -50,7 +50,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private GameSurfaceView mGameSurfaceView;
     private ImageView mBackgroundView;
     private TextView mStartPrompt;
-    private Button mResumeButton;
+    private TextView mResumePrompt;
     private Button mNewGameButton;
 
 
@@ -87,7 +87,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private void pauseGame(){
         if(mGameSurfaceView.getState() != GameSurfaceView.RUNNING)
             return;
-        mResumeButton.setVisibility(View.VISIBLE);
+        mResumePrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.pause(System.currentTimeMillis());
     }
 
@@ -127,7 +127,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
         mStartPrompt = (TextView)findViewById(R.id.start_prompt);
-        mResumeButton = (Button)findViewById(R.id.resume_game_button);
+        mResumePrompt = (TextView)findViewById(R.id.resume_prompt);
         mNewGameButton = (Button)findViewById(R.id.new_game_button);
         mBackgroundView = (ImageView)findViewById(R.id.background_image_view);
 
@@ -156,7 +156,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         Log.v(TAG, " onSaveInstanceState ");
 
         outState.putBoolean(START_VISIBILITY_KEY, mStartPrompt.getVisibility() == View.VISIBLE);
-        outState.putBoolean(RESUME_VISIBILITY_KEY, mResumeButton.getVisibility() == View.VISIBLE);
+        outState.putBoolean(RESUME_VISIBILITY_KEY, mResumePrompt.getVisibility() == View.VISIBLE);
         outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGameButton.getVisibility() == View.VISIBLE);
         outState.putSerializable(WINS_KEY, mWins);
 
@@ -173,11 +173,10 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         boolean b4 = savedInstanceState.getBoolean(NEW_GAME_VISIBILITY_KEY);
 
         mStartPrompt.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
-        mResumeButton.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
+        mResumePrompt.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
         mNewGameButton.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
 
         mWins = (HashMap<String, Integer>) savedInstanceState.getSerializable(WINS_KEY);
-
 
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -192,23 +191,23 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     /**
-     * Called when the start button is pressed.
+     * Called when the start text is pressed.
      *
-     * @param view The start Button
+     * @param view The start text view
      */
-    public void startButton(View view){
+    public void startClick(View view){
         mStartPrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
     }
 
 
     /**
-     * Called when the resume button is pressed.
+     * Called when the resume text is pressed.
      *
-     * @param view The resume Button
+     * @param view The resume text view
      */
-    public void resumeButton(View view){
-        mResumeButton.setVisibility(View.INVISIBLE);
+    public void resumeClick(View view){
+        mResumePrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.resume(System.currentTimeMillis());
     }
 
@@ -275,7 +274,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);
         description.addMember("StartPromptVisible", mStartPrompt.getVisibility() == View.VISIBLE );
-        description.addMember("ResumeButtonVisible", mResumeButton.getVisibility() == View.VISIBLE);
+        description.addMember("ResumeButtonVisible", mResumePrompt.getVisibility() == View.VISIBLE);
         description.addMember("NewGameButtonVisible", mNewGameButton.getVisibility() == View.VISIBLE);
         description.addClassMember("mGameSurfaceView", mGameSurfaceView);
         return description.getString();
