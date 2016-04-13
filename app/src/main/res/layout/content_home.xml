@@ -50,7 +50,7 @@
             android:gravity="center"
             android:textSize="@dimen/button_text_size"
             android:onClick="play_button_clicked"
-            android:text="Play Game"/>
+            android:text="@string/home_activity_play_game"/>
 
         <Button
             android:id="@+id/how_to_play_button"
@@ -61,7 +61,7 @@
             android:layout_marginBottom="@dimen/button_margin"
             android:textSize="@dimen/button_text_size"
             android:onClick="how_to_play_button_clicked"
-            android:text="How to Play"/>
+            android:text="@string/home_activity_how_to_play"/>
 
         <Button
             android:id="@+id/rules_button"
@@ -71,7 +71,7 @@
             android:layout_marginBottom="@dimen/button_margin"
             android:textSize="@dimen/button_text_size"
             android:onClick="rules_button_clicked"
-            android:text="Rules"/>
+            android:text="@string/home_activity_rules"/>
     </LinearLayout>
 
 </LinearLayout>

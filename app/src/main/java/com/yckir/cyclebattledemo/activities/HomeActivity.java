@@ -44,7 +44,7 @@ public class HomeActivity extends AppCompatActivity {
     private void initHowToPlayDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.home_activity_how_to_play_dialog_description);
-        builder.setTitle(R.string.home_activity_how_to_play_dialog_title);
+        builder.setTitle(R.string.home_activity_how_to_play);
         mHowToPlayDialog = builder.create();
     }
 
@@ -52,7 +52,7 @@ public class HomeActivity extends AppCompatActivity {
     private void initRulesDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.home_activity_rules_dialog_description);
-        builder.setTitle(R.string.home_activity_rules_dialog_title);
+        builder.setTitle(R.string.home_activity_rules);
         mRulesDialog = builder.create();
     }
 

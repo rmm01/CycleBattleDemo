@@ -1,21 +1,23 @@
 <resources>
     <string name="app_name">Split Screen Tron</string>
-    <string name="version">v0.90</string>
+    <string name="app_name_caps">SPLIT SCREEN TRON</string>
     <string name="title_activity_practice_game">PracticeGameActivity</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="new_game_button_text">NEW GAME</string>
-    <string name="start_button">START</string>
-    <string name="pause_button">PAUSE</string>
-    <string name="resume_button">RESUME</string>
+    <!-- Multiplayer Text -->
+    <string name="start_prompt">Touch the screen to start</string>
+    <string name="resume_prompt">Touch the screen to resume</string>
     <string name="new_game_button">NEW GAME</string>
-
     <string name="info_button">INFO</string>
     <string name="replay_button">replay</string>
-    <string name="app_name_caps">SPLIT SCREEN TRON</string>
 
-    <string name="home_activity_rules_dialog_title">Game Rules</string>
+    <!-- Home Activity Text -->
+    <string name="home_activity_play_game">Play Game</string>
+    <string name="home_activity_how_to_play">How to Play</string>
+    <string name="home_activity_rules">Rules</string>
+
+    <string name="home_activity_play_dialog_title">Select Number of Players</string>
+    <string name="home_activity_play_dialog_negative_button">Cancel</string>
+
     <string name="home_activity_rules_dialog_description">
         1) Cycles can\'t stop moving once they\'ve started.\n\n
         2) Cycles can\'t move backwards.\n\n
@@ -33,21 +35,18 @@
         5) Swipe as close to your edge of the screen as possible.\n\n\t\t
         Large Screens recommended for three and four player modes.
     </string>
-    <string name="home_activity_how_to_play_dialog_title">How to Play</string>
 
-    <string name="home_activity_play_dialog_title">Select Number of Players</string>
-    <string name="home_activity_play_dialog_negative_button">Cancel</string>
-
+    <!-- Pause Dialog -->
     <string name="multiplayer_activity_pause_dialog_title">Exit Game</string>
     <string name="multiplayer_activity_pause_dialog_message">Are you sure you want to leave the game?</string>
     <string name="multiplayer_activity_pause_dialog_negative_button">Leave</string>
     <string name="multiplayer_activity_pause_dialog_positive_button">Stay</string>
+
+    <!-- Results Dialog -->
     <string name="results_title">Results</string>
     <string name="results_play_again">Play Again</string>
     <string name="results_watch_replay">Watch Replay</string>
     <string name="results_save_replay">Save Replay</string>
     <string name="results_exit">Main Menu</string>
-    <string name="start_prompt">Touch the screen to start</string>
-    <string name="resume_prompt">Touch the screen to resume</string>
 
 </resources>
