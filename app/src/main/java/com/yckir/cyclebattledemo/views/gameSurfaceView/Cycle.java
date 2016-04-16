@@ -336,11 +336,12 @@ public class Cycle extends GridRectangle {
      *                     perpendicular to the current direction, it wont be changed.
      * @param time the time in milliseconds when the direction changes. the time must also be after
      *             the previous direction change.
+     * @return true if the direction change was valid, false otherwise
      * @see Compass
      */
-    public void changeDirection(Compass newDirection,long time) {
+    public boolean changeDirection(Compass newDirection,long time) {
         if(mCrashed)
-            return;
+            return false;
         long lastTimeStartTime = mPath.getLineStartTime(mPath.getNumLines());
         double lineLength = (time - lastTimeStartTime )/1000.0*mSpeed;
         boolean success;
@@ -352,10 +353,11 @@ public class Cycle extends GridRectangle {
         if(!success)
         {
             Log.d(TAG, "direction change failed");
-            return;
+            return false;
         }
         setCenter(mPath.getLastPoint());
         mDirection=newDirection;
+        return true;
     }
 
 

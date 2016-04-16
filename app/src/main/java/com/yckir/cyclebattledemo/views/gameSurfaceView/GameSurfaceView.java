@@ -45,7 +45,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private ReplayManager mReplayManager;
     private RectangleContainer mRectangleContainer;
     private SurfaceDrawingTask mSurfaceDrawingTask;
-    private GameEventListener mGameEventListener;
+    private GameEventListener mGameEventListener = null;
     private SurfaceHolder mHolder;
     private FourRegionSwipeDetector mSwipeListener;
 
@@ -98,7 +98,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 context.getResources().getDisplayMetrics(), this);
 
         mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer, SurfaceDrawingTask.FULL_DRAW);
-        mSurfaceDrawingTask.addListener(this);
+        mSurfaceDrawingTask.addDrawingEventListener(this);
+        mSurfaceDrawingTask.addGameEventListener(mGameEventListener);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
     }
 
@@ -154,6 +155,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      */
     public void addGameEventListener(GameEventListener listener){
         mGameEventListener = listener;
+        mSurfaceDrawingTask.addGameEventListener(mGameEventListener);
     }
 
 
@@ -202,7 +204,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mGameManager.setRunning(true);
         mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer,
                 mSurfaceDrawingTask.getDrawMode());
-        mSurfaceDrawingTask.addListener(this);
+        mSurfaceDrawingTask.addDrawingEventListener(this);
+        mSurfaceDrawingTask.addGameEventListener(mGameEventListener);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         mSurfaceDrawingTask.execute(mStartTime + mTotalPauseDelay);
     }
@@ -220,7 +223,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mGameManager.newGame();
         mSurfaceDrawingTask = new SurfaceDrawingTask(mHolder, mGameManager,mRectangleContainer,
                 mSurfaceDrawingTask.getDrawMode());
-        mSurfaceDrawingTask.addListener(this);
+        mSurfaceDrawingTask.addDrawingEventListener(this);
+        mSurfaceDrawingTask.addGameEventListener(mGameEventListener);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
         Canvas canvas = mHolder.lockCanvas();
         mSurfaceDrawingTask.draw(canvas);
@@ -445,5 +449,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
          */
         void backgroundReady(File file);
 
+        /**
+         * Called when a cycle has successfully changed directions
+         */
+        void directionChange();
+
+        /**
+         * Called when a cycle has crashed
+         */
+        void crash();
     }
 }

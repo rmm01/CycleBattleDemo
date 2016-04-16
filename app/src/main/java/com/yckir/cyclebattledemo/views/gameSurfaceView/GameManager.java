@@ -369,16 +369,24 @@ public class GameManager {
     /**
      * Checks to see if their are any requests to change directions and apply them they are valid.
      * This method will fail if a game is not currently running.
+     *
+     * @return true if at least one direction changed, false otherwise.
      */
-    public void checkDirectionChangeRequests(){
+    public boolean checkDirectionChangeRequests(){
         if( !mRunning )
-            return;
+            return false;
 
         DirectionChangeRequest node = mDirectionChanges.poll();
+
+        boolean change = false;
+        boolean temp;
         while(node!=null){
-            mCycles[node.getCycleNum()].changeDirection(node.getDirection(), node.getTime());
+
+            temp = mCycles[node.getCycleNum()].changeDirection(node.getDirection(), node.getTime());
+            change = temp || change;
             node = mDirectionChanges.poll();
         }
+        return change;
     }
 
 

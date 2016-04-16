@@ -297,6 +297,18 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mBackgroundView.setImageDrawable(drawable);
     }
 
+
+    @Override
+    public void directionChange() {
+        mSoundManager.playSoundEffect(SoundManager.TURN_SOUND_ID);
+    }
+
+
+    @Override
+    public void crash() {
+        mSoundManager.playSoundEffect(SoundManager.CRASH_SOUND_ID);
+    }
+
     @Override
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);

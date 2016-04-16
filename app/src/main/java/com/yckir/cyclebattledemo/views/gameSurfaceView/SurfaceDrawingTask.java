@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * What gets drawn is based on the current
  * {@link com.yckir.cyclebattledemo.views.gameSurfaceView.SurfaceDrawingTask.Draw_Mode}.
  */
-public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
+public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
 
     /**
      * Id's that are used to determine what will be drawn in the {@link #draw(Canvas)} method.<p>
@@ -47,14 +47,17 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
      */
     public static final int BACKGROUND_DRAW = 2;
 
-
     public static String TAG="SURFACE_DRAWING_TASK";
+
+    private static final int TURN_ID = 0;
+    private static final int CRASH_ID = 1;
 
     private final SurfaceHolder mSurfaceHolder;
     private final GameManager mGameManager;
     private final RectangleContainer mRectangleContainer;
-    private DrawingTaskListener mListener;
+    private DrawingTaskListener mDrawingEventListener;
     private FourRegionSwipeDetector mDetector = null;
+    private GameSurfaceView.GameEventListener mGameEventListener = null;
 
     private long mTotalTaskDelay;
     private long mTotalUpdatePositionDelay;
@@ -78,7 +81,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         mSurfaceHolder=holder;
         mGameManager = gameManager;
         mRectangleContainer = rectangleContainer;
-        mListener=null;
+        mDrawingEventListener = null;
         mDrawingMode = drawMode;
     }
 
@@ -88,8 +91,13 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
      *
      * @param listener the listener that will be notified
      */
-    public void addListener(DrawingTaskListener listener){
-        mListener = listener;
+    public void addDrawingEventListener(DrawingTaskListener listener){
+        mDrawingEventListener = listener;
+    }
+
+
+    public void addGameEventListener(GameSurfaceView.GameEventListener listener){
+        mGameEventListener = listener;
     }
 
 
@@ -141,7 +149,11 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
         Log.v(TAG, "starting at time " + start);
         while (mGameManager.isRunning()) {
             frameStartTime = System.currentTimeMillis() - start;
-            mGameManager.checkDirectionChangeRequests();
+
+            if(mGameManager.checkDirectionChangeRequests()){
+                publishProgress(TURN_ID);
+            }
+
             mGameManager.move(frameStartTime);
             mGameManager.collisionDetection(frameStartTime);
 
@@ -158,13 +170,23 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Void, Void>{
     }
 
 
+
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+       if(mGameEventListener == null || values == null)
+           return;
+        if(values[0] == TURN_ID)
+           mGameEventListener.directionChange();
+    }
+
+
     @Override
     protected void onPostExecute(Void aVoid) {
         ArrayList<GameManager.DirectionChangeRequest> list = mGameManager.getReplay();
         //for(int i = 0; i < list.size(); i++)
         //    Log.v(TAG,list.get(i).toString());
-        if(mListener!=null){
-            mListener.taskEnded(list);
+        if(mDrawingEventListener !=null){
+            mDrawingEventListener.taskEnded(list);
         }
     }
 
