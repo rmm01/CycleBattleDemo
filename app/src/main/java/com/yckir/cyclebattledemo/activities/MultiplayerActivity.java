@@ -90,9 +90,12 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private void pauseGame(){
         if(mGameSurfaceView.getState() != GameSurfaceView.RUNNING)
             return;
-        mSoundManager.pauseBackground();
+
         mResumePrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.pause(System.currentTimeMillis());
+        mSoundManager.pauseBackground();
+        mSoundManager.stopSounds();
+        mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
     }
 
 
@@ -165,6 +168,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     @Override
     protected void onStop() {
+        Log.v(TAG, " onStop ");
         super.onStop();
         mSoundManager.release();
         mSoundManager = null;
@@ -308,6 +312,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     public void crash() {
         mSoundManager.playSoundEffect(SoundManager.CRASH_SOUND_ID);
     }
+
 
     @Override
     public String toString() {
