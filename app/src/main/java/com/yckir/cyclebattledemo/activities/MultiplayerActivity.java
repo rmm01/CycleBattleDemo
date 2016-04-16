@@ -94,7 +94,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mResumePrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.pause(System.currentTimeMillis());
         mSoundManager.pauseBackground();
-        mSoundManager.stopSounds();
         mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
     }
 
@@ -225,6 +224,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mStartPrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
         mSoundManager.playBackground();
+        mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
     }
 
 
@@ -235,6 +235,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      */
     public void resumeClick(View view){
         mSoundManager.playBackground();
+        mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
         mResumePrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.resume(System.currentTimeMillis());
     }
@@ -249,6 +250,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mNewGamePrompt.setVisibility(View.INVISIBLE);
         mStartPrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
+        mSoundManager.stopSounds();
         mSoundManager.playSoundEffect(SoundManager.PROMPT_SOUND_ID);
     }
 
@@ -289,7 +291,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         mSoundManager.pauseBackground();
         mSoundManager.seekToBackground(0);
-        mSoundManager.stopSounds();
         mSoundManager.playSoundEffect(SoundManager.FINISHED_SOUND_ID);
     }
 
