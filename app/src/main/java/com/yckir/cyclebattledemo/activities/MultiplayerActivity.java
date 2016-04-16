@@ -249,6 +249,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mNewGamePrompt.setVisibility(View.INVISIBLE);
         mStartPrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.newGame();
+        mSoundManager.playSoundEffect(SoundManager.PROMPT_SOUND_ID);
     }
 
 
