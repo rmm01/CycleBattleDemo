@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.yckir.cyclebattledemo"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yckir.cyclebattledemo" >
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".activities.HomeActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -22,9 +22,11 @@
             android:name=".activities.MultiplayerActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_practice_game"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".activities.TestTouchActivity">
+        <activity android:name=".activities.TestTouchActivity" >
+        </activity>
+        <activity android:name=".activities.TestSoundActivity" >
         </activity>
     </application>
 
