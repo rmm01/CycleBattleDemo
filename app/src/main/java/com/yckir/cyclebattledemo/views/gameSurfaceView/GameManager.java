@@ -395,10 +395,11 @@ public class GameManager {
      * moving. This method will fail if a game is not currently running.
      *
      * @param currentTime the current time in milliseconds.
+     * @return true if a cycle crashed, false otherwise.
      */
-    public void collisionDetection(long currentTime){
+    public boolean collisionDetection(long currentTime){
         if( !mRunning )
-            return;
+            return false;
 
         int initialCycles = mRemainingCycles;
 
@@ -451,6 +452,8 @@ public class GameManager {
             }
             mRunning = false;
         }
+
+        return  initialCycles != mRemainingCycles ;
     }
 
 

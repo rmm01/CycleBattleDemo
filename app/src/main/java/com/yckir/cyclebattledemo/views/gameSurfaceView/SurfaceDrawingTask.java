@@ -155,7 +155,9 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
             }
 
             mGameManager.move(frameStartTime);
-            mGameManager.collisionDetection(frameStartTime);
+            if( mGameManager.collisionDetection(frameStartTime) ){
+                publishProgress(CRASH_ID);
+            }
 
             Canvas canvas = mSurfaceHolder.lockCanvas();
             draw(canvas);
@@ -177,6 +179,8 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
            return;
         if(values[0] == TURN_ID)
            mGameEventListener.directionChange();
+        if(values[0] == CRASH_ID)
+            mGameEventListener.crash();
     }
 
 
