@@ -276,9 +276,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public void gameEnded(GameResultsData gameResultsData) {
 
-        mSoundManager.pauseBackground();
-        mSoundManager.seekToBackground(0);
-
         mNewGamePrompt.setVisibility(View.VISIBLE);
 
         if(mWins.isEmpty())
@@ -290,6 +287,10 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         ResultsDialogFragment fragment = ResultsDialogFragment.newInstance(gameResultsData);
         fragment.show(fragmentManager,"dialog");
 
+        mSoundManager.pauseBackground();
+        mSoundManager.seekToBackground(0);
+        mSoundManager.stopSounds();
+        mSoundManager.playSoundEffect(SoundManager.FINISHED_SOUND_ID);
     }
 
 
