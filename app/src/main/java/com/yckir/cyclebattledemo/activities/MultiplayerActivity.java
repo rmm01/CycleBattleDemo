@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +22,7 @@ import com.yckir.cyclebattledemo.utility.GameResultsData;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
+import com.yckir.cyclebattledemo.utility.SoundManager;
 
 import java.io.File;
 import java.util.HashMap;
@@ -42,9 +42,12 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private static final String     START_VISIBILITY_KEY        =   TAG + ":START_VISIBILITY";
     private static final String     RESUME_VISIBILITY_KEY       =   TAG + ":RESUME_VISIBILITY";
     private static final String     NEW_GAME_VISIBILITY_KEY     =   TAG + ":NEW_GAME_VISIBILITY";
+    private static final String     BACKGROUND_TIME_KEY         =   TAG + ":BACKGROUND_TIME";
     private static final String     WINS_KEY                    =   TAG + ":WINS";
 
     private HashMap<String, Integer> mWins;
+    private SoundManager mSoundManager;
+    private int mStartBackgroundTime = 0;
 
     private AlertDialog mPauseDialog;
     private GameSurfaceView mGameSurfaceView;
@@ -87,6 +90,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private void pauseGame(){
         if(mGameSurfaceView.getState() != GameSurfaceView.RUNNING)
             return;
+        mSoundManager.pauseBackground();
         mResumePrompt.setVisibility(View.VISIBLE);
         mGameSurfaceView.pause(System.currentTimeMillis());
     }
@@ -144,10 +148,26 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(mSoundManager == null)
+            mSoundManager = new SoundManager(this, mStartBackgroundTime);
+    }
+
+
+    @Override
     protected void onPause() {
         Log.v(TAG, " onPause ");
         pauseGame();
         super.onPause();
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mSoundManager.release();
+        mSoundManager = null;
     }
 
 
@@ -158,6 +178,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         outState.putBoolean(START_VISIBILITY_KEY, mStartPrompt.getVisibility() == View.VISIBLE);
         outState.putBoolean(RESUME_VISIBILITY_KEY, mResumePrompt.getVisibility() == View.VISIBLE);
         outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGamePrompt.getVisibility() == View.VISIBLE);
+        outState.putInt(BACKGROUND_TIME_KEY, mSoundManager.getCurrentBackgroundTime());
         outState.putSerializable(WINS_KEY, mWins);
 
         super.onSaveInstanceState(outState);
@@ -175,6 +196,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mStartPrompt.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
         mResumePrompt.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
         mNewGamePrompt.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
+        mStartBackgroundTime = savedInstanceState.getInt(BACKGROUND_TIME_KEY);
 
         mWins = (HashMap<String, Integer>) savedInstanceState.getSerializable(WINS_KEY);
 
@@ -198,6 +220,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     public void startClick(View view){
         mStartPrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.start(System.currentTimeMillis());
+        mSoundManager.playBackground();
     }
 
 
@@ -207,6 +230,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * @param view The resume text view
      */
     public void resumeClick(View view){
+        mSoundManager.playBackground();
         mResumePrompt.setVisibility(View.INVISIBLE);
         mGameSurfaceView.resume(System.currentTimeMillis());
     }
@@ -247,12 +271,15 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public void gameEnded(GameResultsData gameResultsData) {
 
+        mSoundManager.pauseBackground();
+        mSoundManager.seekToBackground(0);
+
         mNewGamePrompt.setVisibility(View.VISIBLE);
 
         if(mWins.isEmpty())
             gameResultsData.initWins(mWins);
 
-       gameResultsData.updateWins(mWins);
+        gameResultsData.updateWins(mWins);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         ResultsDialogFragment fragment = ResultsDialogFragment.newInstance(gameResultsData);
