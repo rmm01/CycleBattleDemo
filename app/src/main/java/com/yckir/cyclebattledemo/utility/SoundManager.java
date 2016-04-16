@@ -65,14 +65,15 @@ public class SoundManager {
      * creates an instance of the SoundManager.
      *
      * @param context activity context.
+     * @param startTime the start time for the background music in milliseconds.
      */
-    public SoundManager(Context context){
+    public SoundManager(Context context, int startTime){
         mContext = context;
         mPlayWhenReady = false;
         mPrepared = false;
 
         createSoundPool();
-        prepareMediaPlayer();
+        prepareMediaPlayer(startTime);
 
         mSoundPoolMap = new HashMap<>(10);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -88,8 +89,10 @@ public class SoundManager {
 
     /**
      * instantiates a new MediaPlayer and prepares it.
+     *
+     * @param startTime the start time for the background music in milliseconds.
      */
-    private void prepareMediaPlayer(){
+    private void prepareMediaPlayer(final int startTime){
         if(mMediaPlayer != null){
             mMediaPlayer.release();
             mMediaPlayer = null;
@@ -103,6 +106,7 @@ public class SoundManager {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mPrepared = true;
+                mp.seekTo(startTime);
                 if(mPlayWhenReady)
                     mp.start();
             }
@@ -214,7 +218,7 @@ public class SoundManager {
 
         //create and prepare the media player if instance is null
         if( mMediaPlayer == null ) {
-            prepareMediaPlayer();
+            prepareMediaPlayer(0);
             return;
         }
 
@@ -288,6 +292,14 @@ public class SoundManager {
             mMediaPlayer.seekTo(0);
         else
             mMediaPlayer.seekTo(time);
+    }
+
+
+    /**
+     * @return current time in milliseconds of the current position of background music.
+     */
+    public int getCurrentBackgroundTime(){
+        return mMediaPlayer.getCurrentPosition();
     }
 
 
