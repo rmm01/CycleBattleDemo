@@ -82,7 +82,7 @@ public class SoundManager {
         mSoundPoolMap.put(CRASH_SOUND_ID, mSoundPool.load(context, R.raw.explosion_02,1));
         mSoundPoolMap.put(FINISHED_SOUND_ID, mSoundPool.load(context, R.raw.chipquest,2));
         mSoundPoolMap.put(COUNTDOWN_SOUND_ID, mSoundPool.load(context, R.raw.pickup_02,1));
-        mSoundPoolMap.put(PAUSE_SOUND_ID, mSoundPool.load(context, R.raw.pause_sound_edited,2));
+        mSoundPoolMap.put(PAUSE_SOUND_ID, mSoundPool.load(context, R.raw.pickup_01,2));
         mSoundPoolMap.put(PROMPT_SOUND_ID, mSoundPool.load(context, R.raw.collect_point_00,1));
     }
 
