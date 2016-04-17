@@ -49,6 +49,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private int mStartAlarmId           =   10000;
     private int mCountdownAlarmId       =   20000;
     private int mResumeAlarmId          =   30000;
+    private int mResultsAlarmId         =   40000;
     private int mStartBackgroundTime    =   0;
 
     private AlarmHandler mAlarm;
@@ -310,7 +311,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public void gameEnded(GameResultsData gameResultsData) {
 
-        mNewGamePrompt.setVisibility(View.VISIBLE);
+        mAlarm.setAlarm(1000, mResultsAlarmId);
 
         if(mWins.isEmpty())
             gameResultsData.initWins(mWins);
@@ -367,6 +368,10 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
             mGameSurfaceView.resume(System.currentTimeMillis());
             mSoundManager.playBackground();
             mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
+        }
+
+        if( id == mResultsAlarmId ){
+            mNewGamePrompt.setVisibility(View.VISIBLE);
         }
 
         Log.v( TAG, "received invalid id " + id );
