@@ -238,7 +238,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     /**
-     * Called when the start text is pressed.
+     * Called when the start text is pressed. Plays countdown sound effects and starts the game
+     * after 2 seconds if the game is no paused before then.
      *
      * @param view The start text view
      */
@@ -255,7 +256,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     /**
-     * Called when the resume text is pressed.
+     * Called when the resume text is pressed. Plays countdown sound effects and resumes the game
+     * after 2 seconds if the game is not paused before then.
      *
      * @param view The resume text view
      */
