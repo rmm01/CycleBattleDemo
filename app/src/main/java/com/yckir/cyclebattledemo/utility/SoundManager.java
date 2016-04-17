@@ -40,7 +40,7 @@ public class SoundManager {
     public static final int SOUND_POOL_MAX_STREAMS  = 5;
 
     @IntDef({TURN_SOUND_ID, CRASH_SOUND_ID, FINISHED_SOUND_ID, COUNTDOWN_SOUND_ID, PAUSE_SOUND_ID,
-            PROMPT_SOUND_ID })
+            PROMPT_SOUND_ID, GO_SOUND_ID })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SOUND_EFFECTS{}
 
@@ -50,6 +50,7 @@ public class SoundManager {
     public static final int COUNTDOWN_SOUND_ID      = 3;
     public static final int PAUSE_SOUND_ID          = 4;
     public static final int PROMPT_SOUND_ID         = 5;
+    public static final int GO_SOUND_ID             = 6;
 
     private boolean mPrepared;
     private boolean mPlayWhenReady;
@@ -81,9 +82,10 @@ public class SoundManager {
         mSoundPoolMap.put(TURN_SOUND_ID, mSoundPool.load(context, R.raw.turn_30ms,1));
         mSoundPoolMap.put(CRASH_SOUND_ID, mSoundPool.load(context, R.raw.explosion_02,1));
         mSoundPoolMap.put(FINISHED_SOUND_ID, mSoundPool.load(context, R.raw.chipquest,2));
-        mSoundPoolMap.put(COUNTDOWN_SOUND_ID, mSoundPool.load(context, R.raw.pickup_02,1));
+        mSoundPoolMap.put(COUNTDOWN_SOUND_ID, mSoundPool.load(context, R.raw.countdown,1));
         mSoundPoolMap.put(PAUSE_SOUND_ID, mSoundPool.load(context, R.raw.pickup_01,2));
         mSoundPoolMap.put(PROMPT_SOUND_ID, mSoundPool.load(context, R.raw.collect_point_00,1));
+        mSoundPoolMap.put(GO_SOUND_ID, mSoundPool.load(context, R.raw.go,1));
     }
 
 
