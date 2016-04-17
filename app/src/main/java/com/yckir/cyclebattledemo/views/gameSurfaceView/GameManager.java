@@ -1,5 +1,6 @@
 package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -72,6 +73,8 @@ public class GameManager {
     private int mGridPaddingX;
     private int mGridPaddingY;
 
+    private Context mContext;
+
 
 
     /**
@@ -110,7 +113,9 @@ public class GameManager {
      * @param numTilesY the number of tiles in the y direction
      * @param numCycles the number of cycles that will be drawn
      */
-    public GameManager(int numTilesX, int numTilesY, int numCycles){
+    public GameManager(Context context, int numTilesX, int numTilesY, int numCycles){
+        mContext = context;
+
         //construct grid
         mGameGrid = new Grid(numTilesX,numTilesY, GAME_GRID_TILE_LENGTH);
         mNumCycles=numCycles;
@@ -182,16 +187,16 @@ public class GameManager {
 
 
         if(mNumCycles>=1) {
-            mCycles[0] = new Cycle(w/2,0.5, 0.5, 0.5, 0);
+            mCycles[0] = new Cycle(mContext, w/2,0.5, 0.5, 0.5, 0);
         }
         if(mNumCycles>=2) {
-            mCycles[1] = new Cycle( w/2, h -0.5, 0.5, 0.5, 1);
+            mCycles[1] = new Cycle(mContext, w/2, h -0.5, 0.5, 0.5, 1);
         }
         if(mNumCycles>=3) {
-            mCycles[2] = new Cycle(0.5, h/2, 0.5, 0.5, 2);
+            mCycles[2] = new Cycle(mContext, 0.5, h/2, 0.5, 0.5, 2);
         }
         if(mNumCycles>=4) {
-            mCycles[3] = new Cycle(w-0.5, h/2, 0.5, 0.5, 3);
+            mCycles[3] = new Cycle(mContext, w-0.5, h/2, 0.5, 0.5, 3);
         }
 
 

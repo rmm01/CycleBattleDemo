@@ -1,11 +1,16 @@
 package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 
+import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
 import com.yckir.cyclebattledemo.utility.Tile;
@@ -31,6 +36,10 @@ public class Cycle extends GridRectangle {
     private static final String     Y_KEY           =   TAG + ":Y";
     private static final int        DEFAULT_SPEED   =   3;
     private final String TAG_ID;
+    private Drawable mCycleImageN;
+    private Drawable mCycleImageS;
+    private Drawable mCycleImageE;
+    private Drawable mCycleImageW;
 
     /**
      *  the id for this cycle
@@ -93,7 +102,7 @@ public class Cycle extends GridRectangle {
      * @param cycleId An Id for the cycle, this will also determine the color.
      *                0-3 are red, yellow, green, and cyan. Any other ID is white.
      */
-    public Cycle(double centerX, double centerY,double width, double height,int cycleId) {
+    public Cycle(Context context, double centerX, double centerY, double width, double height, int cycleId) {
         super(centerX, centerY, width, height);
         mCycleId=cycleId;
         TAG_ID = "-Cycle_"+mCycleId;
@@ -103,7 +112,7 @@ public class Cycle extends GridRectangle {
         mCrashed=false;
         mCrashTime = DEFAULT_TIME;
         mPlace = DEFAULT_PLACE;
-        setIdAttributes();
+        setIdAttributes(context);
         mPath=new LinePath(centerX,centerY,0,mDirection);
     }
 
@@ -133,32 +142,52 @@ public class Cycle extends GridRectangle {
     /**
      * Determines the color and direction of the cycle based on its id.
      */
-    private void setIdAttributes(){
+    private void setIdAttributes(Context context){
         Log.v(TAG,"setting color for id = " +mCycleId);
         switch (mCycleId) {
             case 0:
                 mLinePaint.setColor(Color.RED);
                 mName = "Red";
+                mCycleImageN = ResourcesCompat.getDrawable(context.getResources(), R.drawable.red_cycle_n, null);
+                mCycleImageE = ResourcesCompat.getDrawable(context.getResources(), R.drawable.red_cycle_e, null);
+                mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.red_cycle_s, null);
+                mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.red_cycle_w, null);
                 mDirection=Compass.SOUTH;
                 break;
             case 1:
                 mLinePaint.setColor(Color.GREEN);
                 mName = "Green";
+                mCycleImageN = ResourcesCompat.getDrawable(context.getResources(), R.drawable.green_cycle_n, null);
+                mCycleImageE = ResourcesCompat.getDrawable(context.getResources(), R.drawable.green_cycle_e, null);
+                mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.green_cycle_s, null);
+                mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.green_cycle_w, null);
                 mDirection=Compass.NORTH;
                 break;
             case 2:
-                mLinePaint.setColor(Color.WHITE);
-                mName = "White";
+                mLinePaint.setColor(Color.YELLOW);
+                mName = "Yellow";
+                mCycleImageN = ResourcesCompat.getDrawable(context.getResources(), R.drawable.yellow_cycle_n, null);
+                mCycleImageE = ResourcesCompat.getDrawable(context.getResources(), R.drawable.yellow_cycle_e, null);
+                mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.yellow_cycle_s, null);
+                mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.yellow_cycle_w, null);
                 mDirection=Compass.EAST;
                 break;
             case 3:
                 mLinePaint.setColor(Color.MAGENTA);
-                mName = "Magenta";
+                mName = "Purple";
+                mCycleImageN = ResourcesCompat.getDrawable(context.getResources(), R.drawable.purple_cycle_n, null);
+                mCycleImageE = ResourcesCompat.getDrawable(context.getResources(), R.drawable.purple_cycle_e, null);
+                mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.purple_cycle_s, null);
+                mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.purple_cycle_w, null);
                 mDirection=Compass.WEST;
                 break;
             default:
-                mLinePaint.setColor(Color.GRAY);
-                mName = "Grey";
+                mLinePaint.setColor(Color.BLUE);
+                mCycleImageN = ResourcesCompat.getDrawable(context.getResources(), R.drawable.blue_cycle_n, null);
+                mCycleImageE = ResourcesCompat.getDrawable(context.getResources(), R.drawable.blue_cycle_e, null);
+                mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.blue_cycle_s, null);
+                mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.blue_cycle_w, null);
+                mName = "Blue";
                 mDirection=Compass.SOUTH;
                 break;
         }
@@ -189,18 +218,18 @@ public class Cycle extends GridRectangle {
 
 
     /**
-     * Draw the cycle that fills the given canvas. THe cycle is a solid rectangle.
+     * Draw the cycle that fills the given canvas. The cycle is drawn using only rectangles.
      *
      * @param canvas the canvas where the cycle will be drawn on
      */
-    public void drawCycle(Canvas canvas){
+    public void drawCycleRetro(Canvas canvas){
         // Log.v(TAG,"left is "+getLeft()+", top is "+getTop());
 
         int paddingX = canvas.getClipBounds().left;
         int paddingY = canvas.getClipBounds().top;
 
         float w = (float) Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE, getWidth());
-        float h = (float)Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,getHeight());
+        float h = (float) Tile.convert(Grid.GAME_GRID_TILE, GameManager.SCREEN_GRID_TILE,getHeight());
 
         Paint insidePaint = new Paint();
         insidePaint.setColor(Color.BLUE);
@@ -249,6 +278,37 @@ public class Cycle extends GridRectangle {
                         paddingY + h/4,
                         paddingX + w/2 ,
                         paddingY + h*3/4, mLinePaint);
+                break;
+        }
+    }
+
+
+
+    /**
+     * Draw the cycle that fills the given canvas. The cycle are drawn from drawable resources.
+     *
+     * @param canvas the canvas where the cycle will be drawn on
+     */
+    public void drawCycle(Canvas canvas){
+
+        Rect imageBounds = canvas.getClipBounds();
+
+        switch (mDirection) {
+            case NORTH:
+                mCycleImageN.setBounds(imageBounds);
+                mCycleImageN.draw(canvas);
+                break;
+            case SOUTH:
+                mCycleImageS.setBounds(imageBounds);
+                mCycleImageS.draw(canvas);
+                break;
+            case EAST:
+                mCycleImageE.setBounds(imageBounds);
+                mCycleImageE.draw(canvas);
+                break;
+            case WEST:
+                mCycleImageW.setBounds(imageBounds);
+                mCycleImageW.draw(canvas);
                 break;
         }
     }

@@ -91,7 +91,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mHolder.addCallback(this);
 
         //width and height are unknown so the default size for frame and container is used
-        mGameManager = new GameManager(numTilesX, numTilesY, numCycles);
+        mGameManager = new GameManager(getContext(), numTilesX, numTilesY, numCycles);
         mRectangleContainer = new RectangleContainer(boarderColor,borderSize);
 
         mSwipeListener = new FourRegionSwipeDetector(numCycles,
