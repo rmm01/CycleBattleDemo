@@ -30,8 +30,8 @@ public class AlarmHandler extends Handler {
      */
     @Override
     public void handleMessage(Message msg) {
-        if(started)
-            mTimerListener.alarm();
+        if(started && mTimerListener != null)
+            mTimerListener.alarm( msg.what );
     }
 
 
@@ -40,10 +40,11 @@ public class AlarmHandler extends Handler {
      * The Alarm is considered to be on until turnOffAlarm() is called.
      *
      * @param delay how long to wait in milliseconds until the AlarmListener is notified
+     * @param id the id for the for the alarm
      */
-    public  void setAlarm(long delay){
+    public  void setAlarm(long delay, int id){
         started=true;
-        sendEmptyMessageDelayed(0, delay);
+        sendEmptyMessageDelayed(id, delay);
     }
 
 
@@ -70,8 +71,10 @@ public class AlarmHandler extends Handler {
     interface AlarmListener {
         /**
          * Will be called by AlarmHandler when a waiting period is over
+         *
+         * @param id the id of the alarm.
          */
-        void alarm();
+        void alarm(int id);
     }
 
 }
