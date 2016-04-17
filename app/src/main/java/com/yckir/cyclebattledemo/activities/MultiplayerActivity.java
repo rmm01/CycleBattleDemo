@@ -48,6 +48,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     private int mStartAlarmId           =   10000;
     private int mCountdownAlarmId       =   20000;
+    private int mResumeAlarmId          =   30000;
     private int mStartBackgroundTime    =   0;
 
     private AlarmHandler mAlarm;
@@ -108,6 +109,9 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
                 mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
                 break;
             case GameSurfaceView.PAUSED:
+                mResumeAlarmId ++;
+                mCountdownAlarmId ++;
+                mResumePrompt.setVisibility(View.VISIBLE);
                 break;
             case GameSurfaceView.FINISHED:
                 break;
@@ -256,10 +260,14 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * @param view The resume text view
      */
     public void resumeClick(View view){
-        mSoundManager.playBackground();
-        mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
         mResumePrompt.setVisibility(View.INVISIBLE);
-        mGameSurfaceView.resume(System.currentTimeMillis());
+
+        //play ready sound
+        alarm( mCountdownAlarmId );
+        //play set sound in 1 second
+        mAlarm.setAlarm(1000, mCountdownAlarmId);
+        //play go sound and start the game in 2 seconds
+        mAlarm.setAlarm(2000, mResumeAlarmId);
     }
 
 
@@ -340,17 +348,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     @Override
-    public String toString() {
-        ClassStateString description = new ClassStateString(TAG);
-        description.addMember("StartPromptVisible", mStartPrompt.getVisibility() == View.VISIBLE );
-        description.addMember("ResumeButtonVisible", mResumePrompt.getVisibility() == View.VISIBLE);
-        description.addMember("NewGameButtonVisible", mNewGamePrompt.getVisibility() == View.VISIBLE);
-        description.addClassMember("mGameSurfaceView", mGameSurfaceView);
-        return description.getString();
-    }
-
-
-    @Override
     public void alarm(int id) {
         if( id == mStartAlarmId ){
             mGameSurfaceView.start(System.currentTimeMillis());
@@ -364,6 +361,23 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
             return;
         }
 
+        if( id == mResumeAlarmId ){
+            mGameSurfaceView.resume(System.currentTimeMillis());
+            mSoundManager.playBackground();
+            mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
+        }
+
         Log.v( TAG, "received invalid id " + id );
+    }
+
+
+    @Override
+    public String toString() {
+        ClassStateString description = new ClassStateString(TAG);
+        description.addMember("StartPromptVisible", mStartPrompt.getVisibility() == View.VISIBLE );
+        description.addMember("ResumeButtonVisible", mResumePrompt.getVisibility() == View.VISIBLE);
+        description.addMember("NewGameButtonVisible", mNewGamePrompt.getVisibility() == View.VISIBLE);
+        description.addClassMember("mGameSurfaceView", mGameSurfaceView);
+        return description.getString();
     }
 }
