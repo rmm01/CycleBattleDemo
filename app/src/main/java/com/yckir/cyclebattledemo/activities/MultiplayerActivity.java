@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yckir.cyclebattledemo.fragments.ResultsDialogFragment;
+import com.yckir.cyclebattledemo.utility.AlarmHandler;
 import com.yckir.cyclebattledemo.utility.FileUtility;
 import com.yckir.cyclebattledemo.utility.GameResultsData;
 import com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView;
@@ -35,7 +36,7 @@ import java.util.HashMap;
  * The static background saved to a file by the GameSurfaceView and the ImageView sets it as its
  * main content once its ready.
  */
-public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener{
+public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener, AlarmHandler.AlarmListener {
 
     public  static final String     TAG                         =   "PRACTICE_GAME";
     public  static final String     NUM_PLAYERS_BUNDLE_KEY      =   TAG + ":NUM_PLAYERS";
@@ -45,9 +46,13 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private static final String     BACKGROUND_TIME_KEY         =   TAG + ":BACKGROUND_TIME";
     private static final String     WINS_KEY                    =   TAG + ":WINS";
 
+    private int mStartAlarmId           =   10000;
+    private int mCountdownAlarmId       =   20000;
+    private int mStartBackgroundTime    =   0;
+
+    private AlarmHandler mAlarm;
     private HashMap<String, Integer> mWins;
     private SoundManager mSoundManager;
-    private int mStartBackgroundTime = 0;
 
     private AlertDialog mPauseDialog;
     private GameSurfaceView mGameSurfaceView;
@@ -88,13 +93,25 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      * Pauses the game if a match is running.
      */
     private void pauseGame(){
-        if(mGameSurfaceView.getState() != GameSurfaceView.RUNNING)
-            return;
+        final int state = mGameSurfaceView.getState();
 
-        mResumePrompt.setVisibility(View.VISIBLE);
-        mGameSurfaceView.pause(System.currentTimeMillis());
-        mSoundManager.pauseBackground();
-        mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
+        switch (state){
+            case GameSurfaceView.WAITING:
+                mStartAlarmId ++;
+                mCountdownAlarmId ++;
+                mStartPrompt.setVisibility(View.VISIBLE);
+                break;
+            case GameSurfaceView.RUNNING:
+                mResumePrompt.setVisibility(View.VISIBLE);
+                mGameSurfaceView.pause(System.currentTimeMillis());
+                mSoundManager.pauseBackground();
+                mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
+                break;
+            case GameSurfaceView.PAUSED:
+                break;
+            case GameSurfaceView.FINISHED:
+                break;
+        }
     }
 
 
@@ -141,6 +158,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mGameSurfaceView.setZOrderOnTop(true);
         mGameSurfaceView.getHolder().setFormat(PixelFormat.TRANSPARENT);
 
+        mAlarm = new AlarmHandler(this);
         mWins = new HashMap<>(4);
 
         parseIntentBundle();
@@ -222,9 +240,13 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
      */
     public void startClick(View view){
         mStartPrompt.setVisibility(View.INVISIBLE);
-        mGameSurfaceView.start(System.currentTimeMillis());
-        mSoundManager.playBackground();
-        mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
+
+        //play ready sound
+        alarm( mCountdownAlarmId );
+        //play set sound in 1 second
+        mAlarm.setAlarm(1000, mCountdownAlarmId);
+        //play go sound and start the game in 2 seconds
+        mAlarm.setAlarm(2000, mStartAlarmId);
     }
 
 
@@ -325,5 +347,23 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         description.addMember("NewGameButtonVisible", mNewGamePrompt.getVisibility() == View.VISIBLE);
         description.addClassMember("mGameSurfaceView", mGameSurfaceView);
         return description.getString();
+    }
+
+
+    @Override
+    public void alarm(int id) {
+        if( id == mStartAlarmId ){
+            mGameSurfaceView.start(System.currentTimeMillis());
+            mSoundManager.playBackground();
+            mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
+            return;
+        }
+
+        if( id == mCountdownAlarmId ){
+            mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
+            return;
+        }
+
+        Log.v( TAG, "received invalid id " + id );
     }
 }
