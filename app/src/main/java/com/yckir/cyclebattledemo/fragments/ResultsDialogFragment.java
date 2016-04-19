@@ -12,21 +12,25 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.yckir.cyclebattledemo.R;
+import com.yckir.cyclebattledemo.utility.AlarmHandler;
 import com.yckir.cyclebattledemo.utility.GameResultsData;
 
 
 /**
  * Displays the results of a game onto a dialog. Takes a GameResultData object to fill
- * four ListViews, number of wins, place, player name, and duration without crashing
+ * four ListViews, number of wins, place, player name, and duration without crashing. This dialog has a minimum delay of 1 second before it can be dismissed. A exit option will be enabled on the dialog ofter the delay has passed, the user may also tap outside the dialog to dismiss as well.
  */
-public class ResultsDialogFragment extends DialogFragment{
+public class ResultsDialogFragment extends DialogFragment implements View.OnClickListener{
 
-    private static final String ARG_PLACE   = "ResultsDialogFragment_place";
-    private static final String ARG_PLAYERS = "ResultsDialogFragment_players";
-    private static final String ARG_DURATION = "ResultsDialogFragment_duration";
-    private static final String ARG_WINS = "ResultsDialogFragment_wins";
+    private static final String ARG_PLACE       = "ResultsDialogFragment_place";
+    private static final String ARG_PLAYERS     = "ResultsDialogFragment_players";
+    private static final String ARG_DURATION    = "ResultsDialogFragment_duration";
+    private static final String ARG_WINS        = "ResultsDialogFragment_wins";
+    private static final long   CLOSE_DELAY     = 1000;
+
 
     private String[] mPlace = {"Place", "1st","1st","1st","1st"};
     private String[] mPlayers = {"Player", "Red","Green","Pink","White"};
@@ -37,6 +41,9 @@ public class ResultsDialogFragment extends DialogFragment{
     private ListView mPlayerList;
     private ListView mDurationList;
     private ListView mWinsList;
+    private TextView mCloseTextView;
+
+    private AlarmHandler mAlarm;
 
     public ResultsDialogFragment(){}
 
@@ -71,6 +78,18 @@ public class ResultsDialogFragment extends DialogFragment{
             mDurations = args.getStringArray(ARG_DURATION);
             mWins = args.getStringArray(ARG_WINS);
         }
+
+        setCancelable(false);
+
+        mAlarm = new AlarmHandler(new AlarmHandler.AlarmListener() {
+            @Override
+            public void alarm(int id) {
+                mCloseTextView.setEnabled(true);
+                setCancelable(true);
+            }
+        });
+        mAlarm.setAlarm(CLOSE_DELAY,0);
+
     }
 
     @NonNull
@@ -90,6 +109,8 @@ public class ResultsDialogFragment extends DialogFragment{
         mPlayerList = (ListView) view.findViewById(R.id.player_list);
         mDurationList = (ListView) view.findViewById(R.id.duration_list);
         mWinsList = (ListView) view.findViewById(R.id.wins_list);
+        mCloseTextView = (TextView)view.findViewById(R.id.close);
+        mCloseTextView.setOnClickListener(this);
 
         ArrayAdapter<String> placeAdapter = new ArrayAdapter<>(getActivity(),R.layout.result_list_item, mPlace);
         ArrayAdapter<String> playerAdapter = new ArrayAdapter<>(getActivity(),R.layout.result_list_item, mPlayers);
@@ -102,5 +123,16 @@ public class ResultsDialogFragment extends DialogFragment{
         mWinsList.setAdapter(winsAdapter);
 
         return view;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.close:
+                setCancelable(true);
+                dismiss();
+                break;
+        }
     }
 }

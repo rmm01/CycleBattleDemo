@@ -47,6 +47,6 @@
     <string name="results_play_again">Play Again</string>
     <string name="results_watch_replay">Watch Replay</string>
     <string name="results_save_replay">Save Replay</string>
-    <string name="results_exit">Main Menu</string>
+    <string name="results_exit">Close</string>
 
 </resources>
