@@ -18,10 +18,10 @@ import com.yckir.cyclebattledemo.utility.Tile;
 
 /**
  *      A two dimensional rectangle that is capable of moving its position, recording its path,
- *      and being drawn.
+ *      and being drawn. The with and height of the cycle will be swapped as the rectangular
+ *      cycle rotates.
  *
  *      @author  Ricky Martinez
- *      @version 0.2
  */
 public class Cycle extends GridRectangle {
 
@@ -34,6 +34,8 @@ public class Cycle extends GridRectangle {
     private static final String     PLACE_KEY       =   TAG + ":PLACE";
     private static final String     X_KEY           =   TAG + ":X";
     private static final String     Y_KEY           =   TAG + ":Y";
+    private static final String     WIDTH_KEY       =   TAG + ":WIDTH";
+    private static final String     HEIGHT_KEY      =   TAG + ":HEIGHT";
     private static final int        DEFAULT_SPEED   =   3;
     private final String TAG_ID;
     private Drawable mCycleImageN;
@@ -97,10 +99,10 @@ public class Cycle extends GridRectangle {
      *
      * @param centerX The center x position of the Cycle.
      * @param centerY The center y position of the Cycle.
-     * @param width The width of the rectangle
-     * @param height the height of the rectangle
+     * @param width The vertical length of the cycle, length from front to rear.
+     * @param height the horizontal length of the cycle, length from door to door.
      * @param cycleId An Id for the cycle, this will also determine the color.
-     *                0-3 are red, yellow, green, and cyan. Any other ID is white.
+     *                0-3 are red, yellow, green, and purple. Any other ID is blue.
      */
     public Cycle(Context context, double centerX, double centerY, double width, double height, int cycleId) {
         super(centerX, centerY, width, height);
@@ -140,6 +142,20 @@ public class Cycle extends GridRectangle {
 
 
     /**
+     * Rotates the cycle dimensions so that its with and height are swapped.
+     * This should be called when a cycle successfully changes directions.
+     * This is necessary if the cycles shape is a rectangle.
+     */
+    private void rotateCycle(){
+        double w = getWidth();
+        double h = getHeight();
+
+        setWidth(h);
+        setHeight(w);
+    }
+
+
+    /**
      * Determines the color and direction of the cycle based on its id.
      */
     private void setIdAttributes(Context context){
@@ -171,6 +187,7 @@ public class Cycle extends GridRectangle {
                 mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.yellow_cycle_s, null);
                 mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.yellow_cycle_w, null);
                 mDirection=Compass.EAST;
+                rotateCycle();
                 break;
             case 3:
                 mLinePaint.setColor(Color.MAGENTA);
@@ -180,6 +197,7 @@ public class Cycle extends GridRectangle {
                 mCycleImageS = ResourcesCompat.getDrawable(context.getResources(), R.drawable.purple_cycle_s, null);
                 mCycleImageW = ResourcesCompat.getDrawable(context.getResources(), R.drawable.purple_cycle_w, null);
                 mDirection=Compass.WEST;
+                rotateCycle();
                 break;
             default:
                 mLinePaint.setColor(Color.BLUE);
@@ -417,6 +435,7 @@ public class Cycle extends GridRectangle {
         }
         setCenter(mPath.getLastPoint());
         mDirection=newDirection;
+        rotateCycle();
         return true;
     }
 
@@ -499,6 +518,8 @@ public class Cycle extends GridRectangle {
         bundle.putSerializable( DIRECTION_KEY + TAG_ID, mDirection );
         bundle.putDouble( X_KEY + TAG_ID, getX() );
         bundle.putDouble( Y_KEY + TAG_ID, getY() );
+        bundle.putDouble( WIDTH_KEY + TAG_ID, getWidth() );
+        bundle.putDouble( HEIGHT_KEY + TAG_ID, getHeight() );
         mPath.saveState( bundle, TAG_ID );
     }
 
@@ -515,6 +536,8 @@ public class Cycle extends GridRectangle {
         mDirection = (Compass)bundle.getSerializable( DIRECTION_KEY+ TAG_ID );
         double x = bundle.getDouble( X_KEY + TAG_ID, 0 );
         double y = bundle.getDouble( Y_KEY + TAG_ID, 0 );
+        setWidth( bundle.getDouble( WIDTH_KEY + TAG_ID) );
+        setHeight( bundle.getDouble( HEIGHT_KEY + TAG_ID) );
         setCenter(x, y);
         mPath.restoreState( bundle, TAG_ID );
     }

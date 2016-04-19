@@ -187,16 +187,16 @@ public class GameManager {
 
 
         if(mNumCycles>=1) {
-            mCycles[0] = new Cycle(mContext, w/2,0.5, 0.5, 0.5, 0);
+            mCycles[0] = new Cycle(mContext, w/2,0.5, 0.5, 1.0, 0);
         }
         if(mNumCycles>=2) {
-            mCycles[1] = new Cycle(mContext, w/2, h -0.5, 0.5, 0.5, 1);
+            mCycles[1] = new Cycle(mContext, w/2, h -0.5, 0.5, 1.0, 1);
         }
         if(mNumCycles>=3) {
-            mCycles[2] = new Cycle(mContext, 0.5, h/2, 0.5, 0.5, 2);
+            mCycles[2] = new Cycle(mContext, 0.5, h/2, 0.5, 1.0, 2);
         }
         if(mNumCycles>=4) {
-            mCycles[3] = new Cycle(mContext, w-0.5, h/2, 0.5, 0.5, 3);
+            mCycles[3] = new Cycle(mContext, w-0.5, h/2, 0.5, 1.0, 3);
         }
 
 

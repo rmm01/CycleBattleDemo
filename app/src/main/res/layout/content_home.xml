@@ -28,7 +28,7 @@
 
     <com.yckir.cyclebattledemo.views.squareView.SquareView
         android:id="@+id/logo"
-        android:background="@drawable/new_home_background"
+        android:background="@drawable/long_cycle_background"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
