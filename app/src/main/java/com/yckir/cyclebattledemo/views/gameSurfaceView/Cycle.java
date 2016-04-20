@@ -13,6 +13,7 @@ import android.util.Log;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
+import com.yckir.cyclebattledemo.utility.Point;
 import com.yckir.cyclebattledemo.utility.Tile;
 
 
@@ -115,29 +116,86 @@ public class Cycle extends GridRectangle {
         mCrashTime = DEFAULT_TIME;
         mPlace = DEFAULT_PLACE;
         setIdAttributes(context);
-        mPath=new LinePath(centerX,centerY,0,mDirection);
+        mPath=new LinePath(getRearX(),getRearY(),0,mDirection);
     }
 
 
     /**
-     *  for debugging
-     * @param centerX The center x position of the Cycle.
-     * @param centerY The center y position of the Cycle.
-     * @param width The width of the rectangle
-     * @param height The height of the rectangle
-     * @param cycleId An Id for the cycle
-     * @param paint The color for the cycle
+     * @return the x coordinate of the cycles rear.
      */
-    public Cycle(double centerX, double centerY,double width, double height,int cycleId, Paint paint) {
-        super(centerX, centerY, width, height);
-        mCycleId=cycleId;
-        TAG_ID = "-Cycle_"+mCycleId;
-        mLinePaint =paint;
-        mSpeed=DEFAULT_SPEED;
-        mCrashed=false;
-        mCrashTime = DEFAULT_TIME;
-        mPlace = DEFAULT_PLACE;
-        mPath=new LinePath(centerX,centerY,0,mDirection);
+    private double getRearX(){
+        switch (mDirection) {
+            case NORTH:
+                return getX();
+
+            case SOUTH:
+                return getX();
+
+            case EAST:
+                return getX() - getWidth() / 2;
+
+            case WEST:
+                return getX() + getWidth() / 2;
+
+            default:
+                Log.e(TAG, "could not determine direction");
+                return 0;
+        }
+    }
+
+
+    /**
+     * @return the y coordinate of the cycles rear.
+     */
+    private double getRearY(){
+        switch (mDirection) {
+            case NORTH:
+                return getY() + getHeight() / 2;
+
+            case SOUTH:
+                return getY() - getHeight() / 2;
+
+            case EAST:
+                return getY();
+
+            case WEST:
+                return getY();
+
+            default:
+                Log.e(TAG, "could not determine direction");
+                return 0;
+        }
+    }
+
+
+    /**
+     * Moves the cycles center coordinate so that its rear point is at the the given point.
+     *
+     * @param point a coordinate where the cycles rear will be placed
+     */
+    public void setRear(Point point){
+        double x = 0;
+        double y = 0;
+
+        switch (mDirection) {
+            case NORTH:
+                x = point.getPositionX();
+                y = point.getPositionY() - getHeight()/2;
+                break;
+            case SOUTH:
+                x = point.getPositionX();
+                y = point.getPositionY() + getHeight()/2;
+                break;
+            case EAST:
+                x = point.getPositionX() + getWidth()/2;
+                y = point.getPositionY();
+                break;
+            case WEST:
+                x = point.getPositionX() - getWidth()/2;
+                y = point.getPositionY();
+                break;
+        }
+        setCenter(x,y);
     }
 
 
@@ -231,7 +289,7 @@ public class Cycle extends GridRectangle {
         //update the current position of the cycle on the path
          mPath.movePath(distance, currentTime);
 
-        setCenter(mPath.getLastPoint());
+        setRear(mPath.getLastPoint());
     }
 
 
@@ -433,7 +491,7 @@ public class Cycle extends GridRectangle {
             Log.d(TAG, "direction change failed");
             return false;
         }
-        setCenter(mPath.getLastPoint());
+        setRear(mPath.getLastPoint());
         mDirection=newDirection;
         rotateCycle();
         return true;
