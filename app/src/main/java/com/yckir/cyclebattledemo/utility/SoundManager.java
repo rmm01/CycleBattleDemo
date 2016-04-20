@@ -82,11 +82,12 @@ public class SoundManager {
         mPrepared = false;
         mBackgroundId = backgroundId;
 
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
         createSoundPool();
         prepareMediaPlayer(startTime);
 
         mSoundPoolMap = new HashMap<>(10);
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         mSoundPoolMap.put(TURN_SOUND_ID, mSoundPool.load(context, R.raw.turn_30ms,1));
         mSoundPoolMap.put(CRASH_SOUND_ID, mSoundPool.load(context, R.raw.explosion_02,1));
@@ -118,6 +119,11 @@ public class SoundManager {
             public void onPrepared(MediaPlayer mp) {
                 mPrepared = true;
                 mp.seekTo(startTime);
+
+                float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                mp.setVolume(streamVolume, streamVolume);
+
                 if(mPlayWhenReady)
                     mp.start();
             }

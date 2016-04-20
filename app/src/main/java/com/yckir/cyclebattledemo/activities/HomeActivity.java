@@ -12,12 +12,14 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.yckir.cyclebattledemo.R;
+import com.yckir.cyclebattledemo.utility.SoundManager;
 
 public class HomeActivity extends AppCompatActivity {
 
     private AlertDialog mHowToPlayDialog;
     private AlertDialog mRulesDialog;
     private AlertDialog mPlayDialog;
+    private SoundManager mSoundManager = null;
 
 
     @Override
@@ -29,8 +31,30 @@ public class HomeActivity extends AppCompatActivity {
         initHowToPlayDialog();
         initRulesDialog();
         initPlayDialog();
+
+        mSoundManager = new SoundManager(this, 0, SoundManager.HOME_MUSIC_ID);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mSoundManager == null)
+            mSoundManager = new SoundManager(this, 0, SoundManager.HOME_MUSIC_ID);
+        mSoundManager.playBackground();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSoundManager.pauseBackground();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mSoundManager.release();
+        mSoundManager = null;
+    }
 
     /**
      * Disables the status bar
