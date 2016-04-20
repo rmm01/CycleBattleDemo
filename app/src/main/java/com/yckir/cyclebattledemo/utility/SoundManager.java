@@ -52,6 +52,14 @@ public class SoundManager {
     public static final int PROMPT_SOUND_ID         = 5;
     public static final int GO_SOUND_ID             = 6;
 
+    @IntDef({MATCH_MUSIC_ID, HOME_MUSIC_ID})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BACKGROUND_MUSIC{}
+
+    public static final int MATCH_MUSIC_ID          = 0;
+    public static final int HOME_MUSIC_ID           = 1;
+
+    private final int mBackgroundId;
     private boolean mPrepared;
     private boolean mPlayWhenReady;
 
@@ -68,10 +76,11 @@ public class SoundManager {
      * @param context activity context.
      * @param startTime the start time for the background music in milliseconds.
      */
-    public SoundManager(Context context, int startTime){
+    public SoundManager(Context context, int startTime, @BACKGROUND_MUSIC int backgroundId){
         mContext = context;
         mPlayWhenReady = false;
         mPrepared = false;
+        mBackgroundId = backgroundId;
 
         createSoundPool();
         prepareMediaPlayer(startTime);
@@ -158,7 +167,7 @@ public class SoundManager {
      * set the background music for the MediaPlayer.
      */
     private void setBackgroundMusic() {
-        AssetFileDescriptor afd = mContext.getResources().openRawResourceFd(R.raw.bgm_action_3);
+        AssetFileDescriptor afd = mContext.getResources().openRawResourceFd(getBackgroundResource());
 
         try {
             mMediaPlayer.reset();
@@ -178,13 +187,33 @@ public class SoundManager {
      * set the background music for the MediaPlayer using an alternative implementation.
      */
     private void setBackgroundMusicAlt() {
-        Uri uri = Uri.parse(PREFIX + R.raw.bgm_action_3);
+        Uri uri = Uri.parse(PREFIX + getBackgroundResource());
 
         try {
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(mContext, uri);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Get the resource for the background music. bgm_action_3 is the default.
+     *
+     * @return the resource for the background music.
+     */
+    private int getBackgroundResource(){
+        switch (mBackgroundId){
+            case HOME_MUSIC_ID:
+                return R.raw.battle_the_outsiders;
+
+            case MATCH_MUSIC_ID:
+                return R.raw.bgm_action_3;
+
+            default:
+                Log.e(TAG, "unknown background id received " + mBackgroundId);
+                return R.raw.bgm_action_3;
         }
     }
 

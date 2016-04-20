@@ -22,8 +22,7 @@ public class TestSoundActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_sound);
 
-        mSoundManager = new SoundManager(this, 0);
-
+        mSoundManager = new SoundManager(this, 0, SoundManager.MATCH_MUSIC_ID);
     }
 
     public void buttonPressed(View v) {

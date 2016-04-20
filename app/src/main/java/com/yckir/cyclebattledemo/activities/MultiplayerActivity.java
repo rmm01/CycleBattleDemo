@@ -176,7 +176,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     protected void onResume() {
         super.onResume();
         if(mSoundManager == null)
-            mSoundManager = new SoundManager(this, mStartBackgroundTime);
+            mSoundManager = new SoundManager(this, mStartBackgroundTime, SoundManager.MATCH_MUSIC_ID);
     }
 
 
