@@ -58,31 +58,31 @@
     <string name="pref_grid_width_key">pref_grid_width</string>
     <string name="pref_grid_height_key">pref_grid_height</string>
 
-    <string name="pref_background_music_title">Disable background music</string>
-    <string name="pref_background_music_sum_on">Background music is disabled</string>
-    <string name="pref_background_music_sum_off">Background music is enabled</string>
+    <string name="pref_background_music_title">Disable background music.</string>
+    <string name="pref_background_music_sum_on">Background music is disabled.</string>
+    <string name="pref_background_music_sum_off">Background music is enabled.</string>
     <string name="pref_background_music_default">false</string>
 
-    <string name="pref_sound_effects_title">Disable sound effects</string>
-    <string name="pref_sound_effects_sum_on">Sound effects are disabled</string>
-    <string name="pref_sound_effects_sum_off">Sound effects are enabled</string>
+    <string name="pref_sound_effects_title">Disable sound effects.</string>
+    <string name="pref_sound_effects_sum_on">Sound effects are disabled.</string>
+    <string name="pref_sound_effects_sum_off">Sound effects are enabled.</string>
     <string name="pref_sound_effects_default">false</string>
 
-    <string name="pref_touch_indicators_title">Disable touch indicators</string>
-    <string name="pref_touch_indicators_sum_on">Touch indicators are disabled</string>
-    <string name="pref_touch_indicators_sum_off">Touch indicators are enabled</string>
+    <string name="pref_touch_indicators_title">Disable touch boundaries.</string>
+    <string name="pref_touch_indicators_sum_on">Touch boundaries are disabled.</string>
+    <string name="pref_touch_indicators_sum_off">Touch boundaries are enabled.</string>
     <string name="pref_touch_indicators_default">false</string>
 
-    <string name="pref_speed_title">Cycle speed</string>
-    <string name="pref_speed_sum">The speed of the cycles in terms of tiles</string>
+    <string name="pref_speed_title">Change cycle speed.</string>
+    <string name="pref_speed_sum">Change the speed of the cycles. Speed in measured in tiles per second.</string>
     <string name="pref_speed_default">3</string>
 
-    <string name="pref_grid_width_title">Game width</string>
-    <string name="pref_grid_width_sum">The horizontal width in tiles that the map is</string>
+    <string name="pref_grid_width_title">Set map width.</string>
+    <string name="pref_grid_width_sum">Set the horizontal width of the map. Width is measured in tiles.</string>
     <string name="pref_grid_width_default">11</string>
 
-    <string name="pref_grid_height_title">Game height</string>
-    <string name="pref_grid_height_sum">The vertical height in tiles that the map is</string>
+    <string name="pref_grid_height_title">Set map height.</string>
+    <string name="pref_grid_height_sum">The vertical height of the map. Height is measured in tiles.</string>
     <string name="pref_grid_height_default">11</string>
 
 </resources>
