@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="@string/pref_background_music_key"
+        android:title="@string/pref_background_music_title"
+        android:summaryOn="@string/pref_background_music_sum_on"
+        android:summaryOff="@string/pref_background_music_sum_off"
+        android:defaultValue="@string/pref_background_music_default"/>
+
+    <CheckBoxPreference
+        android:key="@string/pref_sound_effects_key"
+        android:title="@string/pref_sound_effects_title"
+        android:summaryOn="@string/pref_sound_effects_sum_on"
+        android:summaryOff="@string/pref_sound_effects_sum_off"
+        android:defaultValue="@string/pref_sound_effects_default"/>
+
+    <CheckBoxPreference
+        android:key="@string/pref_touch_indicators_key"
+        android:title="@string/pref_touch_indicators_title"
+        android:summaryOn="@string/pref_touch_indicators_sum_on"
+        android:summaryOff="@string/pref_touch_indicators_sum_off"
+        android:defaultValue="@string/pref_touch_indicators_default"/>
+
+    <ListPreference
+        android:key="@string/pref_speed_key"
+        android:title="@string/pref_speed_title"
+        android:summary="@string/pref_speed_sum"
+        android:entries="@array/pref_speed_entries"
+        android:entryValues="@array/pref_speed_entry_values"
+        android:defaultValue="@string/pref_speed_default"/>
+
+    <ListPreference
+        android:key="@string/pref_grid_width_key"
+        android:title="@string/pref_grid_width_title"
+        android:summary="@string/pref_grid_width_sum"
+        android:entries="@array/pref_dimension_entries"
+        android:entryValues="@array/pref_dimension_entry_values"
+        android:defaultValue="@string/pref_grid_width_default"/>
+
+    <ListPreference
+        android:key="@string/pref_grid_height_key"
+        android:title="@string/pref_grid_height_title"
+        android:summary="@string/pref_grid_height_sum"
+        android:entries="@array/pref_dimension_entries"
+        android:entryValues="@array/pref_dimension_entry_values"
+        android:defaultValue="@string/pref_grid_height_default"/>
+
+</PreferenceScreen>

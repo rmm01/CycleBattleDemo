@@ -5,4 +5,45 @@
         <item>3</item>
         <item>4</item>
     </string-array>
+
+    <string-array name="pref_speed_entries">
+        <item>2 tiles per second</item>
+        <item>3 tiles per second</item>
+        <item>4 tiles per second</item>
+    </string-array>
+
+    <string-array name="pref_speed_entry_values">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="pref_dimension_entries">
+        <item>5 tiles</item>
+        <item>6 tiles</item>
+        <item>7 tiles</item>
+        <item>8 tiles</item>
+        <item>9 tiles</item>
+        <item>10 tiles</item>
+        <item>11 tiles</item>
+        <item>12 tiles</item>
+        <item>13 tiles</item>
+        <item>14 tiles</item>
+        <item>15 tiles</item>
+    </string-array>
+
+    <string-array name="pref_dimension_entry_values">
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+    </string-array>
+
 </resources>
