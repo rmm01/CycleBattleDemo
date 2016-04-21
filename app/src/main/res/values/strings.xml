@@ -14,6 +14,7 @@
     <string name="home_activity_play_game">Play Game</string>
     <string name="home_activity_how_to_play">How to Play</string>
     <string name="home_activity_rules">Rules</string>
+    <string name="home_activity_settings">Settings</string>
 
     <string name="home_activity_play_dialog_title">Select Number of Players</string>
     <string name="home_activity_play_dialog_negative_button">Cancel</string>

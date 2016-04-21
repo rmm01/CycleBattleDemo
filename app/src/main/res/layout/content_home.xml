@@ -75,6 +75,7 @@
             android:id="@+id/rules_button"
             android:layout_width="@dimen/button_width"
             android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/button_margin"
             android:layout_marginBottom="@dimen/button_margin"
             android:padding="@dimen/button_padding"
             android:gravity="center"
@@ -84,6 +85,20 @@
             android:textSize="@dimen/button_text_size"
             android:textStyle="bold"
             android:onClick="rules_button_clicked"/>
+
+        <TextView
+            android:id="@+id/settings_button"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginBottom="@dimen/button_margin"
+            android:padding="@dimen/button_padding"
+            android:gravity="center"
+            android:text="@string/home_activity_settings"
+            android:textColor="@color/colorPrimary"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textSize="@dimen/button_text_size"
+            android:textStyle="bold"
+            android:onClick="settings_button_clicked"/>
     </LinearLayout>
 
 </LinearLayout>

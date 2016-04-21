@@ -114,4 +114,10 @@ public class HomeActivity extends AppCompatActivity {
     public void rules_button_clicked(View view) {
         mRulesDialog.show();
     }
+
+
+    public void settings_button_clicked(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }
