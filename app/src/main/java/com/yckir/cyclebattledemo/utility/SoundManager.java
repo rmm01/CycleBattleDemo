@@ -3,6 +3,7 @@ package com.yckir.cyclebattledemo.utility;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -10,6 +11,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.util.Log;
 
@@ -30,6 +32,9 @@ import java.util.HashMap;
  * FINISHED_SOUND_ID, COUNTDOWN_SOUND_ID, PAUSE_SOUND_ID, and PROMPT_SOUND_ID.
  * <p>
  * Call release when you no longer need this object to release its resources.
+ * <p>
+ * Note: this class checks the preference for pref_background_music_key and pref_sound_effects_key.
+ * Methods related to either will do nothing if the preference is set to true.
  *
  */
 public class SoundManager {
@@ -68,6 +73,8 @@ public class SoundManager {
     private HashMap<Integer, Integer> mSoundPoolMap;
     private MediaPlayer mMediaPlayer;
     private AudioManager mAudioManager;
+    private boolean mSoundEffectsDisabled;
+    private boolean mBackgroundMusicDisabled;
 
 
     /**
@@ -84,18 +91,35 @@ public class SoundManager {
 
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-        createSoundPool();
-        prepareMediaPlayer(startTime);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 
-        mSoundPoolMap = new HashMap<>(10);
+        mBackgroundMusicDisabled = pref.getBoolean(
+                context.getResources().getString(R.string.pref_background_music_key), false );
 
-        mSoundPoolMap.put(TURN_SOUND_ID, mSoundPool.load(context, R.raw.turn_30ms,1));
-        mSoundPoolMap.put(CRASH_SOUND_ID, mSoundPool.load(context, R.raw.explosion_02,1));
-        mSoundPoolMap.put(FINISHED_SOUND_ID, mSoundPool.load(context, R.raw.chipquest,2));
-        mSoundPoolMap.put(COUNTDOWN_SOUND_ID, mSoundPool.load(context, R.raw.countdown,1));
-        mSoundPoolMap.put(PAUSE_SOUND_ID, mSoundPool.load(context, R.raw.pickup_01,2));
-        mSoundPoolMap.put(PROMPT_SOUND_ID, mSoundPool.load(context, R.raw.collect_point_00,1));
-        mSoundPoolMap.put(GO_SOUND_ID, mSoundPool.load(context, R.raw.go,1));
+        mSoundEffectsDisabled = pref.getBoolean(
+                context.getResources().getString(R.string.pref_sound_effects_key), false );
+
+
+        if( !mBackgroundMusicDisabled )
+            prepareMediaPlayer(startTime);
+        else
+            Log.v(TAG, "background music is disabled because of preference");
+
+        if( !mSoundEffectsDisabled) {
+            createSoundPool();
+
+            mSoundPoolMap = new HashMap<>(10);
+
+            mSoundPoolMap.put(TURN_SOUND_ID, mSoundPool.load(context, R.raw.turn_30ms, 1));
+            mSoundPoolMap.put(CRASH_SOUND_ID, mSoundPool.load(context, R.raw.explosion_02, 1));
+            mSoundPoolMap.put(FINISHED_SOUND_ID, mSoundPool.load(context, R.raw.chipquest, 2));
+            mSoundPoolMap.put(COUNTDOWN_SOUND_ID, mSoundPool.load(context, R.raw.countdown, 1));
+            mSoundPoolMap.put(PAUSE_SOUND_ID, mSoundPool.load(context, R.raw.pickup_01, 2));
+            mSoundPoolMap.put(PROMPT_SOUND_ID, mSoundPool.load(context, R.raw.collect_point_00, 1));
+            mSoundPoolMap.put(GO_SOUND_ID, mSoundPool.load(context, R.raw.go, 1));
+        }else{
+            Log.v(TAG, "sound effects are disabled because of preference");
+        }
     }
 
 
@@ -230,6 +254,8 @@ public class SoundManager {
      * @param id the id for a sound effect.
      */
     public void playSoundEffect(@SOUND_EFFECTS int id){
+        if( mSoundEffectsDisabled )
+            return;
         float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         mSoundPool.play(mSoundPoolMap.get(id),streamVolume,streamVolume,1,0,1);
@@ -240,6 +266,8 @@ public class SoundManager {
      * stop all sound effects.
      */
     public void stopSounds(){
+        if( mSoundEffectsDisabled )
+            return;
         mSoundPool.autoPause();
     }
 
@@ -250,6 +278,9 @@ public class SoundManager {
      * called before then.
      */
     public void playBackground(){
+        if( mBackgroundMusicDisabled )
+            return;
+
         //play the audio when onPrepared is called
         mPlayWhenReady = true;
 
@@ -276,6 +307,9 @@ public class SoundManager {
      * Pauses the background music if it is playing.
      */
     public void pauseBackground(){
+        if( mBackgroundMusicDisabled )
+            return;
+
         //set flag to make sure that nothing should play in the future.
         mPlayWhenReady = false;
 
@@ -300,6 +334,9 @@ public class SoundManager {
      * reused again.
      */
     public void stopBackground(){
+        if( mBackgroundMusicDisabled )
+            return;
+
         mPrepared = false;
         mPlayWhenReady = false;
 
@@ -319,6 +356,9 @@ public class SoundManager {
      * @param time the position of the song in milliseconds
      */
     public void seekToBackground(int time){
+        if( mBackgroundMusicDisabled )
+            return;
+
         //no flags need to be changed since seekTo is safe to call if playing or paused.
 
         //if media player doesn't exist or isn't prepared, it will start from beginning by default.
@@ -333,9 +373,13 @@ public class SoundManager {
 
 
     /**
-     * @return current time in milliseconds of the current position of background music.
+     * @return current time in milliseconds of the current position of background music, -1 if
+     * background music is disabled
      */
     public int getCurrentBackgroundTime(){
+        if( mBackgroundMusicDisabled )
+            return -1;
+
         return mMediaPlayer.getCurrentPosition();
     }
 
@@ -344,7 +388,9 @@ public class SoundManager {
      * releases this objects resources. Any instances holding this object should be set to null.
      */
     public void release(){
-        stopBackground();
-        mSoundPool.release();
+        if( !mBackgroundMusicDisabled )
+            stopBackground();
+        if( !mSoundEffectsDisabled )
+            mSoundPool.release();
     }
 }
