@@ -1,12 +1,17 @@
 package com.yckir.cyclebattledemo.utility;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MotionEventCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+
+import com.yckir.cyclebattledemo.R;
 
 import java.util.ArrayList;
 
@@ -19,22 +24,32 @@ import java.util.ArrayList;
 public class FourRegionSwipeDetector {
     public static final String TAG = "4_REGION_SWIPE_DETECTOR";
     public static final int MAX_NUM_FINGERS = 5;
+
     private final static double MIN_SWIPE_DISTANCE = 0;
     private ArrayList<SwipeMotionEvent> mEvents;
     private OnRegionSwipeListener mListener;
     private DisplayMetrics mDisplayMetrics;
-    public boolean mDisabled;
+
+    private boolean mDisabled;
+    private boolean mBoundariesDisabled;
     private int mNumRegions;
 
     /**
      * Create a swipe detector that determines what region on the device a swipe gesture occurred in.
      *
+     * @param context app context
      * @param numRegions the number of regions that will be checked. This value must be between 1
      *                   and 4, otherwise an error will be logged and a default value of 1 and 4
      *                   will be used.
      * @param listener a swipe listener that will be notified when swipes occur
      */
-    public FourRegionSwipeDetector(int numRegions, DisplayMetrics metrics, OnRegionSwipeListener listener){
+    public FourRegionSwipeDetector(Context context, int numRegions, DisplayMetrics metrics, OnRegionSwipeListener listener){
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        mBoundariesDisabled = pref.getBoolean(
+                context.getResources().getString(R.string.pref_touch_indicators_key) , false);
+
         mDisplayMetrics = metrics;
 
         mEvents = new ArrayList<>(MAX_NUM_FINGERS);
@@ -288,10 +303,15 @@ public class FourRegionSwipeDetector {
 
 
     /**
-     * Draw the boundaries for touch region
-     * @param canvas
+     * Draw the boundaries for touch region. This method will do nothing if the preference
+     * pref_touch_indicators_key is true;
+     *
+     * @param canvas canvas to draw on
      */
     public void drawTouchBoundaries(Canvas canvas){
+        if(mBoundariesDisabled)
+            return;
+
         float lineWidth = 5 * mDisplayMetrics.density;
         int width = mDisplayMetrics.widthPixels;
         int height = mDisplayMetrics.heightPixels;
