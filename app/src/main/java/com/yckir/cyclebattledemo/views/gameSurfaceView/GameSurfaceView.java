@@ -1,11 +1,13 @@
 package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -55,6 +57,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private long mStartTime;
     private long mPauseTime;
     private long mTotalPauseDelay;
+    private String mNumTilesX;
+    private String mNumTilesY;
 
 
     /**
@@ -79,8 +83,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         //get custom xml attributes
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs, R.styleable.GameSurfaceView, 0, 0);
-        int numTilesX = a.getInt(R.styleable.GameSurfaceView_tiles_x, 6);
-        int numTilesY = a.getInt(R.styleable.GameSurfaceView_tiles_y, 6);
         int numCycles = a.getInt(R.styleable.GameSurfaceView_cycles, 1);
         int boarderColor = a.getColor(R.styleable.GameSurfaceView_boarder_color, 0);
         //int backgroundColor = a.getColor(R.styleable.GameSurfaceView_background_color,0);
@@ -90,11 +92,21 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mHolder = getHolder();
         mHolder.addCallback(this);
 
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        mNumTilesX = pref.getString(
+                context.getResources().getString(R.string.pref_grid_width_key) ,
+                context.getResources().getString(R.string.pref_grid_width_default));
+
+        mNumTilesY = pref.getString(
+                context.getResources().getString(R.string.pref_grid_height_key) ,
+                context.getResources().getString(R.string.pref_grid_height_default));
+
         //width and height are unknown so the default size for frame and container is used
-        mGameManager = new GameManager(getContext(), numTilesX, numTilesY, numCycles);
+        mGameManager = new GameManager(getContext(), Integer.parseInt(mNumTilesX), Integer.parseInt(mNumTilesY), numCycles);
         mRectangleContainer = new RectangleContainer(boarderColor,borderSize);
 
-        mSwipeListener = new FourRegionSwipeDetector(numCycles,
+        mSwipeListener = new FourRegionSwipeDetector(getContext(), numCycles,
                 context.getResources().getDisplayMetrics(), this);
 
         mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer, SurfaceDrawingTask.FULL_DRAW);
@@ -318,7 +330,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
 
-        String fileName = "MultiplayerBackgroundImage_"+width+"x"+height+".png";
+        String fileName = FileUtility.getBackgroundFileName(width, height,
+                Integer.parseInt(mNumTilesX), Integer.parseInt(mNumTilesY));
+
         File backgroundFile = createBackgroundImage(fileName);
         if(backgroundFile != null)
             mGameEventListener.backgroundReady(backgroundFile);
