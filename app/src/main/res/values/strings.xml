@@ -57,6 +57,7 @@
     <string name="pref_speed_key">pref_speed</string>
     <string name="pref_grid_width_key">pref_grid_width</string>
     <string name="pref_grid_height_key">pref_grid_height</string>
+    <string name="pref_credits_key">pref_credits</string>
 
     <string name="pref_background_music_title">Disable background music.</string>
     <string name="pref_background_music_sum_on">Background music is disabled.</string>
@@ -85,4 +86,22 @@
     <string name="pref_grid_height_sum">The vertical height of the map. Height is measured in tiles.</string>
     <string name="pref_grid_height_default">11</string>
 
+    <string name="pref_credits_title">Credits</string>
+
+    <!-- CreditsActivity -->
+
+    <string name="link1"><a href="http://opengameart.org/content/2d-spaceship-10">Skorpio</a></string>
+
+    <string name="link2"><a href="http://opengameart.org/content/battle-the-outsiders">Eddie Hoyt</a></string>
+    <string name="link3"><a href="http://opengameart.org/content/8-bit-music-pack-loopable">RevampedPRO</a></string>
+
+    <string name="link4"><a href="http://opengameart.org/content/level-up-sound-effects">Bart Kelsey</a></string>
+    <string name="link5"><a href="http://opengameart.org/content/countdown">Destructavator</a></string>
+    <string name="link6"><a href="http://opengameart.org/content/8-bit-sound-effects-library">Little Robot Sound Factory</a></string>
+    <string name="link7"><a href="http://opengameart.org/content/car-tire-squeal-skid-loop">Tom Haigh</a></string>
+
+    <string name="credits_title">Credits</string>
+    <string name="credits_art">Art</string>
+    <string name="credits_music">Music</string>
+    <string name="credits_sound_effects">Sound effects</string>
 </resources>

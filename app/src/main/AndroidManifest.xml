@@ -24,12 +24,15 @@
             android:label="@string/title_activity_practice_game"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".activities.TestTouchActivity" >
-        </activity>
-        <activity android:name=".activities.TestSoundActivity" >
-        </activity>
-        <activity android:name=".activities.SettingsActivity" >
-        </activity>
+
+        <activity android:name=".activities.TestTouchActivity" />
+
+        <activity android:name=".activities.TestSoundActivity" />
+
+        <activity android:name=".activities.SettingsActivity" />
+
+        <activity android:name=".activities.CreditsActivity" />
+
     </application>
 
 </manifest>

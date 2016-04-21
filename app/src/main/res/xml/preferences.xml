@@ -47,4 +47,7 @@
         android:entryValues="@array/pref_dimension_entry_values"
         android:defaultValue="@string/pref_grid_height_default"/>
 
+    <Preference
+        android:key="@string/pref_credits_key"
+        android:title="@string/pref_credits_title"/>
 </PreferenceScreen>
