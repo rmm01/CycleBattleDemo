@@ -16,4 +16,7 @@
     <dimen name="results_listView_pading">10dp</dimen>
     <dimen name="results_textView_padding_top">20dp</dimen>
 
+    <dimen name="credits_horizontal_padding">20dp</dimen>
+    <dimen name="credits_vertical_padding">10dp</dimen>
+
 </resources>
