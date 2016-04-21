@@ -1,12 +1,14 @@
 package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 
@@ -37,7 +39,6 @@ public class Cycle extends GridRectangle {
     private static final String     Y_KEY           =   TAG + ":Y";
     private static final String     WIDTH_KEY       =   TAG + ":WIDTH";
     private static final String     HEIGHT_KEY      =   TAG + ":HEIGHT";
-    private static final int        DEFAULT_SPEED   =   3;
     private final String TAG_ID;
     private Drawable mCycleImageN;
     private Drawable mCycleImageS;
@@ -107,16 +108,24 @@ public class Cycle extends GridRectangle {
      */
     public Cycle(Context context, double centerX, double centerY, double width, double height, int cycleId) {
         super(centerX, centerY, width, height);
-        mCycleId=cycleId;
-        TAG_ID = "-Cycle_"+mCycleId;
-        mLinePaint =new Paint();
-        mSpeed=DEFAULT_SPEED;
-        mDirection=Compass.SOUTH;
-        mCrashed=false;
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String speed = pref.getString(
+                context.getResources().getString(R.string.pref_speed_key) ,
+                context.getResources().getString(R.string.pref_speed_default));
+
+        mSpeed = Integer.parseInt(speed);
+
+        mCycleId = cycleId;
+        TAG_ID = "-Cycle_" + mCycleId;
+        mLinePaint = new Paint();
+        mDirection = Compass.SOUTH;
+        mCrashed = false;
         mCrashTime = DEFAULT_TIME;
         mPlace = DEFAULT_PLACE;
         setIdAttributes(context);
-        mPath=new LinePath(getRearX(),getRearY(),0,mDirection);
+        mPath=new LinePath(getRearX(), getRearY(), 0, mDirection);
     }
 
 
