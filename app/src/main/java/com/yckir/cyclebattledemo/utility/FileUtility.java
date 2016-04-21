@@ -83,6 +83,20 @@ public class FileUtility {
 
 
     /**
+     * Get the name of backgroundFile for the following parameters.
+     *
+     * @param width the width in pixels of the image
+     * @param height the height in pixels of the image
+     * @param numTilesX the number of tiles in the x direction
+     * @param numTilesY the number of tiles in the y direction
+     * @return the file name of the background image.
+     */
+    public static String getBackgroundFileName(int width, int height, int numTilesX, int numTilesY){
+        return "MultiplayerBackgroundImage_" + width + "x" + height + "_" + numTilesX +"x" +numTilesY + ".png";
+    }
+
+
+    /**
      * Check to see if a file exists for the given file name in the background directory of
      * the internal private storage.
      *
