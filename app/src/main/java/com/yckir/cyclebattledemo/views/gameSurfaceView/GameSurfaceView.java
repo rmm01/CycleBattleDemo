@@ -412,6 +412,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {
+        //redraw the canvas without the swipe indicators
+        Canvas c = mHolder.lockCanvas();
+        mSurfaceDrawingTask.draw(c);
+        mHolder.unlockCanvasAndPost(c);
+
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
             mGameEventListener.gameEnded(mGameManager.generateResults());
