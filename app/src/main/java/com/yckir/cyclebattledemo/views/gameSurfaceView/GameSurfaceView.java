@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -122,10 +121,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * {@link com.yckir.cyclebattledemo.views.gameSurfaceView.SurfaceDrawingTask.Draw_Mode}
      *  of mSurfaceDrawingTask.
      *
-     * @param fileName the name of the Background file.
+     * @param width the width in pixels of the image
+     * @param height the height in pixels of the image
+     * @param numTilesX the number of tiles in the x direction
+     * @param numTilesY the number of tiles in the y direction
      * @return File of the background image, null if the file could not be made,
      */
-    private File createBackgroundImage(String fileName){
+    private File createBackgroundImage(int width, int height, int numTilesX, int numTilesY){
+
+        String fileName = FileUtility.getBackgroundFileName(width, height,
+                numTilesX, numTilesY);
 
         //if file exists, set the mode and return
         if(FileUtility.backgroundFileExists(fileName, getContext())){
@@ -310,12 +315,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.v(TAG, "surfaceCreated");
-        Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
-        holder.unlockCanvasAndPost(canvas);
-    }
+    public void surfaceCreated(SurfaceHolder holder) {}
 
 
     @Override
@@ -330,10 +330,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
 
-        String fileName = FileUtility.getBackgroundFileName(width, height,
+        File backgroundFile = createBackgroundImage(width, height,
                 Integer.parseInt(mNumTilesX), Integer.parseInt(mNumTilesY));
 
-        File backgroundFile = createBackgroundImage(fileName);
         if(backgroundFile != null)
             mGameEventListener.backgroundReady(backgroundFile);
 
@@ -345,9 +344,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.v(TAG, "surfaceDestroyed");
-    }
+    public void surfaceDestroyed(SurfaceHolder holder) {}
 
 
     //this method is used so that android studio can render the view
