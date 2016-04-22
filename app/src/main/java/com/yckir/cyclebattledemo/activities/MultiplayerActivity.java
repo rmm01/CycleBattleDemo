@@ -50,6 +50,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private int mCountdownAlarmId       =   20000;
     private int mResumeAlarmId          =   30000;
     private int mResultsAlarmId         =   40000;
+    private int mCountdownPromptAlarmId =   50000;
     private int mStartBackgroundTime    =   0;
 
     private AlarmHandler mAlarm;
@@ -62,7 +63,12 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private TextView mStartPrompt;
     private TextView mResumePrompt;
     private TextView mNewGamePrompt;
+    private TextView mCountdownPrompt;
 
+    private String READY;
+    private String SET;
+    private String GO;
+    private String WAIT;
 
     /**
      * initialize the pause dialog.
@@ -92,7 +98,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     /**
-     * Pauses the game if a match is running.
+     * Pauses the game if a match is running. Cancel any pending alarms
+     * since the game is being paused.
      */
     private void pauseGame(){
         final int state = mGameSurfaceView.getState();
@@ -101,6 +108,9 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
             case GameSurfaceView.WAITING:
                 mStartAlarmId ++;
                 mCountdownAlarmId ++;
+                mCountdownPromptAlarmId ++;
+                mCountdownPrompt.setVisibility(View.INVISIBLE);
+                mCountdownPrompt.setText(WAIT);
                 mStartPrompt.setVisibility(View.VISIBLE);
                 break;
             case GameSurfaceView.RUNNING:
@@ -112,6 +122,9 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
             case GameSurfaceView.PAUSED:
                 mResumeAlarmId ++;
                 mCountdownAlarmId ++;
+                mCountdownPromptAlarmId ++;
+                mCountdownPrompt.setVisibility(View.INVISIBLE);
+                mCountdownPrompt.setText(WAIT);
                 mResumePrompt.setVisibility(View.VISIBLE);
                 break;
             case GameSurfaceView.FINISHED:
@@ -157,7 +170,13 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mStartPrompt = (TextView)findViewById(R.id.start_prompt);
         mResumePrompt = (TextView)findViewById(R.id.resume_prompt);
         mNewGamePrompt = (TextView) findViewById(R.id.new_game_prompt);
+        mCountdownPrompt = (TextView)findViewById(R.id.countdown);
         mBackgroundView = (ImageView)findViewById(R.id.background_image_view);
+
+        READY = getResources().getString(R.string.countdown_ready);
+        SET = getResources().getString(R.string.countdown_set);
+        GO = getResources().getString(R.string.countdown_go);
+        WAIT = getResources().getString(R.string.countdown_wait);
 
         mGameSurfaceView.addGameEventListener(this);
         mGameSurfaceView.setZOrderOnTop(true);
@@ -253,6 +272,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mAlarm.setAlarm(1000, mCountdownAlarmId);
         //play go sound and start the game in 2 seconds
         mAlarm.setAlarm(2000, mStartAlarmId);
+        // disables visual prompt for when the game will start
+        mAlarm.setAlarm(2500, mCountdownPromptAlarmId);
     }
 
 
@@ -271,6 +292,8 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mAlarm.setAlarm(1000, mCountdownAlarmId);
         //play go sound and start the game in 2 seconds
         mAlarm.setAlarm(2000, mResumeAlarmId);
+        // disables visual prompt for when the game will start
+        mAlarm.setAlarm(2500, mCountdownPromptAlarmId);
     }
 
 
@@ -353,6 +376,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public void alarm(int id) {
         if( id == mStartAlarmId ){
+            mCountdownPrompt.setText(GO);
             mGameSurfaceView.start(System.currentTimeMillis());
             mSoundManager.playBackground();
             mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
@@ -360,11 +384,23 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         }
 
         if( id == mCountdownAlarmId ){
+            String text = (String) mCountdownPrompt.getText();
+
+            //mCountDownAlarm gets called twice, the text that should
+            //be shown will be "ready" or "set"
+            if(text.equals(WAIT))
+                mCountdownPrompt.setText(READY);
+
+            if(text.equals(READY))
+                mCountdownPrompt.setText(SET);
+
+            mCountdownPrompt.setVisibility(View.VISIBLE);
             mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
             return;
         }
 
         if( id == mResumeAlarmId ){
+            mCountdownPrompt.setText(GO);
             mGameSurfaceView.resume(System.currentTimeMillis());
             mSoundManager.playBackground();
             mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
@@ -374,7 +410,12 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
             mNewGamePrompt.setVisibility(View.VISIBLE);
         }
 
-        Log.v( TAG, "received invalid id " + id );
+        if( id == mCountdownPromptAlarmId){
+            mCountdownPrompt.setVisibility(View.INVISIBLE);
+            mCountdownPrompt.setText(WAIT);
+        }
+
+
     }
 
 

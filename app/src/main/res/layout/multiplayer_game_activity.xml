@@ -22,6 +22,17 @@
         app:cycles="2"/>
 
     <TextView
+        android:id="@+id/countdown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingTop="@dimen/results_textView_padding_top"
+        android:visibility="invisible"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/button_text_size"
+        android:text="@string/countdown_wait"/>
+
+    <TextView
         android:id="@+id/start_prompt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -43,7 +54,6 @@
         android:textSize="@dimen/button_text_size"
         android:onClick="resumeClick"
         android:text="@string/resume_prompt"/>
-
 
     <TextView
         android:id="@+id/new_game_prompt"
