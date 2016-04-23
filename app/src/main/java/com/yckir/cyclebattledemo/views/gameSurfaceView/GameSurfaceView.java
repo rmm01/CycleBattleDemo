@@ -5,9 +5,12 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -49,6 +52,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private GameEventListener mGameEventListener = null;
     private SurfaceHolder mHolder;
     private FourRegionSwipeDetector mSwipeListener;
+    private Paint mPromptPaint;
 
     private int mWidth;
     private int mHeight;
@@ -58,6 +62,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private long mTotalPauseDelay;
     private String mNumTilesX;
     private String mNumTilesY;
+    private String mPromptText = null;
 
 
     /**
@@ -78,6 +83,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mWidth=0;
         mHeight=0;
         mGameEventListener = null;
+
+        mPromptPaint = new Paint();
+        mPromptPaint.setColor(Color.BLUE);
+        mPromptPaint.setTextSize(45);//TODO:
+        mPromptPaint.setTextAlign(Paint.Align.CENTER);
 
         //get custom xml attributes
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -270,6 +280,24 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
+     * set the text that you want to display near the top of the view. Text will not be shown while
+     * the game is running. redrawView() must be called to see changes. Will not redraw if in RUNNING State
+     *
+     * @param text text to be displayed.
+     * @param redraw true if you want to redraw teh screen, false if not
+     */
+    public void setText(@NonNull String text, boolean redraw){
+        mPromptText = text;
+
+        if(mState == RUNNING)
+            return;
+
+        if(redraw)
+            redrawView();
+    }
+
+
+    /**
      * Gets string form of the current state of the game.
      *
      * @return string form of Paused, Running, Waiting, or Finished
@@ -299,9 +327,25 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
+     * Remove any text that is shown on the view. redrawView() must be called to see changes. Will not redraw if in RUNNING state
+     *
+     * @param redraw true if you want to redraw teh screen, false if not
+     */
+    public void removeText(boolean redraw){
+        mPromptText = null;
+
+        if(mState == RUNNING)
+            return;
+
+        if(redraw)
+            redrawView();
+    }
+
+
+    /**
      * Causes the GameSurfaceView to redraw itself with the touchBoundaries
-     * if they are enabled. This method will do nothing if in RUNNING state
-     * because the drawing thread is constantly redrawing.
+     * if they are enabled and any text that has been set. This method will do nothing if in
+     * RUNNING state because the drawing thread is constantly redrawing.
      */
     public void redrawView(){
         if(mState == RUNNING)
@@ -309,6 +353,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = mHolder.lockCanvas();
         mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
+        if(mPromptText != null) {
+            int xPos = (canvas.getWidth() / 2);
+            int yPos = canvas.getHeight() / 10;
+            canvas.drawText(mPromptText, xPos, yPos, mPromptPaint);
+        }
         mHolder.unlockCanvasAndPost(canvas);
     }
 
