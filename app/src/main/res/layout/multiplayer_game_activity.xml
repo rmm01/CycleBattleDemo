@@ -29,8 +29,7 @@
         android:paddingTop="@dimen/results_textView_padding_top"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/button_text_size"
-        android:onClick="startClick"
-        android:text="@string/start_prompt"/>
+        android:onClick="startClick"/>
 
     <TextView
         android:id="@+id/resume_prompt"
@@ -41,8 +40,7 @@
         android:visibility="invisible"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/button_text_size"
-        android:onClick="resumeClick"
-        android:text="@string/resume_prompt"/>
+        android:onClick="resumeClick"/>
 
     <TextView
         android:id="@+id/new_game_prompt"
@@ -53,8 +51,7 @@
         android:visibility="invisible"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/button_text_size"
-        android:onClick="newGameClick"
-        android:text="@string/new_game_prompt"/>
+        android:onClick="newGameClick"/>
 
     <Button
         android:id="@+id/info_button"

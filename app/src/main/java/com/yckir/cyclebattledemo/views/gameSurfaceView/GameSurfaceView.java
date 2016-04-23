@@ -40,6 +40,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public  static final int        FINISHED                =   3;
     private static final String     WIDTH_KEY               =   TAG + ":HEIGHT";
     private static final String     HEIGHT_KEY              =   TAG + ":WIDTH";
+    private static final String     TEXT_KEY                =   TAG + ":TEXT";
     private static final String     STATE_KEY               =   TAG + ":STATE";
     private static final String     START_TIME_KEY          =   TAG + ":START_TIME";
     private static final String     PAUSE_TIME_KEY          =   TAG + ":PAUSE_TIME";
@@ -62,7 +63,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private long mTotalPauseDelay;
     private String mNumTilesX;
     private String mNumTilesY;
-    private String mPromptText = null;
+    private String mPromptText = "";
 
 
     /**
@@ -332,7 +333,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param redraw true if you want to redraw teh screen, false if not
      */
     public void removeText(boolean redraw){
-        mPromptText = null;
+        mPromptText = "";
 
         if(mState == RUNNING)
             return;
@@ -353,7 +354,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = mHolder.lockCanvas();
         mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
-        if(mPromptText != null) {
+        if(mPromptText.compareTo("") != 0) {
             int xPos = (canvas.getWidth() / 2);
             int yPos = canvas.getHeight() / 10;
             canvas.drawText(mPromptText, xPos, yPos, mPromptPaint);
@@ -428,6 +429,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         bundle.putParcelable("instanceState", super.onSaveInstanceState());
         bundle.putInt(WIDTH_KEY, mWidth);
         bundle.putInt(HEIGHT_KEY, mHeight);
+        bundle.putString(TEXT_KEY, mPromptText);
         bundle.putInt(STATE_KEY, mState);
         bundle.putLong(START_TIME_KEY, mStartTime);
         bundle.putLong(PAUSE_TIME_KEY, mPauseTime);
@@ -444,6 +446,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             mWidth = bundle.getInt(WIDTH_KEY, 200);
             mHeight = bundle.getInt(HEIGHT_KEY, 200);
+            mPromptText = bundle.getString(TEXT_KEY);
             mState = bundle.getInt(STATE_KEY, WAITING);
             mStartTime = bundle.getLong(START_TIME_KEY, 0);
             mPauseTime = bundle.getLong(PAUSE_TIME_KEY,0);
