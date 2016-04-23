@@ -243,10 +243,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mSurfaceDrawingTask.addDrawingEventListener(this);
         mSurfaceDrawingTask.addGameEventListener(mGameEventListener);
         mSurfaceDrawingTask.setSwipeDetector(mSwipeListener);
-        Canvas canvas = mHolder.lockCanvas();
-        mSurfaceDrawingTask.draw(canvas);
-        mSwipeListener.drawTouchBoundaries(canvas);
-        mHolder.unlockCanvasAndPost(canvas);
+        redrawView();
     }
 
 
@@ -302,6 +299,21 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
+     * Causes the GameSurfaceView to redraw itself with the touchBoundaries
+     * if they are enabled. This method will do nothing if in RUNNING state
+     * because the drawing thread is constantly redrawing.
+     */
+    public void redrawView(){
+        if(mState == RUNNING)
+            return;
+        Canvas canvas = mHolder.lockCanvas();
+        mSurfaceDrawingTask.draw(canvas);
+        mSwipeListener.drawTouchBoundaries(canvas);
+        mHolder.unlockCanvasAndPost(canvas);
+    }
+
+
+    /**
      * Change the direction of the cycle if the input is valid.
      *
      * @param cycleNum the id for the cycle
@@ -336,10 +348,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         if(backgroundFile != null)
             mGameEventListener.backgroundReady(backgroundFile);
 
-        Canvas canvas = holder.lockCanvas();
-        mSurfaceDrawingTask.draw(canvas);
-        mSwipeListener.drawTouchBoundaries(canvas);
-        holder.unlockCanvasAndPost(canvas);
+        redrawView();
     }
 
 
@@ -410,9 +419,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {
         //redraw the canvas without the swipe indicators
-        Canvas c = mHolder.lockCanvas();
-        mSurfaceDrawingTask.draw(c);
-        mHolder.unlockCanvasAndPost(c);
+        redrawView();
 
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
