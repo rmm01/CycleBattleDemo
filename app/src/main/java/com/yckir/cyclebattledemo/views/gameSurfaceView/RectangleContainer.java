@@ -14,10 +14,6 @@ public class RectangleContainer {
     public static final String      TAG                     =   "RECTANGLE_CONTAINER";
     public static final int         DEFAULT_BORDER_LENGTH   =   10;
 
-    //the space between the edge of the container and the inner rectangle
-    private int mGridPaddingX;
-    private int mGridPaddingY;
-
     private int mWidth;
     private int mHeight;
     private int mRectangleWidth;
@@ -47,15 +43,13 @@ public class RectangleContainer {
      *                     faces. The boarder is DEFAULT_BORDER_LENGTH if this value is negative.
      */
     public RectangleContainer(int borderColor, int borderLength){
-        if(borderLength<0)
-            mBorderLength=DEFAULT_BORDER_LENGTH;
+        if(borderLength < 0)
+            mBorderLength = DEFAULT_BORDER_LENGTH;
         else
-            mBorderLength=borderLength;
+            mBorderLength = borderLength;
 
-        mWidth=4*borderLength;
-        mHeight=4*borderLength;
-        mGridPaddingX= mBorderLength;
-        mGridPaddingY= mBorderLength;
+        mWidth = 4 * borderLength;
+        mHeight = 4 * borderLength;
 
         calculateDimensions();
 
@@ -90,18 +84,18 @@ public class RectangleContainer {
      * border edges. This must be called before setContainerSize
      */
     private void calculateDimensions(){
-        mRectangleWidth =mWidth-mGridPaddingX*2;
-        mRectangleHeight =mHeight-mGridPaddingY*2;
+        mRectangleWidth  = mWidth - mBorderLength * 2;
+        mRectangleHeight = mHeight - mBorderLength * 2;
 
-        mLeft=mGridPaddingX;
-        mRight=mWidth-mGridPaddingX;
-        mTop=mGridPaddingY;
-        mBottom=mHeight-mGridPaddingY;
+        mLeft   = mBorderLength;
+        mRight  = mWidth - mBorderLength;
+        mTop    = mBorderLength;
+        mBottom = mHeight - mBorderLength;
 
-        mLeftOuter=mLeft - mBorderLength;
-        mRightOuter=mRight + mBorderLength;
-        mTopOuter=mTop - mBorderLength;
-        mBottomOuter = mBottom+mBorderLength;
+        mLeftOuter   = mLeft   - mBorderLength;
+        mRightOuter  = mRight  + mBorderLength;
+        mTopOuter    = mTop    - mBorderLength;
+        mBottomOuter = mBottom + mBorderLength;
     }
 
 
@@ -112,8 +106,8 @@ public class RectangleContainer {
      * @param height the new height of the canvas
      */
     public void setContainerSize(int width, int height){
-        mWidth=width;
-        mHeight=height;
+        mWidth = width;
+        mHeight = height;
 
         calculateDimensions();
     }
@@ -221,8 +215,6 @@ public class RectangleContainer {
     @Override
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);
-        description.addMember("mGridPaddingX", mGridPaddingX);
-        description.addMember("mGridPaddingY", mGridPaddingY);
         description.addMember("mWidth", mWidth);
         description.addMember("mHeight", mHeight);
         description.addMember("mRectangleWidth", mRectangleWidth);
