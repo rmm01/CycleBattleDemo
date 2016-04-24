@@ -69,7 +69,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     /**
      * constructs the view. Custom xml attributes are read. default values are
-     * tiles_x = 6, tiles_y = 6, cycles = 1, border_length = 10 and all colors are black.
+     * tiles_x = 6, tiles_y = 6, cycles = 1, border_length = 10. All default colors are black except
+     * for text which is blue.
      * GameContainer, GameManager, and SurfaceDrawingTask are constructed using these attributes.
      *
      * @param context context
@@ -86,17 +87,15 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mHeight=0;
         mGameEventListener = null;
 
-        mPromptPaint = new Paint();
-        mPromptPaint.setColor(Color.BLUE);
-        mPromptPaint.setTextSize(45);//TODO:
-        mPromptPaint.setTextAlign(Paint.Align.CENTER);
-
         //get custom xml attributes
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs, R.styleable.GameSurfaceView, 0, 0);
         int numCycles = a.getInt(R.styleable.GameSurfaceView_cycles, 1);
-        int boarderColor = a.getColor(R.styleable.GameSurfaceView_boarder_color, 0);
+        int boarderColor = a.getColor(R.styleable.GameSurfaceView_boarder_color, Color.BLACK);
+        int paddingColor = a.getColor(R.styleable.GameSurfaceView_padding_color, Color.BLACK);
+        int textColor = a.getColor(R.styleable.GameSurfaceView_text_color, Color.BLUE);
         int borderSize=a.getDimensionPixelSize(R.styleable.GameSurfaceView_border_length, 10);
+
         a.recycle();
 
         mHolder = getHolder();
@@ -114,7 +113,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         //width and height are unknown so the default size for frame and container is used
         mGameManager = new GameManager(getContext(), Integer.parseInt(mNumTilesX), Integer.parseInt(mNumTilesY), numCycles);
-        mRectangleContainer = new RectangleContainer(boarderColor,borderSize);
+        mRectangleContainer = new RectangleContainer(boarderColor, paddingColor, borderSize);
+
+        mPromptPaint = new Paint();
+        mPromptPaint.setColor(textColor);
+        mPromptPaint.setTextSize(45);//TODO:
+        mPromptPaint.setTextAlign(Paint.Align.CENTER);
 
         mSwipeListener = new FourRegionSwipeDetector(getContext(), numCycles,
                 context.getResources().getDisplayMetrics(), this);
@@ -393,6 +397,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mWidth=width;
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
+            mRectangleContainer.setVerticalPadding(0.05);
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
 

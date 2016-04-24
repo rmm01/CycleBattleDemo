@@ -3,6 +3,8 @@
     <declare-styleable name="GameSurfaceView">
         <attr name="cycles" format="integer"/>
         <attr name="boarder_color" format="color"/>
+        <attr name="padding_color" format="color"/>
+        <attr name="text_color" format="color"/>
         <attr name="border_length" format="dimension"/>
     </declare-styleable>
 </resources>
