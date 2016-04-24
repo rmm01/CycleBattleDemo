@@ -3,6 +3,7 @@ package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.graphics.Canvas;
 
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.support.annotation.IntDef;
 import android.util.Log;
@@ -63,6 +64,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
     private long mTotalUpdatePositionDelay;
     private long mTotalDrawDelay;
     private int mDrawingMode;
+    private int mFrames = 0 ;
 
 
     /**
@@ -124,7 +126,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
         // the rectangle color is changed so that the modes can be distinguished while debugging
         //TODO: remove me for final product
         if(mode == FULL_DRAW)
-           mRectangleContainer.useRedBoarder();
+           mRectangleContainer.useBlackBoarder();
 
         if(mode == BACKGROUND_DRAW)
             mRectangleContainer.useOriginalPaint();
@@ -153,9 +155,10 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
     @Override
     protected Void doInBackground(Long... params) {
         long start =params[0];
-        long frameStartTime;
+        long frameStartTime = 1;
         Log.v(TAG, "starting at time " + start);
         while (mGameManager.isRunning()) {
+            mFrames ++;
             frameStartTime = System.currentTimeMillis() - start;
 
             if(mGameManager.checkDirectionChangeRequests()){
@@ -168,6 +171,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
             }
 
             Canvas canvas = mSurfaceHolder.lockCanvas();
+            canvas.drawColor(0, PorterDuff.Mode.CLEAR);
             draw(canvas);
             if (mDetector != null) {
                 mDetector.drawTouch(canvas);
@@ -175,7 +179,11 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
             }
             mSurfaceHolder.unlockCanvasAndPost(canvas);
         }
-        Log.v(TAG,"Done with task");
+        double time = frameStartTime /1000.0;
+        Log.v(TAG,"Done with task" +
+                ", frames = " + mFrames +
+                ", time = " +time +
+                ", fps = " + ((double)mFrames/time));
         return null;
     }
 

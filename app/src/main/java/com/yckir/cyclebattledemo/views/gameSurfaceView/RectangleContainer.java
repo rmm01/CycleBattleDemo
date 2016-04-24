@@ -36,7 +36,7 @@ public class RectangleContainer {
 
     private Paint mOriginalPaint;
     private Paint mBorderPaint;
-    private Paint mRedPaint;
+    private Paint mBlackPaint;
 
     /**
      * Sets the color of the canvas, the color of the border, and length of the border.
@@ -64,16 +64,16 @@ public class RectangleContainer {
 
         mBorderPaint = mOriginalPaint;
 
-        mRedPaint = new Paint();
-        mRedPaint.setColor(Color.RED);
+        mBlackPaint = new Paint();
+        mBlackPaint.setColor(Color.BLACK);
     }
 
 
     /**
-     * Uses red as rheboarder color from now on
+     * Uses black as the boarder color from now on.
      */
-    public void useRedBoarder(){
-        mBorderPaint = mRedPaint;
+    public void useBlackBoarder(){
+        mBorderPaint = mBlackPaint;
     }
 
 
@@ -83,6 +83,7 @@ public class RectangleContainer {
     public void useOriginalPaint(){
         mBorderPaint = mOriginalPaint;
     }
+
 
     /**
      * Calculates values that width and height of the inner rectangle along with teh position of the
@@ -181,9 +182,9 @@ public class RectangleContainer {
      * @param c the canvas that will be drawn on.
      */
     public void drawBorder(Canvas c){
-        //left wall
-        //c.drawColor(mBackgroundPaint.getColor());
+        c.drawColor(mBorderPaint.getColor());
 
+        //left wall
         c.drawRect(
                 mLeftOuter,
                 mTopOuter,

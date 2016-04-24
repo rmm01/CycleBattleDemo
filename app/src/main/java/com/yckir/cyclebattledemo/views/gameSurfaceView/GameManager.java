@@ -327,13 +327,11 @@ public class GameManager {
 
 
     /**
-     * Draw the animation onto a canvas. this clears the canvas making it transparent and
-     * then draws the path and cycles.
+     * Draw the animation onto a canvas. This draws the path and cycles.
      *
      * @param canvas the canvas to be drawn to.
      */
     public void drawAnimation(Canvas canvas){
-        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         drawPath(canvas);
         drawCycles(canvas);
     }

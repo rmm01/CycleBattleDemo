@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -354,6 +355,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         if(mState == RUNNING)
             return;
         Canvas canvas = mHolder.lockCanvas();
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
         if(mPromptText.compareTo("") != 0) {
