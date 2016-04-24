@@ -120,6 +120,14 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
      */
     public void setDrawMode(@Draw_Mode int mode){
         mDrawingMode = mode;
+
+        // the rectangle color is changed so that the modes can be distinguished while debugging
+        //TODO: remove me for final product
+        if(mode == FULL_DRAW)
+           mRectangleContainer.useRedBoarder();
+
+        if(mode == BACKGROUND_DRAW)
+            mRectangleContainer.useOriginalPaint();
     }
 
 

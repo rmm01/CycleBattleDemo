@@ -1,6 +1,7 @@
 package com.yckir.cyclebattledemo.views.gameSurfaceView;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.yckir.cyclebattledemo.utility.ClassStateString;
@@ -33,7 +34,9 @@ public class RectangleContainer {
     private int mBottomOuter;
     private int mBorderLength;
 
+    private Paint mOriginalPaint;
     private Paint mBorderPaint;
+    private Paint mRedPaint;
 
     /**
      * Sets the color of the canvas, the color of the border, and length of the border.
@@ -56,10 +59,30 @@ public class RectangleContainer {
 
         calculateDimensions();
 
-        mBorderPaint= new Paint();
-        mBorderPaint.setColor(borderColor);
+        mOriginalPaint = new Paint();
+        mOriginalPaint.setColor(borderColor);
+
+        mBorderPaint = mOriginalPaint;
+
+        mRedPaint = new Paint();
+        mRedPaint.setColor(Color.RED);
     }
 
+
+    /**
+     * Uses red as rheboarder color from now on
+     */
+    public void useRedBoarder(){
+        mBorderPaint = mRedPaint;
+    }
+
+
+    /**
+     * used the color given when the constructor was initialized as the boarder color.
+     */
+    public void useOriginalPaint(){
+        mBorderPaint = mOriginalPaint;
+    }
 
     /**
      * Calculates values that width and height of the inner rectangle along with teh position of the
