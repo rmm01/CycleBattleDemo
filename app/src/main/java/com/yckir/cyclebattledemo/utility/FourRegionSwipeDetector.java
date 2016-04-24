@@ -161,6 +161,10 @@ public class FourRegionSwipeDetector {
     public void disable(){
         mDisabled = true;
         mEvents.clear();
+        mEvents = new ArrayList<>(MAX_NUM_FINGERS);
+        for (int i = 0; i < MAX_NUM_FINGERS; i++){
+            mEvents.add(i,new SwipeMotionEvent());
+        }
     }
 
 

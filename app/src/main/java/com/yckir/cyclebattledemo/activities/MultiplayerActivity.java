@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -182,7 +181,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         mReadyText = res.getString(R.string.countdown_ready);
         mSetText = res.getString(R.string.countdown_set);
 
-        mGameSurfaceView.addGameEventListener(this);
+        mGameSurfaceView.setGameEventListener(this);
         mGameSurfaceView.setZOrderOnTop(true);
         mGameSurfaceView.getHolder().setFormat(PixelFormat.TRANSPARENT);
 

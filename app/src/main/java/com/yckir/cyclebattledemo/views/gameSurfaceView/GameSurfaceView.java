@@ -117,6 +117,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         mSwipeListener = new FourRegionSwipeDetector(getContext(), numCycles,
                 context.getResources().getDisplayMetrics(), this);
+        mSwipeListener.disable();
 
         mSurfaceDrawingTask=new SurfaceDrawingTask(mHolder, mGameManager, mRectangleContainer, SurfaceDrawingTask.FULL_DRAW);
         mSurfaceDrawingTask.addDrawingEventListener(this);
@@ -176,11 +177,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
-     * Add a listener that will respond to important game events.
+     * Set a listener that will respond to important game events.
      *
      * @param listener the listener that will be called notified when game events happen
      */
-    public void addGameEventListener(GameEventListener listener){
+    public void setGameEventListener(GameEventListener listener){
         mGameEventListener = listener;
         mSurfaceDrawingTask.addGameEventListener(mGameEventListener);
     }
@@ -193,7 +194,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      */
     public void start(long startTime){
         Log.v(TAG,"Starting at time " + startTime);
-
+        mSwipeListener.enable();
         mState=RUNNING;
         mStartTime=startTime;
         mGameManager.setRunning(true);
@@ -209,7 +210,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      */
     public void pause(long pauseTime){
         Log.v(TAG, "Pausing at time " + pauseTime);
-
+        mSwipeListener.disable();
         mState=PAUSED;
         mPauseTime=pauseTime;
         mGameManager.setRunning(false);
@@ -222,6 +223,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param resumeTime current time in milliseconds
      */
     public void resume(long resumeTime){
+        mSwipeListener.enable();
         mState=RUNNING;
         long pauseDelay = resumeTime - mPauseTime;
         mTotalPauseDelay+=pauseDelay;
@@ -242,6 +244,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * Revert the state to before start was called
      */
     public void newGame(){
+        mSwipeListener.disable();
         mState=WAITING;
         mStartTime=0;
         mPauseTime=0;
@@ -355,7 +358,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mSwipeListener.drawTouchBoundaries(canvas);
         if(mPromptText.compareTo("") != 0) {
             int xPos = (canvas.getWidth() / 2);
-            int yPos = canvas.getHeight() / 10;
+            int yPos = canvas.getHeight() / 20;
             canvas.drawText(mPromptText, xPos, yPos, mPromptPaint);
         }
         mHolder.unlockCanvasAndPost(canvas);
@@ -474,6 +477,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void taskEnded(ArrayList<GameManager.DirectionChangeRequest> list) {
         //redraw the canvas without the swipe indicators
         redrawView();
+        mSwipeListener.disable();
 
         if(mGameEventListener != null && mState == RUNNING) {
             mState=FINISHED;
