@@ -8,14 +8,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.yckir.cyclebattledemo.fragments.ResultsDialogFragment;
 import com.yckir.cyclebattledemo.utility.AlarmHandler;
@@ -41,11 +42,16 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     public  static final String     TAG                         =   "PRACTICE_GAME";
     public  static final String     NUM_PLAYERS_BUNDLE_KEY      =   TAG + ":NUM_PLAYERS";
-    private static final String     START_VISIBILITY_KEY        =   TAG + ":START_VISIBILITY";
-    private static final String     RESUME_VISIBILITY_KEY       =   TAG + ":RESUME_VISIBILITY";
-    private static final String     NEW_GAME_VISIBILITY_KEY     =   TAG + ":NEW_GAME_VISIBILITY";
+    private static final String     TOUCH_MODE_KEY              =   TAG + ":TOUCH_MODE";
     private static final String     BACKGROUND_TIME_KEY         =   TAG + ":BACKGROUND_TIME";
     private static final String     WINS_KEY                    =   TAG + ":WINS";
+
+    private static final int START_TOUCH_MODE = 0;
+    private static final int RESUME_TOUCH_MODE = 1;
+    private static final int NEW_GAME_TOUCH_MODE = 2;
+    private static final int NO_TOUCH_MODE = 3;
+
+    private int mTouchMode;
 
     private String mStartText;
     private String mNewGameText;
@@ -68,9 +74,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     private AlertDialog mPauseDialog;
     private GameSurfaceView mGameSurfaceView;
     private ImageView mBackgroundView;
-    private TextView mStartPrompt;
-    private TextView mResumePrompt;
-    private TextView mNewGamePrompt;
 
     /**
      * initialize the pause dialog.
@@ -111,21 +114,21 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
                 mStartAlarmId ++;
                 mReadyCountdownAlarmId ++;
                 mSetCountdownAlarmId ++;
-                mStartPrompt.setVisibility(View.VISIBLE);
+                mTouchMode = START_TOUCH_MODE;
                 mGameSurfaceView.setText(mStartText, true);
                 break;
             case GameSurfaceView.RUNNING:
                 mGameSurfaceView.pause(System.currentTimeMillis());
                 mSoundManager.pauseBackground();
                 mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
-                mResumePrompt.setVisibility(View.VISIBLE);
+                mTouchMode = RESUME_TOUCH_MODE;
                 mGameSurfaceView.setText(mResumeText, true);
                 break;
             case GameSurfaceView.PAUSED:
                 mResumeAlarmId ++;
                 mReadyCountdownAlarmId ++;
                 mSetCountdownAlarmId ++;
-                mResumePrompt.setVisibility(View.VISIBLE);
+                mTouchMode = RESUME_TOUCH_MODE;
                 mGameSurfaceView.setText(mResumeText, true);
                 break;
             case GameSurfaceView.FINISHED:
@@ -167,10 +170,9 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multiplayer_game_activity);
 
+        mTouchMode = START_TOUCH_MODE;
+
         mGameSurfaceView = (GameSurfaceView)findViewById(R.id.multiplayer_game_view);
-        mStartPrompt = (TextView)findViewById(R.id.start_prompt);
-        mResumePrompt = (TextView)findViewById(R.id.resume_prompt);
-        mNewGamePrompt = (TextView) findViewById(R.id.new_game_prompt);
         mBackgroundView = (ImageView)findViewById(R.id.background_image_view);
 
         Resources res = getResources();
@@ -221,11 +223,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, " onSaveInstanceState ");
-
-        outState.putBoolean(START_VISIBILITY_KEY, mStartPrompt.getVisibility() == View.VISIBLE);
-        outState.putBoolean(RESUME_VISIBILITY_KEY, mResumePrompt.getVisibility() == View.VISIBLE);
-        outState.putBoolean(NEW_GAME_VISIBILITY_KEY, mNewGamePrompt.getVisibility() == View.VISIBLE);
+        outState.putInt(TOUCH_MODE_KEY, mTouchMode);
         outState.putInt(BACKGROUND_TIME_KEY, mSoundManager.getCurrentBackgroundTime());
         outState.putSerializable(WINS_KEY, mWins);
 
@@ -235,15 +233,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v(TAG, " onRestoreInstanceState ");
-
-        boolean b1 = savedInstanceState.getBoolean(START_VISIBILITY_KEY);
-        boolean b3 = savedInstanceState.getBoolean(RESUME_VISIBILITY_KEY);
-        boolean b4 = savedInstanceState.getBoolean(NEW_GAME_VISIBILITY_KEY);
-
-        mStartPrompt.setVisibility(b1 ? View.VISIBLE : View.INVISIBLE);
-        mResumePrompt.setVisibility(b3 ? View.VISIBLE : View.INVISIBLE);
-        mNewGamePrompt.setVisibility(b4 ? View.VISIBLE : View.INVISIBLE);
+        mTouchMode = savedInstanceState.getInt(TOUCH_MODE_KEY);
         mStartBackgroundTime = savedInstanceState.getInt(BACKGROUND_TIME_KEY);
 
         mWins = (HashMap<String, Integer>) savedInstanceState.getSerializable(WINS_KEY);
@@ -260,74 +250,50 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     }
 
 
-    /**
-     * Called when the start text is pressed. Plays countdown sound effects and starts the game
-     * after 2 seconds if the game is no paused before then.
-     *
-     * @param view The start text view
-     */
-    public void startClick(View view){
-        mStartPrompt.setVisibility(View.INVISIBLE);
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(MotionEventCompat.getActionMasked(event) != MotionEvent.ACTION_UP) {
+            return super.onTouchEvent(event);
+        }
 
-        //play ready sound
-        alarm( mReadyCountdownAlarmId );
-        //play set sound in 1 second
-        mAlarm.setAlarm(1000, mSetCountdownAlarmId);
-        //play go sound and start the game in 2 seconds
-        mAlarm.setAlarm(2000, mStartAlarmId);
-    }
+        switch (mTouchMode){
+            case START_TOUCH_MODE:
+                mTouchMode = NO_TOUCH_MODE;
 
+                //play ready sound
+                alarm( mReadyCountdownAlarmId );
+                //play set sound in 1 second
+                mAlarm.setAlarm(1000, mSetCountdownAlarmId);
+                //play go sound and start the game in 2 seconds
+                mAlarm.setAlarm(2000, mStartAlarmId);
+                return true;
 
-    /**
-     * Called when the resume text is pressed. Plays countdown sound effects and resumes the game
-     * after 2 seconds if the game is not paused before then.
-     *
-     * @param view The resume text view
-     */
-    public void resumeClick(View view){
-        mResumePrompt.setVisibility(View.INVISIBLE);
+            case RESUME_TOUCH_MODE:
+                mTouchMode = NO_TOUCH_MODE;
 
-        //play ready sound
-        alarm( mReadyCountdownAlarmId );
-        //play set sound in 1 second
-        mAlarm.setAlarm(1000, mSetCountdownAlarmId);
-        //play go sound and start the game in 2 seconds
-        mAlarm.setAlarm(2000, mResumeAlarmId);
-    }
+                //play ready sound
+                alarm( mReadyCountdownAlarmId );
+                //play set sound in 1 second
+                mAlarm.setAlarm(1000, mSetCountdownAlarmId);
+                //play go sound and start the game in 2 seconds
+                mAlarm.setAlarm(2000, mResumeAlarmId);
+                return true;
 
+            case NEW_GAME_TOUCH_MODE:
+                mTouchMode = START_TOUCH_MODE;
+                mGameSurfaceView.setText(mStartText, false);
+                mGameSurfaceView.newGame();
+                mSoundManager.stopSounds();
+                mSoundManager.playSoundEffect(SoundManager.PROMPT_SOUND_ID);
+                return true;
 
-    /**
-     * Called when the NewGame text is pressed.
-     *
-     * @param view The NewGame text view
-     */
-    public void newGameClick(View view) {
-        mNewGamePrompt.setVisibility(View.INVISIBLE);
-        mStartPrompt.setVisibility(View.VISIBLE);
-        mGameSurfaceView.setText(mStartText, false);
-        mGameSurfaceView.newGame();
-        mSoundManager.stopSounds();
-        mSoundManager.playSoundEffect(SoundManager.PROMPT_SOUND_ID);
-    }
+            case NO_TOUCH_MODE:
+                return super.onTouchEvent(event);
+            default:
+                Log.e(TAG, "unknown touch mode = " + mTouchMode);
+                return super.onTouchEvent(event);
 
-
-    /**
-     * Logs the current state of the activity and its member variables.
-     *
-     * @param view the view of the Button pressed
-     */
-    public void logInfoButton(View view) {
-        String state = this.toString();
-        Log.v("STATE", state);
-    }
-
-
-    /**
-     * Called when the replay button is pressed.
-     * @param view view of the button that was pressed.
-     */
-    public void replayButton(View view){
-        mGameSurfaceView.replay();
+        }
     }
 
 
@@ -375,13 +341,6 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
     @Override
     public void alarm(int id) {
-        if( id == mStartAlarmId ){
-            mGameSurfaceView.start(System.currentTimeMillis());
-            mSoundManager.playBackground();
-            mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
-            return;
-        }
-
         if( id == mReadyCountdownAlarmId ){
             mGameSurfaceView.setText(mReadyText, true);
             mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
@@ -392,6 +351,13 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
             mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
         }
 
+        if( id == mStartAlarmId ){
+            mGameSurfaceView.start(System.currentTimeMillis());
+            mSoundManager.playBackground();
+            mSoundManager.playSoundEffect(SoundManager.GO_SOUND_ID);
+            return;
+        }
+
         if( id == mResumeAlarmId ){
             mGameSurfaceView.resume(System.currentTimeMillis());
             mSoundManager.playBackground();
@@ -399,7 +365,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         }
 
         if( id == mResultsAlarmId ){
-            mNewGamePrompt.setVisibility(View.VISIBLE);
+            mTouchMode = NEW_GAME_TOUCH_MODE;
             mGameSurfaceView.setText(mNewGameText, true);
         }
     }
@@ -408,9 +374,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public String toString() {
         ClassStateString description = new ClassStateString(TAG);
-        description.addMember("StartPromptVisible", mStartPrompt.getVisibility() == View.VISIBLE );
-        description.addMember("ResumeButtonVisible", mResumePrompt.getVisibility() == View.VISIBLE);
-        description.addMember("NewGameButtonVisible", mNewGamePrompt.getVisibility() == View.VISIBLE);
+        description.addMember("mTouchMode", mTouchMode);
         description.addClassMember("mGameSurfaceView", mGameSurfaceView);
         return description.getString();
     }

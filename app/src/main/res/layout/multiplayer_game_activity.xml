@@ -15,68 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:boarder_color="@color/colorAccent"
-        app:background_color="@color/colorPrimary"
         app:border_length="5dp"
-        app:tiles_x="11"
-        app:tiles_y="11"
         app:cycles="2"/>
-
-    <TextView
-        android:id="@+id/start_prompt"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:paddingTop="@dimen/results_textView_padding_top"
-        android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/button_text_size"
-        android:onClick="startClick"/>
-
-    <TextView
-        android:id="@+id/resume_prompt"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:paddingTop="@dimen/results_textView_padding_top"
-        android:visibility="invisible"
-        android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/button_text_size"
-        android:onClick="resumeClick"/>
-
-    <TextView
-        android:id="@+id/new_game_prompt"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:paddingTop="@dimen/results_textView_padding_top"
-        android:visibility="invisible"
-        android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/button_text_size"
-        android:onClick="newGameClick"/>
-
-    <Button
-        android:id="@+id/info_button"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:layout_margin="@dimen/button_margin"
-        android:padding="@dimen/button_padding"
-        android:textSize="@dimen/button_text_size"
-        android:text="@string/info_button"
-        android:visibility="invisible"
-        android:onClick="logInfoButton"/>
-
-    <Button
-        android:id="@+id/replay_button"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:layout_margin="@dimen/button_margin"
-        android:padding="@dimen/button_padding"
-        android:textSize="@dimen/button_text_size"
-        android:text="@string/replay_button"
-        android:visibility="invisible"
-        android:onClick="replayButton"/>
 
 </RelativeLayout>

@@ -95,7 +95,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 attrs, R.styleable.GameSurfaceView, 0, 0);
         int numCycles = a.getInt(R.styleable.GameSurfaceView_cycles, 1);
         int boarderColor = a.getColor(R.styleable.GameSurfaceView_boarder_color, 0);
-        //int backgroundColor = a.getColor(R.styleable.GameSurfaceView_background_color,0);
         int borderSize=a.getDimensionPixelSize(R.styleable.GameSurfaceView_border_length, 10);
         a.recycle();
 
@@ -463,8 +462,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mSwipeListener.receiveTouchEvent(event);
-        return true;
+        if(mState == RUNNING) {
+            mSwipeListener.receiveTouchEvent(event);
+            return true;
+        }
+        return false;
     }
 
 
