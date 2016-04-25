@@ -240,6 +240,14 @@ public class RectangleContainer {
 
 
     /**
+     * @return length of the boarder measured in pixels
+     */
+    public int getBorderLength() {
+        return mBorderLength;
+    }
+
+
+    /**
      * Draw the rectangle and border inside the canvas.
      * clips not yet supported.
      *

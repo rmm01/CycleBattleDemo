@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:boarder_color="@color/colorAccent"
+        app:text_color="@color/colorPrimary"
         app:border_length="5dp"
         app:cycles="2"/>
 
