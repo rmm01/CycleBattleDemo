@@ -248,7 +248,7 @@ public class RectangleContainer {
      * @return the x coordinate of the left face of the rectangle inside the container
      */
     public int getLeft() {
-        return mLeft - mHorizontalPadding;
+        return mLeft + mHorizontalPadding;
     }
 
 
@@ -358,7 +358,7 @@ public class RectangleContainer {
     public void drawText(Canvas canvas){
         if(mText.compareTo("") == 0)
             return;
-        Log.v(TAG, "Drawing text \"" + mText + "\", x = " + mTextPositionX + ", y = " + mTextPositionY    );
+        Log.v(TAG, "Drawing text \"" + mText + "\", x = " + mTextPositionX + ", y = " + mTextPositionY + "at time " + System.currentTimeMillis() );
         canvas.drawText(mText, mTextPositionX, mTextPositionY, mTextPaint);
     }
 
