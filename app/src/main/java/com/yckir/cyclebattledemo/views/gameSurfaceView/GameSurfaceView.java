@@ -47,6 +47,9 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private static final String     PAUSE_TIME_KEY          =   TAG + ":PAUSE_TIME";
     private static final String     TOTAL_PAUSE_DELAY_KEY   =   TAG + ":TOTAL_PAUSE_DELAY";
 
+    //how much of vertical space is reserved for the text area
+    private static final double TEXT_AREA_PERCENTAGE = 0.05;
+
     private GameManager mGameManager;
     private ReplayManager mReplayManager;
     private RectangleContainer mRectangleContainer;
@@ -58,6 +61,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     private int mWidth;
     private int mHeight;
+    private int mTextPositionX;
+    private int mTextPositionY;
     private int mState;
     private long mStartTime;
     private long mPauseTime;
@@ -82,6 +87,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mState = WAITING;
         mStartTime = 0;
         mPauseTime = 0;
+        mTextPositionX = 0;
+        mTextPositionY = 0;
         mTotalPauseDelay = 0;
         mWidth=0;
         mHeight=0;
@@ -178,6 +185,25 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         //successfully drew the image, set mode to draw only the cycle animations
         mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
         return  backgroundImageFile;
+    }
+
+
+    /**
+     * sets the position of the text to the center of the rectangle containers padding.
+     */
+    private void setTextPosition(){
+        //center of RectangleContainer padding;
+        int centerPadding = (mRectangleContainer.getVerticalPadding() / 2);
+
+        //length of RectangleContainer boarder
+        int boarderLength = mRectangleContainer.getBorderLength();
+
+        //the distance from the baseline to the center.
+        int baseLineOffset = (int) ((mPromptPaint.descent() + mPromptPaint.ascent()) / 2);
+
+        mTextPositionY = boarderLength + centerPadding - baseLineOffset;
+
+        mTextPositionX = mWidth / 2;
     }
 
 
@@ -363,9 +389,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mSurfaceDrawingTask.draw(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
         if(mPromptText.compareTo("") != 0) {
-            int xPos = (canvas.getWidth() / 2);
-            int yPos = canvas.getHeight() / 20;
-            canvas.drawText(mPromptText, xPos, yPos, mPromptPaint);
+            canvas.drawText(mPromptText, mTextPositionX, mTextPositionY, mPromptPaint);
         }
         mHolder.unlockCanvasAndPost(canvas);
     }
@@ -397,7 +421,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mWidth=width;
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
-            mRectangleContainer.setVerticalPadding(0.05);
+            mRectangleContainer.setVerticalPadding(TEXT_AREA_PERCENTAGE);
+
+            mPromptPaint.setTextSize( mRectangleContainer.getVerticalPadding() / 2 );
+            setTextPosition();
+
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
 
