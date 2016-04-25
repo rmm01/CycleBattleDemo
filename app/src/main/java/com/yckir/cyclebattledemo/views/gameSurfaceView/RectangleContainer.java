@@ -16,10 +16,13 @@ public class RectangleContainer {
     public static final String      TAG                     =   "RECTANGLE_CONTAINER";
     public static final int         DEFAULT_BORDER_LENGTH   =   10;
 
-    private String mText;
+    private String mTopText;
+    private String mBotText;
 
-    private int mTextPositionX;
-    private int mTextPositionY;
+    private int mTopTextPositionX;
+    private int mTopTextPositionY;
+    private int mBotTextPositionX;
+    private int mBotTextPositionY;
 
     //padding between the edge of the boarder and the inner content
     private int mVerticalPadding;
@@ -89,10 +92,14 @@ public class RectangleContainer {
         mTextPaint.setTextSize(1);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
 
-        mText = "";
+        mTopText = "";
+        mBotText = "";
 
-        mTextPositionX = 0;
-        mTextPositionY = 0;
+        mTopTextPositionX = 0;
+        mTopTextPositionY = 0;
+
+        mBotTextPositionX = 0;
+        mBotTextPositionY = 0;
 
         calculateDimensions();
     }
@@ -141,9 +148,13 @@ public class RectangleContainer {
 
         int baseLineOffset = (int) ( ( mTextPaint.descent() + mTextPaint.ascent() ) / 2 ) ;
 
-        mTextPositionY = mBorderLength + centerPadding - baseLineOffset;
+        mTopTextPositionY = mBorderLength + centerPadding - baseLineOffset;
 
-        mTextPositionX = mWidth / 2;
+        mTopTextPositionX = mWidth / 2;
+
+        mBotTextPositionX = mWidth / 2;
+
+        mBotTextPositionY = mHeight - (mBorderLength + centerPadding - baseLineOffset);
 
     }
 
@@ -203,26 +214,50 @@ public class RectangleContainer {
 
 
     /**
-     * @param text the text to be displayed if drawText is called
+     * @param text the text to be displayed at the top if drawText is called
      */
-    public void setText(String text){
-        mText = text;
+    public void setTopText(String text){
+        mTopText = text;
     }
 
 
     /**
-     * removes all text.
+     * @param text the text to be displayed at the bottom if drawText is called
      */
-    public void removeText(){
-        mText = "";
+    public void setBottomText(String text){
+        mBotText = text;
     }
 
 
     /**
-     * @return the text that will be displayed if drawText is called
+     * removes the top text
      */
-    public String getText(){
-        return mText;
+    public void removeTopText(){
+        mTopText = "";
+    }
+
+
+    /**
+     * removes the bottom text.
+     */
+    public void removeBottomText(){
+        mBotText = "";
+    }
+
+
+    /**
+     * @return the text that will be displayed at the top if drawText is called
+     */
+    public String getTopText(){
+        return mTopText;
+    }
+
+
+    /**
+     * @return the text that will be displayed at the bottom if drawText is called
+     */
+    public String getBottomText(){
+        return mBotText;
     }
 
 
@@ -350,15 +385,16 @@ public class RectangleContainer {
 
 
     /**
-     * draw text onto canvas. The position of the text will be centered on the top vertical
+     * draw text onto canvas. The position of the text will be centered on the vertical
      * padding of the view.
      *
      * @param canvas the canvas that will be drawn on.
      */
     public void drawText(Canvas canvas){
-        if(mText.compareTo("") == 0)
-            return;
-        canvas.drawText(mText, mTextPositionX, mTextPositionY, mTextPaint);
+        if(mTopText.compareTo("") != 0)
+            canvas.drawText(mTopText, mTopTextPositionX, mTopTextPositionY, mTextPaint);
+        if(mBotText.compareTo("") != 0)
+            canvas.drawText(mBotText, mBotTextPositionX, mBotTextPositionY, mTextPaint);
     }
 
 

@@ -38,7 +38,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public  static final int        FINISHED                =   3;
     private static final String     WIDTH_KEY               =   TAG + ":HEIGHT";
     private static final String     HEIGHT_KEY              =   TAG + ":WIDTH";
-    private static final String     TEXT_KEY                =   TAG + ":TEXT";
+    private static final String     TEXT_TOP_KEY                =   TAG + ":TEXT_TOP";
+    private static final String     TEXT_BOT_KEY                =   TAG + ":TEXT_BOT";
     private static final String     STATE_KEY               =   TAG + ":STATE";
     private static final String     START_TIME_KEY          =   TAG + ":START_TIME";
     private static final String     PAUSE_TIME_KEY          =   TAG + ":PAUSE_TIME";
@@ -247,14 +248,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
-     * set the text that you want to display near the top of the view. Text will not be shown while
-     * the game is running. redrawView() must be called to see changes. Will not redraw if in RUNNING State
+     * Set the text that you want to display at the top of the view.
+     * Will not redraw if in RUNNING State
      *
      * @param text text to be displayed.
      * @param redraw true if you want to redraw teh screen, false if not
      */
-    public void setText(@NonNull String text, boolean redraw){
-        mRectangleContainer.setText(text);
+    public void setTopText(@NonNull String text, boolean redraw){
+        mRectangleContainer.setTopText(text);
 
         if(mState == RUNNING)
             return;
@@ -294,12 +295,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
-     * Remove any text that is shown on the view. redrawView() must be called to see changes. Will not redraw if in RUNNING state
+     * Remove the text at the top. Will not redraw if in RUNNING state
      *
-     * @param redraw true if you want to redraw teh screen, false if not
+     * @param redraw true if you want to redraw the screen, false if not
      */
-    public void removeText(boolean redraw){
-        mRectangleContainer.removeText();
+    public void removeTopText(boolean redraw){
+        mRectangleContainer.removeTopText();
 
         if(mState == RUNNING)
             return;
@@ -392,7 +393,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         bundle.putParcelable("instanceState", super.onSaveInstanceState());
         bundle.putInt(WIDTH_KEY, mWidth);
         bundle.putInt(HEIGHT_KEY, mHeight);
-        bundle.putString(TEXT_KEY, mRectangleContainer.getText());
+        bundle.putString(TEXT_TOP_KEY, mRectangleContainer.getTopText());
+        bundle.putString(TEXT_BOT_KEY, mRectangleContainer.getBottomText());
         bundle.putInt(STATE_KEY, mState);
         bundle.putLong(START_TIME_KEY, mStartTime);
         bundle.putLong(PAUSE_TIME_KEY, mPauseTime);
@@ -409,7 +411,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             mWidth = bundle.getInt(WIDTH_KEY, 200);
             mHeight = bundle.getInt(HEIGHT_KEY, 200);
-            mRectangleContainer.setText( bundle.getString(TEXT_KEY) );
+            mRectangleContainer.setTopText( bundle.getString(TEXT_TOP_KEY) );
+            mRectangleContainer.setBottomText( bundle.getString(TEXT_BOT_KEY) );
             mState = bundle.getInt(STATE_KEY, WAITING);
             mStartTime = bundle.getLong(START_TIME_KEY, 0);
             mPauseTime = bundle.getLong(PAUSE_TIME_KEY,0);

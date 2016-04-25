@@ -254,7 +254,7 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
                 canvas.restore();
                 break;
             case LOADING_DRAW:
-                mRectangleContainer.setText("LOADING");
+                mRectangleContainer.setTopText("LOADING");
                 mRectangleContainer.drawText(canvas);
                 break;
 

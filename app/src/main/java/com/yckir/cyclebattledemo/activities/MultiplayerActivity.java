@@ -111,21 +111,21 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
                 mReadyCountdownAlarmId ++;
                 mSetCountdownAlarmId ++;
                 mTouchMode = START_TOUCH_MODE;
-                mGameSurfaceView.setText(mStartText, true);
+                mGameSurfaceView.setTopText(mStartText, true);
                 break;
             case GameSurfaceView.RUNNING:
                 mGameSurfaceView.pause(System.currentTimeMillis());
                 mSoundManager.pauseBackground();
                 mSoundManager.playSoundEffect(SoundManager.PAUSE_SOUND_ID);
                 mTouchMode = RESUME_TOUCH_MODE;
-                mGameSurfaceView.setText(mResumeText, true);
+                mGameSurfaceView.setTopText(mResumeText, true);
                 break;
             case GameSurfaceView.PAUSED:
                 mResumeAlarmId ++;
                 mReadyCountdownAlarmId ++;
                 mSetCountdownAlarmId ++;
                 mTouchMode = RESUME_TOUCH_MODE;
-                mGameSurfaceView.setText(mResumeText, true);
+                mGameSurfaceView.setTopText(mResumeText, true);
                 break;
             case GameSurfaceView.FINISHED:
                 break;
@@ -188,7 +188,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
         parseIntentBundle();
         createPauseDialog();
         FileUtility.createDirectories(this);
-        mGameSurfaceView.setText(mStartText, false);
+        mGameSurfaceView.setTopText(mStartText, false);
     }
 
 
@@ -277,7 +277,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
             case NEW_GAME_TOUCH_MODE:
                 mTouchMode = START_TOUCH_MODE;
-                mGameSurfaceView.setText(mStartText, false);
+                mGameSurfaceView.setTopText(mStartText, false);
                 mGameSurfaceView.newGame();
                 mSoundManager.stopSounds();
                 mSoundManager.playSoundEffect(SoundManager.PROMPT_SOUND_ID);
@@ -341,12 +341,12 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
     @Override
     public void alarm(int id) {
         if( id == mReadyCountdownAlarmId ){
-            mGameSurfaceView.setText(mReadyText, true);
+            mGameSurfaceView.setTopText(mReadyText, true);
             mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
         }
 
         if( id == mSetCountdownAlarmId ){
-            mGameSurfaceView.setText(mSetText, true);
+            mGameSurfaceView.setTopText(mSetText, true);
             mSoundManager.playSoundEffect(SoundManager.COUNTDOWN_SOUND_ID);
         }
 
@@ -365,7 +365,7 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
         if( id == mResultsAlarmId ){
             mTouchMode = NEW_GAME_TOUCH_MODE;
-            mGameSurfaceView.setText(mNewGameText, true);
+            mGameSurfaceView.setTopText(mNewGameText, true);
         }
     }
 
