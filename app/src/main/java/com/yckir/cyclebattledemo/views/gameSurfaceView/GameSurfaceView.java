@@ -6,7 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -57,19 +56,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private GameEventListener mGameEventListener = null;
     private SurfaceHolder mHolder;
     private FourRegionSwipeDetector mSwipeListener;
-    private Paint mPromptPaint;
 
     private int mWidth;
     private int mHeight;
-    private int mTextPositionX;
-    private int mTextPositionY;
     private int mState;
     private long mStartTime;
     private long mPauseTime;
     private long mTotalPauseDelay;
     private String mNumTilesX;
     private String mNumTilesY;
-    private String mPromptText = "";
+
 
 
     /**
@@ -87,8 +83,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         mState = WAITING;
         mStartTime = 0;
         mPauseTime = 0;
-        mTextPositionX = 0;
-        mTextPositionY = 0;
         mTotalPauseDelay = 0;
         mWidth=0;
         mHeight=0;
@@ -120,12 +114,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
         //width and height are unknown so the default size for frame and container is used
         mGameManager = new GameManager(getContext(), Integer.parseInt(mNumTilesX), Integer.parseInt(mNumTilesY), numCycles);
-        mRectangleContainer = new RectangleContainer(boarderColor, paddingColor, borderSize);
-
-        mPromptPaint = new Paint();
-        mPromptPaint.setColor(textColor);
-        mPromptPaint.setTextSize(45);//TODO:
-        mPromptPaint.setTextAlign(Paint.Align.CENTER);
+        mRectangleContainer = new RectangleContainer(boarderColor, paddingColor, textColor, borderSize);
+        mRectangleContainer.setVerticalPadding(TEXT_AREA_PERCENTAGE);
 
         mSwipeListener = new FourRegionSwipeDetector(getContext(), numCycles,
                 context.getResources().getDisplayMetrics(), this);
@@ -185,25 +175,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         //successfully drew the image, set mode to draw only the cycle animations
         mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
         return  backgroundImageFile;
-    }
-
-
-    /**
-     * sets the position of the text to the center of the rectangle containers padding.
-     */
-    private void setTextPosition(){
-        //center of RectangleContainer padding;
-        int centerPadding = (mRectangleContainer.getVerticalPadding() / 2);
-
-        //length of RectangleContainer boarder
-        int boarderLength = mRectangleContainer.getBorderLength();
-
-        //the distance from the baseline to the center.
-        int baseLineOffset = (int) ((mPromptPaint.descent() + mPromptPaint.ascent()) / 2);
-
-        mTextPositionY = boarderLength + centerPadding - baseLineOffset;
-
-        mTextPositionX = mWidth / 2;
     }
 
 
@@ -321,7 +292,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param redraw true if you want to redraw teh screen, false if not
      */
     public void setText(@NonNull String text, boolean redraw){
-        mPromptText = text;
+        mRectangleContainer.setText(text);
 
         if(mState == RUNNING)
             return;
@@ -366,7 +337,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
      * @param redraw true if you want to redraw teh screen, false if not
      */
     public void removeText(boolean redraw){
-        mPromptText = "";
+        mRectangleContainer.removeText();
 
         if(mState == RUNNING)
             return;
@@ -387,10 +358,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         Canvas canvas = mHolder.lockCanvas();
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         mSurfaceDrawingTask.draw(canvas);
+        mRectangleContainer.drawText(canvas);
         mSwipeListener.drawTouchBoundaries(canvas);
-        if(mPromptText.compareTo("") != 0) {
-            canvas.drawText(mPromptText, mTextPositionX, mTextPositionY, mPromptPaint);
-        }
         mHolder.unlockCanvasAndPost(canvas);
     }
 
@@ -421,10 +390,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mWidth=width;
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
-            mRectangleContainer.setVerticalPadding(TEXT_AREA_PERCENTAGE);
-
-            mPromptPaint.setTextSize( mRectangleContainer.getVerticalPadding() / 2 );
-            setTextPosition();
 
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
@@ -466,7 +431,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         bundle.putParcelable("instanceState", super.onSaveInstanceState());
         bundle.putInt(WIDTH_KEY, mWidth);
         bundle.putInt(HEIGHT_KEY, mHeight);
-        bundle.putString(TEXT_KEY, mPromptText);
+        bundle.putString(TEXT_KEY, mRectangleContainer.getText());
         bundle.putInt(STATE_KEY, mState);
         bundle.putLong(START_TIME_KEY, mStartTime);
         bundle.putLong(PAUSE_TIME_KEY, mPauseTime);
@@ -483,7 +448,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
             mWidth = bundle.getInt(WIDTH_KEY, 200);
             mHeight = bundle.getInt(HEIGHT_KEY, 200);
-            mPromptText = bundle.getString(TEXT_KEY);
+            mRectangleContainer.setText( bundle.getString(TEXT_KEY) );
             mState = bundle.getInt(STATE_KEY, WAITING);
             mStartTime = bundle.getLong(START_TIME_KEY, 0);
             mPauseTime = bundle.getLong(PAUSE_TIME_KEY,0);

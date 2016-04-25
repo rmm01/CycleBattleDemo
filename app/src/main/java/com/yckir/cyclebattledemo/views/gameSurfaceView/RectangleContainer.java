@@ -3,20 +3,29 @@ package com.yckir.cyclebattledemo.views.gameSurfaceView;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 
 /**
  * Given a canvas, you can specify a rectangle at its center and this class will draw a colored
- * border surrounding it.
+ * border surrounding it. Can also have padding in between the rectangle and boarder. If vertical
+ * padding exists, text can be drawn within the upper padding region.
  */
 public class RectangleContainer {
     public static final String      TAG                     =   "RECTANGLE_CONTAINER";
     public static final int         DEFAULT_BORDER_LENGTH   =   10;
 
+    private String mText;
+
+    private int mTextPositionX;
+    private int mTextPositionY;
+
     //padding between the edge of the boarder and the inner content
     private int mVerticalPadding;
     private int mHorizontalPadding;
+    private double mVerticalPaddingPercent;
+    private double mHorizontalPaddingPercent;
 
     private int mWidth;
     private int mHeight;
@@ -38,6 +47,7 @@ public class RectangleContainer {
     private Paint mBorderPaint;
     private Paint mBlackPaint;
     private Paint mPaddingColor;
+    private Paint mTextPaint;
 
     /**
      * Sets the color of the canvas, the color of the border, and length of the border.
@@ -45,10 +55,11 @@ public class RectangleContainer {
      *
      * @param borderColor this will be the color of the border
      * @param paddingColor this will be the color for the padding
+     * @param textColor this will be the color for the text
      * @param borderLength Length of the borders measured perpendicular from the inner rectangle
      *                     faces. The boarder is DEFAULT_BORDER_LENGTH if this value is negative.
      */
-    public RectangleContainer(int borderColor,int paddingColor, int borderLength){
+    public RectangleContainer(int borderColor,int paddingColor,int textColor, int borderLength){
         if(borderLength < 0)
             mBorderLength = DEFAULT_BORDER_LENGTH;
         else
@@ -59,8 +70,8 @@ public class RectangleContainer {
 
         mVerticalPadding = 0;
         mHorizontalPadding = 0;
-
-        calculateDimensions();
+        mVerticalPaddingPercent = 0;
+        mVerticalPaddingPercent = 0;
 
         mOriginalPaint = new Paint();
         mOriginalPaint.setColor(borderColor);
@@ -72,11 +83,23 @@ public class RectangleContainer {
 
         mPaddingColor = new Paint();
         mPaddingColor.setColor(paddingColor);
+
+        mTextPaint = new Paint();
+        mTextPaint.setColor(textColor);
+        mTextPaint.setTextSize(1);
+        mTextPaint.setTextAlign(Paint.Align.CENTER);
+
+        mText = "";
+
+        mTextPositionX = 0;
+        mTextPositionY = 0;
+
+        calculateDimensions();
     }
 
 
     /**
-     * Uses black as the boarder color from now on.
+     * Use black as the boarder color from now on. This is meant for debugging.
      */
     public void useBlackBoarder(){
         mBorderPaint = mBlackPaint;
@@ -84,7 +107,7 @@ public class RectangleContainer {
 
 
     /**
-     * used the color given when the constructor was initialized as the boarder color.
+     * Use the color given when the constructor was initialized as the boarder color.
      */
     public void useOriginalPaint(){
         mBorderPaint = mOriginalPaint;
@@ -92,10 +115,13 @@ public class RectangleContainer {
 
 
     /**
-     * Calculates values that width and height of the inner rectangle along with teh position of the
-     * border edges. This must be called before setContainerSize
+     * Calculates the dimensions for the inner rectangle, padding, boarder positions, and text
+     * position and text size.
      */
     private void calculateDimensions(){
+        mVerticalPadding = (int) ( (mHeight - mBorderLength) * mVerticalPaddingPercent);
+        mHorizontalPadding = (int) ( (mWidth - mBorderLength) * mHorizontalPaddingPercent);
+
         mRectangleWidth  = mWidth - mBorderLength * 2 - mHorizontalPadding * 2;
         mRectangleHeight = mHeight - mBorderLength * 2 - mVerticalPadding * 2;
 
@@ -108,6 +134,17 @@ public class RectangleContainer {
         mRightOuter  = mRight  + mBorderLength;
         mTopOuter    = mTop    - mBorderLength;
         mBottomOuter = mBottom + mBorderLength;
+
+        mTextPaint.setTextSize( mVerticalPadding / 2 );
+
+        int centerPadding = mVerticalPadding / 2 ;
+
+        int baseLineOffset = (int) ( ( mTextPaint.descent() + mTextPaint.ascent() ) / 2 ) ;
+
+        mTextPositionY = mBorderLength + centerPadding - baseLineOffset;
+
+        mTextPositionX = mWidth / 2;
+
     }
 
 
@@ -136,16 +173,14 @@ public class RectangleContainer {
     /**
      * Set the vertical padding between the boarder and its inner content.
      *
-     * @param verticalPadding horizontal padding percentage, IllegalArgumentException thrown if
+     * @param verticalPaddingPercent horizontal padding percentage, IllegalArgumentException thrown if
      *                          value is not between 0 and 1;
      */
-    public void setVerticalPadding(double verticalPadding){
-        if(verticalPadding < 0 || verticalPadding >1 ){
-            throw new IllegalArgumentException("invalid parameter, verticalPadding = " + verticalPadding);
+    public void setVerticalPadding(double verticalPaddingPercent){
+        if(verticalPaddingPercent < 0 || verticalPaddingPercent >1 ){
+            throw new IllegalArgumentException("invalid parameter, verticalPaddingPercent = " + verticalPaddingPercent);
         }
-
-        mVerticalPadding = (int) ((mHeight - mBorderLength) * verticalPadding);
-
+        mVerticalPaddingPercent = verticalPaddingPercent;
         calculateDimensions();
     }
 
@@ -153,17 +188,41 @@ public class RectangleContainer {
     /**
      * Set the horizontal padding between the boarder and its inner content.
      *
-     * @param horizontalPadding horizontal padding percentage, IllegalArgumentException thrown if
+     * @param horizontalPaddingPercent horizontal padding percentage, IllegalArgumentException thrown if
      *                          value is not between 0 and 1;
      */
-    public void setHorizontalPadding(double horizontalPadding){
-        if(horizontalPadding < 0 || horizontalPadding > 1){
-            throw new IllegalArgumentException("invalid parameter, horizontalPadding = " + horizontalPadding);
+    public void setHorizontalPadding(double horizontalPaddingPercent){
+        if(horizontalPaddingPercent < 0 || horizontalPaddingPercent > 1){
+            throw new IllegalArgumentException("invalid parameter, horizontalPaddingPercent = " + horizontalPaddingPercent);
         }
 
-        mHorizontalPadding = (int) ((mWidth - mBorderLength) * horizontalPadding);
+        mHorizontalPaddingPercent = horizontalPaddingPercent;
 
         calculateDimensions();
+    }
+
+
+    /**
+     * @param text the text to be displayed if drawText is called
+     */
+    public void setText(String text){
+        mText = text;
+    }
+
+
+    /**
+     * removes all text.
+     */
+    public void removeText(){
+        mText = "";
+    }
+
+
+    /**
+     * @return the text that will be displayed if drawText is called
+     */
+    public String getText(){
+        return mText;
     }
 
 
@@ -251,13 +310,13 @@ public class RectangleContainer {
      * Draw the rectangle and border inside the canvas.
      * clips not yet supported.
      *
-     * @param c the canvas that will be drawn on.
+     * @param canvas the canvas that will be drawn on.
      */
-    public void drawBorder(Canvas c){
-        c.drawColor(mPaddingColor.getColor());
+    public void drawBorder(Canvas canvas){
+        canvas.drawColor(mPaddingColor.getColor());
 
         //left wall
-        c.drawRect(
+        canvas.drawRect(
                 mLeftOuter,
                 mTopOuter,
                 mLeft,
@@ -265,7 +324,7 @@ public class RectangleContainer {
                 mBorderPaint);
 
         //right wall
-        c.drawRect(
+        canvas.drawRect(
                 mRight,
                 mTopOuter,
                 mRightOuter,
@@ -273,7 +332,7 @@ public class RectangleContainer {
                 mBorderPaint);
 
         //top wall
-        c.drawRect(
+        canvas.drawRect(
                 mLeft,
                 mTopOuter,
                 mRight,
@@ -281,12 +340,26 @@ public class RectangleContainer {
                 mBorderPaint);
 
         //bottom wall
-        c.drawRect(
+        canvas.drawRect(
                 mLeft,
                 mBottom,
                 mRight,
                 mBottomOuter,
                 mBorderPaint);
+    }
+
+
+    /**
+     * draw text onto canvas. The position of the text will be centered on the top vertical
+     * padding of the view.
+     *
+     * @param canvas the canvas that will be drawn on.
+     */
+    public void drawText(Canvas canvas){
+        if(mText.compareTo("") == 0)
+            return;
+        Log.v(TAG, "Drawing text \"" + mText + "\", x = " + mTextPositionX + ", y = " + mTextPositionY    );
+        canvas.drawText(mText, mTextPositionX, mTextPositionY, mTextPaint);
     }
 
 
