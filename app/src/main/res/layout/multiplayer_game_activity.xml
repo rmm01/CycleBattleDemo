@@ -8,7 +8,8 @@
     <ImageView
         android:id="@+id/background_image_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="#000000"/>
 
     <com.yckir.cyclebattledemo.views.gameSurfaceView.GameSurfaceView
         android:id="@+id/multiplayer_game_view"
