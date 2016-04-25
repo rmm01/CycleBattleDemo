@@ -4,9 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +24,6 @@ import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.SoundManager;
 
-import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -317,12 +314,15 @@ public class MultiplayerActivity extends AppCompatActivity implements GameSurfac
 
 
     @Override
-    public void backgroundReady(File file) {
-
-        Bitmap myBitmap = BitmapFactory.decodeFile(file.getPath());
-        BitmapDrawable drawable = new BitmapDrawable(getResources(),myBitmap);
-
-        mBackgroundView.setImageDrawable(drawable);
+    public boolean backgroundReady(Bitmap bitmap) {
+        if(bitmap != null) {
+            mBackgroundView.setImageBitmap(bitmap);
+            return true;
+        }
+        else {
+            Log.w(TAG, "background image is null");
+            return false;
+        }
     }
 
 

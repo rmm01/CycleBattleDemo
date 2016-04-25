@@ -20,11 +20,9 @@ import android.view.SurfaceView;
 import com.yckir.cyclebattledemo.R;
 import com.yckir.cyclebattledemo.utility.ClassStateString;
 import com.yckir.cyclebattledemo.utility.Compass;
-import com.yckir.cyclebattledemo.utility.FileUtility;
 import com.yckir.cyclebattledemo.utility.FourRegionSwipeDetector;
 import com.yckir.cyclebattledemo.utility.GameResultsData;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -60,17 +58,16 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private int mWidth;
     private int mHeight;
     private int mState;
+    private String mNumTilesX;
+    private String mNumTilesY;
     private long mStartTime;
     private long mPauseTime;
     private long mTotalPauseDelay;
-    private String mNumTilesX;
-    private String mNumTilesY;
-
 
 
     /**
      * constructs the view. Custom xml attributes are read. default values are
-     * tiles_x = 6, tiles_y = 6, cycles = 1, border_length = 10. All default colors are black except
+     * tiles_x = 6, tiles_y = 6, cycles = 2, border_length = 10. All default colors are black except
      * for text which is blue.
      * GameContainer, GameManager, and SurfaceDrawingTask are constructed using these attributes.
      *
@@ -91,7 +88,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         //get custom xml attributes
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs, R.styleable.GameSurfaceView, 0, 0);
-        int numCycles = a.getInt(R.styleable.GameSurfaceView_cycles, 1);
+        int numCycles = a.getInt(R.styleable.GameSurfaceView_cycles, 2);
         int boarderColor = a.getColor(R.styleable.GameSurfaceView_boarder_color, Color.BLACK);
         int paddingColor = a.getColor(R.styleable.GameSurfaceView_padding_color, Color.BLACK);
         int textColor = a.getColor(R.styleable.GameSurfaceView_text_color, Color.BLUE);
@@ -129,52 +126,17 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
 
     /**
-     * Creates and saves the background image onto a file. If the the file exists, it retrieves and
-     * returns that file. Sets the
-     * {@link com.yckir.cyclebattledemo.views.gameSurfaceView.SurfaceDrawingTask.Draw_Mode}
-     *  of mSurfaceDrawingTask.
-     *
-     * @param width the width in pixels of the image
-     * @param height the height in pixels of the image
-     * @param numTilesX the number of tiles in the x direction
-     * @param numTilesY the number of tiles in the y direction
-     * @return File of the background image, null if the file could not be made,
+     * @return bitmap of the background image.
      */
-    private File createBackgroundImage(int width, int height, int numTilesX, int numTilesY){
-
-        String fileName = FileUtility.getBackgroundFileName(width, height,
-                numTilesX, numTilesY);
-
-        //if file exists, set the mode and return
-        if(FileUtility.backgroundFileExists(fileName, getContext())){
-            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
-            return FileUtility.getBackgroundFile(fileName, getContext());
-        }
-
-        File backgroundImageFile = FileUtility.getBackgroundFile(fileName, getContext());
-
-        //if cant make the file, set mode to draw background and animations
-        if(backgroundImageFile == null){
-            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
-            return null;
-        }
-
-        //draw the image onto a canvas
-        mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.BACKGROUND_DRAW);
+    private Bitmap createBackground(){
         Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
+        int mode = mSurfaceDrawingTask.getDrawMode();
+
+        mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.BACKGROUND_DRAW);
         mSurfaceDrawingTask.draw(canvas);
-
-        // if cant write image to file, set set mode to draw background and animations
-        if( !FileUtility.writeBitmapToPNG(bitmap, backgroundImageFile )){
-            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
-            FileUtility.deleteBackgroundFile(fileName, getContext());
-            return null;
-        }
-
-        //successfully drew the image, set mode to draw only the cycle animations
-        mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
-        return  backgroundImageFile;
+        mSurfaceDrawingTask.setDrawMode(mode);
+        return bitmap;
     }
 
 
@@ -394,11 +356,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
         }
 
-        File backgroundFile = createBackgroundImage(width, height,
-                Integer.parseInt(mNumTilesX), Integer.parseInt(mNumTilesY));
-
-        if(backgroundFile != null)
-            mGameEventListener.backgroundReady(backgroundFile);
+        Bitmap bitmap = createBackground();
+        if(mGameEventListener.backgroundReady(bitmap))
+            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
+        else
+            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
 
         redrawView();
     }
@@ -526,9 +488,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         /**
          * Called when the background file is ready to be used.
          *
-         * @param file the background image
+         * @param bitmap the bitmap for the background
+         * @return true if the background was successfully set, false otherwise
          */
-        void backgroundReady(File file);
+        boolean backgroundReady(Bitmap bitmap);
 
         /**
          * Called when a cycle has successfully changed directions
