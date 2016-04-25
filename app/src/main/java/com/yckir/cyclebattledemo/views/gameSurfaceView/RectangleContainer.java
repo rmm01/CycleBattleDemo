@@ -358,7 +358,6 @@ public class RectangleContainer {
     public void drawText(Canvas canvas){
         if(mText.compareTo("") == 0)
             return;
-        Log.v(TAG, "Drawing text \"" + mText + "\", x = " + mTextPositionX + ", y = " + mTextPositionY + "at time " + System.currentTimeMillis() );
         canvas.drawText(mText, mTextPositionX, mTextPositionY, mTextPaint);
     }
 

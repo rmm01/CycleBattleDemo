@@ -72,7 +72,6 @@ public class SoundManager {
     private SoundPool mSoundPool;
     private HashMap<Integer, Integer> mSoundPoolMap;
     private MediaPlayer mMediaPlayer;
-    private AudioManager mAudioManager;
     private boolean mSoundEffectsDisabled;
     private boolean mBackgroundMusicDisabled;
 
@@ -88,8 +87,6 @@ public class SoundManager {
         mPlayWhenReady = false;
         mPrepared = false;
         mBackgroundId = backgroundId;
-
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -144,9 +141,7 @@ public class SoundManager {
                 mPrepared = true;
                 mp.seekTo(startTime);
 
-                float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                mp.setVolume(streamVolume, streamVolume);
+                mp.setVolume(0.5f,0.5f);
 
                 if(mPlayWhenReady)
                     mp.start();
@@ -256,9 +251,7 @@ public class SoundManager {
     public void playSoundEffect(@SOUND_EFFECTS int id){
         if( mSoundEffectsDisabled )
             return;
-        float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        mSoundPool.play(mSoundPoolMap.get(id),streamVolume,streamVolume,1,0,1);
+        mSoundPool.play(mSoundPoolMap.get(id),0.4f,0.4f,1,0,1);
     }
 
 

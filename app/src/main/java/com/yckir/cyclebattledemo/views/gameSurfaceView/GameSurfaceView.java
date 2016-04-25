@@ -348,7 +348,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         //Log.v(TAG, "surfaceChanged:\n format: " + format + ", w = " + width + ", h = " + height
         //+ ", oldW = " +getWidth() + ", oldH = " + getHeight());
         if( mState == WAITING ) {
-            Log.v(TAG, "surfaceChanged");
             mWidth=width;
             mHeight=height;
             mRectangleContainer.setContainerSize(width, height);
