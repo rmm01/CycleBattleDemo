@@ -110,4 +110,10 @@
     <string name="credits_art">Art</string>
     <string name="credits_music">Music</string>
     <string name="credits_sound_effects">Sound effects</string>
+    <string name="credits_testers">Testers</string>
+
+    <string name="bella">Bella</string>
+    <string name="jj">JJ</string>
+    <string name="maritza">Maritza</string>
+
 </resources>

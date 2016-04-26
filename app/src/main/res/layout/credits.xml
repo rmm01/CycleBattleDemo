@@ -120,4 +120,46 @@
         android:paddingBottom="@dimen/credits_vertical_padding"
         android:paddingTop="@dimen/credits_vertical_padding"
         android:text="@string/link7"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:text="@string/credits_testers"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/credits_horizontal_padding"
+        android:paddingStart="@dimen/credits_horizontal_padding"
+        android:paddingEnd="@dimen/credits_horizontal_padding"
+        android:paddingRight="@dimen/credits_horizontal_padding"
+        android:paddingBottom="@dimen/credits_vertical_padding"
+        android:paddingTop="@dimen/credits_vertical_padding"
+        android:text="@string/bella"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/credits_horizontal_padding"
+        android:paddingStart="@dimen/credits_horizontal_padding"
+        android:paddingEnd="@dimen/credits_horizontal_padding"
+        android:paddingRight="@dimen/credits_horizontal_padding"
+        android:paddingBottom="@dimen/credits_vertical_padding"
+        android:paddingTop="@dimen/credits_vertical_padding"
+        android:text="@string/jj"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/credits_horizontal_padding"
+        android:paddingStart="@dimen/credits_horizontal_padding"
+        android:paddingEnd="@dimen/credits_horizontal_padding"
+        android:paddingRight="@dimen/credits_horizontal_padding"
+        android:paddingBottom="@dimen/credits_vertical_padding"
+        android:paddingTop="@dimen/credits_vertical_padding"
+        android:text="@string/maritza"/>
+
 </LinearLayout>
