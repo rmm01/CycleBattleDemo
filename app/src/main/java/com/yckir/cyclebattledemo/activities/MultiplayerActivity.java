@@ -36,7 +36,7 @@ import java.util.HashMap;
  */
 public class MultiplayerActivity extends AppCompatActivity implements GameSurfaceView.GameEventListener, AlarmHandler.AlarmListener {
 
-    public  static final String     TAG                         =   "PRACTICE_GAME";
+    public  static final String     TAG                         =   "MULTIPLAYER_GAME";
     public  static final String     NUM_PLAYERS_BUNDLE_KEY      =   TAG + ":NUM_PLAYERS";
     private static final String     TOUCH_MODE_KEY              =   TAG + ":TOUCH_MODE";
     private static final String     BACKGROUND_TIME_KEY         =   TAG + ":BACKGROUND_TIME";

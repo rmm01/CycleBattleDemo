@@ -32,10 +32,12 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         SurfaceDrawingTask.DrawingTaskListener, FourRegionSwipeDetector.OnRegionSwipeListener {
 
     public  static final String     TAG                     =   "GAME_SURFACE_VIEW";
-    public  static final int        WAITING                 =   0;
-    public  static final int        RUNNING                 =   1;
-    public  static final int        PAUSED                  =   2;
-    public  static final int        FINISHED                =   3;
+    public  static final int        LOADING                 =   0;
+    public  static final int        WAITING                 =   1;
+    public  static final int        RUNNING                 =   2;
+    public  static final int        PAUSED                  =   3;
+    public  static final int        FINISHED                =   4;
+
     private static final String     WIDTH_KEY               =   TAG + ":HEIGHT";
     private static final String     HEIGHT_KEY              =   TAG + ":WIDTH";
     private static final String     TEXT_TOP_KEY                =   TAG + ":TEXT_TOP";
@@ -78,7 +80,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public GameSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mState = WAITING;
+        mState = LOADING;
         mStartTime = 0;
         mPauseTime = 0;
         mTotalPauseDelay = 0;
@@ -280,6 +282,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
                 return "FINISHED";
             case WAITING:
                 return "WAITING";
+            case LOADING:
+                return "LOADING";
             default:
                 return "UNKNOWN";
         }
@@ -348,21 +352,29 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         //Log.v(TAG, "surfaceChanged:\n format: " + format + ", w = " + width + ", h = " + height
         //+ ", oldW = " +getWidth() + ", oldH = " + getHeight());
-        if( mState == WAITING ) {
-            mWidth=width;
-            mHeight=height;
+
+        if(width == 0 || height == 0)
+            return;
+
+        if( width != mWidth || height != mHeight ) {
+
+            mWidth = width;
+            mHeight = height;
             mRectangleContainer.setContainerSize(width, height);
 
             mGameManager.setFrameSize(mRectangleContainer.getRectangleWidth(), mRectangleContainer.getRectangleHeight());
+
+            Bitmap bitmap = createBackground();
+            if (mGameEventListener.backgroundReady(bitmap))
+                mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
+            else
+                mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
+
+            if (mState == LOADING)
+                mState = WAITING;
         }
-
-        Bitmap bitmap = createBackground();
-        if(mGameEventListener.backgroundReady(bitmap))
-            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.ANIMATION_DRAW);
-        else
-            mSurfaceDrawingTask.setDrawMode(SurfaceDrawingTask.FULL_DRAW);
-
         redrawView();
+
     }
 
 
