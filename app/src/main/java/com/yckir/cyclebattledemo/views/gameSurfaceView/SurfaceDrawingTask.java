@@ -28,10 +28,9 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
      *
      * FullDraw:   the background and the animation will be drawn together.<br>
      * ANIMATION_DRAW:   the animation will be drawn.<br>
-     * BACKGROUND_DRAW:   the background will be drawn.<br>
-     * LOADING_DRAW:   the loading screen will be drawn.<br>
+     * BACKGROUND_DRAW:   the background will be drawn.
      */
-    @IntDef({FULL_DRAW,ANIMATION_DRAW,BACKGROUND_DRAW,LOADING_DRAW})
+    @IntDef({FULL_DRAW,ANIMATION_DRAW,BACKGROUND_DRAW})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Draw_Mode{}
 
@@ -47,10 +46,6 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
      * the background will be drawn
      */
     public static final int BACKGROUND_DRAW = 2;
-    /**
-     * the loading screen will be drawn
-     */
-    public static final int LOADING_DRAW = 3;
 
     public static String TAG="SURFACE_DRAWING_TASK";
 
@@ -128,12 +123,11 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
         mDrawingMode = mode;
 
         // the rectangle color is changed so that the modes can be distinguished while debugging
-        //TODO: remove me for final product
-        if(mode == FULL_DRAW)
-           mRectangleContainer.useBlackBoarder();
+        //if(mode == FULL_DRAW)
+        //   mRectangleContainer.useBlackBoarder();
 
-        if(mode == BACKGROUND_DRAW)
-            mRectangleContainer.useOriginalPaint();
+        //if(mode == BACKGROUND_DRAW)
+        //    mRectangleContainer.useOriginalPaint();
     }
 
 
@@ -253,11 +247,6 @@ public class SurfaceDrawingTask extends AsyncTask<Long, Integer, Void>{
                 mGameManager.drawBackground(canvas);
                 canvas.restore();
                 break;
-            case LOADING_DRAW:
-                mRectangleContainer.setTopText("LOADING");
-                mRectangleContainer.drawText(canvas);
-                break;
-
         }
     }
 
