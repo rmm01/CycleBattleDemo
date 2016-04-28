@@ -25,10 +25,6 @@
             android:screenOrientation="portrait" >
         </activity>
 
-        <activity android:name=".activities.TestTouchActivity" />
-
-        <activity android:name=".activities.TestSoundActivity" />
-
         <activity android:name=".activities.SettingsActivity" />
 
         <activity android:name=".activities.CreditsActivity" />
